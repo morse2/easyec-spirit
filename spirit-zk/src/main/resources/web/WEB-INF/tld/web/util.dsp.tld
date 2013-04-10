@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+        version="2.0">
+
+    <tlib-version>1.0</tlib-version>
+    <short-name>util</short-name>
+    <uri>http://easyec.googlecode.com/dsp/web/util</uri>
+
+    <function>
+        <name>l</name>
+        <function-class>com.googlecode.easyec.zkoss.utils.CommonFnsUtils</function-class>
+        <function-signature>java.lang.String getLabel(java.lang.String)</function-signature>
+    </function>
+
+    <function>
+        <name>l2</name>
+        <function-class>com.googlecode.easyec.zkoss.utils.CommonFnsUtils</function-class>
+        <function-signature>java.lang.String getLabel(java.lang.String,java.lang.Object[])</function-signature>
+    </function>
+
+    <function>
+        <name>l3</name>
+        <function-class>com.googlecode.easyec.zkoss.utils.CommonFnsUtils</function-class>
+        <function-signature>java.lang.String getLabel(java.lang.String,java.lang.Object)</function-signature>
+    </function>
+
+    <function>
+        <name>l4</name>
+        <function-class>com.googlecode.easyec.zkoss.utils.CommonFnsUtils</function-class>
+        <function-signature>
+            java.lang.String getLabel(java.lang.String,java.lang.Object,java.lang.Object[])
+        </function-signature>
+    </function>
+</taglib>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <taglib>
+        <taglib-uri>http://easyec.googlecode.com/dsp/web/util</taglib-uri>
+        <taglib-location>/web/WEB-INF/tld/web/util.dsp.tld</taglib-location>
+    </taglib>
+</config>

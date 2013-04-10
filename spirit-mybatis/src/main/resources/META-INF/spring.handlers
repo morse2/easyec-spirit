@@ -1,0 +1,2 @@
+http\://easyec.googlecode.com/schema/paging/mybatis=com.googlecode.easyec.spirit.mybatis.paging.config.PageConfigurerNamespaceHandler
+http\://easyec.googlecode.com/schema/cache/mybatis=com.googlecode.easyec.spirit.mybatis.cache.config.MybatisCacheAspectNamespaceHandler

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://easyec.googlecode.com/schema/paging/mybatis"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:beans="http://www.springframework.org/schema/beans"
+            targetNamespace="http://easyec.googlecode.com/schema/paging/mybatis"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified">
+
+    <xsd:import namespace="http://www.springframework.org/schema/beans"/>
+
+    <xsd:element name="mybatis-config">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="beans:identifiedType">
+                    <xsd:attribute name="dialect" type="named-dialect" use="required"/>
+                    <xsd:attribute name="pageSize" type="xsd:int" default="10"/>
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:simpleType name="named-dialect">
+        <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="MySQL"/>
+            <xsd:enumeration value="Oracle"/>
+            <xsd:enumeration value="PostgreSQL"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+</xsd:schema>
