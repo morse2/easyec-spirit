@@ -69,7 +69,7 @@ public abstract class AbstractSoapFactory implements SoapFactory {
      * @param name     被编组的父节点元素名
      * @throws Exception
      */
-    private void doMarshal(Object o, Element envelope, QName name) throws Exception {
+    protected void doMarshal(Object o, Element envelope, QName name) throws Exception {
         String s = marshal(o);
         logger.debug(name.getName() + "'s content: [" + s + "].");
 
@@ -114,7 +114,7 @@ public abstract class AbstractSoapFactory implements SoapFactory {
      * @return SOAP对象实例
      * @throws Exception
      */
-    private Object doUnmarshal(Element element) throws Exception {
+    protected Object doUnmarshal(Element element) throws Exception {
         if (null == element) return null;
 
         List children = element.elements();
