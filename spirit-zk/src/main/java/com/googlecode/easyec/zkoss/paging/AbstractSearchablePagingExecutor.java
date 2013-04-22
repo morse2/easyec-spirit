@@ -10,6 +10,7 @@ import org.zkoss.zul.impl.FormatInputElement;
 import org.zkoss.zul.impl.NumberInputElement;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -63,6 +64,8 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
 
     @Override
     public void doInit() {
+        this.searchComponents = new ArrayList<Component>(5);
+
         super.doInit();
 
         setSearchSelectors(SELECTORS);
