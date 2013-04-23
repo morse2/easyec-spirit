@@ -10,14 +10,13 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
-import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
 
-import static com.googlecode.easyec.spirit.mybatis.executor.support.SqlSessionTemplateHolder.remove;
-import static com.googlecode.easyec.spirit.mybatis.executor.support.SqlSessionTemplateHolder.set;
+import static com.googlecode.easyec.spirit.mybatis.executor.support.SqlSessionTemplateHolder.*;
 
 /**
  * <code>SqlSessionTemplate</code>决定拦截器类。
@@ -76,51 +75,56 @@ public class SqlSessionTemplateDecisionInterceptor implements Ordered {
      */
     @Around("execution(* com.*..*.service.*Service.*(..))")
     public Object decide(ProceedingJoinPoint joinPoint) throws Throwable {
-        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        // 如果当前线程中已经存在SqlSessionTemplate对象的话，
+        // 则直接使用此对象访问数据源
+        if (null != get()) return joinPoint.proceed(joinPoint.getArgs());
 
         try {
             if (executeWithinBatch) {
-                Batch batch = signature.getMethod().getAnnotation(Batch.class);
+                Object target = joinPoint.getTarget();
 
-                if (null == batch) {
-                    Method method = ReflectionUtils.findMethod(
-                            joinPoint.getTarget().getClass(),
-                            signature.getName(),
-                            signature.getParameterTypes()
-                    );
-
-                    if (null != method) batch = method.getAnnotation(Batch.class);
+                Class<?> targetClass = AopUtils.getTargetClass(target);
+                if (null == targetClass) {
+                    targetClass = target.getClass();
                 }
 
+                // 强转成方法签名类
+                MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+                Method method = AopUtils.getMostSpecificMethod(signature.getMethod(), targetClass);
+                if (null == method) {
+                    method = signature.getMethod();
+                }
+
+                Batch batch = method.getAnnotation(Batch.class);
                 if (null != batch) {
-                    createSqlSessionTemplate(signature.getDeclaringType(), true);
+                    createSqlSessionTemplate(true);
                 } else {
-                    createSqlSessionTemplate(signature.getDeclaringType(), false);
+                    createSqlSessionTemplate(false);
                 }
             } else {
-                createSqlSessionTemplate(signature.getDeclaringType(), false);
+                createSqlSessionTemplate(false);
             }
 
             return joinPoint.proceed(joinPoint.getArgs());
         } finally {
-            remove(signature.getDeclaringType());
+            remove();
         }
     }
 
-    private void createSqlSessionTemplate(Class<?> declaringType, boolean executeWithinBatch) {
+    private void createSqlSessionTemplate(boolean executeWithinBatch) {
         if (executeWithinBatch) {
-            set(declaringType, new BatchSqlSessionTemplate(sqlSessionFactory));
+            set(new BatchSqlSessionTemplate(sqlSessionFactory));
         } else {
             ExecutorType executorType = sqlSessionFactory.getConfiguration().getDefaultExecutorType();
             switch (executorType) {
                 case SIMPLE:
-                    set(declaringType, new SimpleSqlSessionTemplate(sqlSessionFactory));
+                    set(new SimpleSqlSessionTemplate(sqlSessionFactory));
                     break;
                 case REUSE:
-                    set(declaringType, new ReuseSqlSessionTemplate(sqlSessionFactory));
+                    set(new ReuseSqlSessionTemplate(sqlSessionFactory));
                     break;
                 case BATCH:
-                    set(declaringType, new BatchSqlSessionTemplate(sqlSessionFactory));
+                    set(new BatchSqlSessionTemplate(sqlSessionFactory));
                     break;
                 default:
                     throw new IllegalStateException("Unknown default executor type in MyBatis configuration file.");

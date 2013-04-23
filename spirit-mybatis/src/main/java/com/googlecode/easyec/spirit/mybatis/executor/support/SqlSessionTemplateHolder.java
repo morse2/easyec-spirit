@@ -1,11 +1,10 @@
 package com.googlecode.easyec.spirit.mybatis.executor.support;
 
+import com.googlecode.easyec.spirit.mybatis.executor.template.BatchSqlSessionTemplate;
+import com.googlecode.easyec.spirit.mybatis.executor.template.ReuseSqlSessionTemplate;
+import com.googlecode.easyec.spirit.mybatis.executor.template.SimpleSqlSessionTemplate;
 import org.mybatis.spring.SqlSessionTemplate;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import org.springframework.util.Assert;
 
 /**
  * <code>SqlSessionTemplate</code>的holder类。
@@ -17,76 +16,41 @@ import static org.apache.commons.collections.CollectionUtils.isEmpty;
  */
 public final class SqlSessionTemplateHolder {
 
-    private static ThreadLocal<List<SqlSessionTemplateRef>> _t = new ThreadLocal<List<SqlSessionTemplateRef>>();
+    private static final ThreadLocal<SqlSessionTemplate> _t = new ThreadLocal<SqlSessionTemplate>();
 
     private SqlSessionTemplateHolder() {
         // no op
     }
 
+    /**
+     * 从当前线程中获取{@link SqlSessionTemplate}对象的实例。
+     * <p>此对象实例依赖于{@link SqlSessionTemplateDecisionInterceptor}的判断</p>
+     *
+     * @return <code>SqlSessionTemplate</code>对象
+     */
     public static SqlSessionTemplate get() {
-        List<SqlSessionTemplateRef> list = _t.get();
-
-        if (isEmpty(list)) return null;
-
-        SqlSessionTemplate sqlSessionTemplate = list.get(0).getSqlSessionTemplate();
-        switch (sqlSessionTemplate.getExecutorType()) {
-            case BATCH:
-                return sqlSessionTemplate;
-            default:
-                return list.get(list.size() - 1).getSqlSessionTemplate();
-        }
+        return _t.get();
     }
 
-    public static void set(Class<?> type, SqlSessionTemplate sqlSessionTemplate) {
-        List<SqlSessionTemplateRef> list = _t.get();
-
-        boolean master = false;
-        if (isEmpty(list)) {
-            list = new ArrayList<SqlSessionTemplateRef>(5);
-            master = true;
-        }
-
-        list.add(new SqlSessionTemplateRef(master, type, sqlSessionTemplate));
-        _t.set(list);
+    /**
+     * 为当前线程设置一个<code>SqlSessionTemplate</code>的实例。
+     * <p>在调用此方法后，只要在此线程中的应用，都可以通过{@link #get()}方法来获取<code>SqlSessionTemplate</code>的实例。</p>
+     *
+     * @param sqlSessionTemplate {@link SqlSessionTemplate}对象
+     * @see SimpleSqlSessionTemplate
+     * @see ReuseSqlSessionTemplate
+     * @see BatchSqlSessionTemplate
+     */
+    public static void set(SqlSessionTemplate sqlSessionTemplate) {
+        Assert.notNull(sqlSessionTemplate, "SqlSessionTemplate object is null.");
+        _t.set(sqlSessionTemplate);
     }
 
-    public static void remove(Class<?> type) {
-        List<SqlSessionTemplateRef> list = _t.get();
-
-        if (null != list) {
-            for (int i = 0; i < list.size(); i++) {
-                if (type.equals(list.get(i).getType())) {
-                    list.remove(i);
-                    break;
-                }
-            }
-
-            if (list.isEmpty()) _t.remove();
-        }
-    }
-
-    private static class SqlSessionTemplateRef {
-
-        private boolean master;
-        private Class<?> type;
-        private SqlSessionTemplate sqlSessionTemplate;
-
-        private SqlSessionTemplateRef(boolean master, Class<?> type, SqlSessionTemplate sqlSessionTemplate) {
-            this.master = master;
-            this.type = type;
-            this.sqlSessionTemplate = sqlSessionTemplate;
-        }
-
-        public boolean isMaster() {
-            return master;
-        }
-
-        public Class<?> getType() {
-            return type;
-        }
-
-        public SqlSessionTemplate getSqlSessionTemplate() {
-            return sqlSessionTemplate;
-        }
+    /**
+     * 从当前线程中删除<code>SqlSessionTemplate</code>的实例对象。
+     * <p>注意：调用此方法后，方法{@link #get()}则返回null</p>
+     */
+    public static void remove() {
+        _t.set(null);
     }
 }
