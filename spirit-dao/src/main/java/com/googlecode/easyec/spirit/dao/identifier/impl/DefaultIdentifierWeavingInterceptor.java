@@ -16,7 +16,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 
-import static org.springframework.transaction.TransactionDefinition.ISOLATION_READ_COMMITTED;
+import static org.springframework.transaction.TransactionDefinition.ISOLATION_REPEATABLE_READ;
 import static org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW;
 
 /**
@@ -74,7 +74,7 @@ public class DefaultIdentifierWeavingInterceptor implements IdentifierWeavingInt
         if (null != transactionManager) {
             TransactionTemplate t = new TransactionTemplate(transactionManager);
             t.setPropagationBehavior(PROPAGATION_REQUIRES_NEW);
-            t.setIsolationLevel(ISOLATION_READ_COMMITTED);
+            t.setIsolationLevel(ISOLATION_REPEATABLE_READ);
 
             t.execute(new TransactionCallbackWithoutResult() {
 

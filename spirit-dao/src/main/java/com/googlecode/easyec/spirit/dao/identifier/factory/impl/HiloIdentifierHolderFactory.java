@@ -30,11 +30,10 @@ import static org.springframework.jdbc.datasource.DataSourceUtils.releaseConnect
 import static org.springframework.util.ClassUtils.getQualifiedName;
 
 /**
- * Created with IntelliJ IDEA.
- * User: Administrator
- * Date: 12-11-12
- * Time: 下午12:02
- * To change this template use File | Settings | File Templates.
+ * HILO算法的主键标识句柄工厂类。
+ * <p>该类使用了HILO算法来计算表主键的值</p>
+ *
+ * @author JunJie
  */
 public class HiloIdentifierHolderFactory extends AbstractIdentifierHolderFactory implements FactoryBean<IdentifierHolderFactory> {
 
@@ -73,7 +72,7 @@ public class HiloIdentifierHolderFactory extends AbstractIdentifierHolderFactory
     }
 
     @Override
-    public void generate(final IdentifierNameResolver identifierNameResolver, Object o) throws Exception {
+    public synchronized void generate(final IdentifierNameResolver identifierNameResolver, Object o) throws Exception {
         // 第一步，将对象解析成集合类
         final Collection c = convertToCollection(o);
         // 第二步，过滤集合类中的元素。依据：不存在属性uidPk的元素会被过滤，或uidPk有值，或uidPk值大于0
