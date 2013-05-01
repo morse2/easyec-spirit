@@ -21,19 +21,28 @@ import static org.zkoss.zk.ui.Executions.getCurrent;
  *
  * @author JunJie
  */
-public abstract class BaseFormVM extends BaseVM {
+public abstract class BaseFormVM<T extends PersistentDomainModel> extends BaseVM {
 
     /**
      * 当前线程中的表单参数的Key。
      */
     public static final String ARG_FORM_OBJECT = "formObj";
-    private static final long serialVersionUID = -9074139738341821977L;
+    private static final long serialVersionUID = -6277012969801233057L;
 
     /**
      * 域模型对象实例。此对象不能为空。
      */
-    protected PersistentDomainModel domainModel;
+    protected T domainModel;
     protected FormAction action;
+
+    /**
+     * 返回得到当前VM对象中定义的域模型对象
+     *
+     * @return <code>PersistentDomainModel</code>对象实例
+     */
+    public T getDomainModel() {
+        return domainModel;
+    }
 
     /**
      * 创建一个持久化域模型对象实例。
@@ -43,7 +52,7 @@ public abstract class BaseFormVM extends BaseVM {
      *
      * @return 域模型对象实例
      */
-    abstract public PersistentDomainModel createIfNull();
+    abstract public T createIfNull();
 
     /**
      * 初始化加载域模型对象实例。
@@ -51,12 +60,13 @@ public abstract class BaseFormVM extends BaseVM {
      * @param model 当前参数传递的域模型对象
      * @return 加载完后的域模型对象实例
      */
-    abstract public PersistentDomainModel loadModel(PersistentDomainModel model);
+    abstract public T loadModel(T model);
 
     /**
      * 初始化方法。
      */
     @Init
+    @SuppressWarnings("unchecked")
     public void initBaseFormVM() {
         Map<?, ?> arg = getCurrent().getArg();
 
@@ -76,7 +86,7 @@ public abstract class BaseFormVM extends BaseVM {
                     domainModel = createIfNull();
                     action = FormAction.INSERT;
                 } else {
-                    domainModel = loadModel((PersistentDomainModel) o);
+                    domainModel = loadModel((T) o);
                     action = FormAction.UPDATE;
                 }
             }

@@ -9,7 +9,11 @@ import com.googlecode.easyec.cache.CacheElement;
  */
 final class DefaultCacheServiceCacheElement extends CacheElement {
 
-    private static final long serialVersionUID = -1081382611075784731L;
+    private static final long serialVersionUID = -8228533696956137419L;
+
+    DefaultCacheServiceCacheElement() {
+        // default constructor
+    }
 
     DefaultCacheServiceCacheElement(Object key, Object value) {
         super(key, value);
