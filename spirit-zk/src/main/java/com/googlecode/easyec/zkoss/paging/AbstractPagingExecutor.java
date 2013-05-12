@@ -46,8 +46,6 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
 
         this._paging = paging;
         this._comp = comp;
-
-        doInit(); // 执行初始化操作
     }
 
     public void doInit() {

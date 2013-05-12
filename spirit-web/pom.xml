@@ -3,7 +3,7 @@
     <parent>
         <artifactId>spirit</artifactId>
         <groupId>com.googlecode.easyec</groupId>
-        <version>0.1.10-SNAPSHOT</version>
+        <version>0.1.11-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>spirit-web</artifactId>
@@ -66,7 +66,8 @@
         <dependency>
             <groupId>com.googlecode.easyec</groupId>
             <artifactId>cache-spi</artifactId>
-            <version>0.1.7-SNAPSHOT</version>
+            <version>0.1.8-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>
