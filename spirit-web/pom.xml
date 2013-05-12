@@ -62,12 +62,5 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
-        <dependency>
-            <groupId>com.googlecode.easyec</groupId>
-            <artifactId>cache-spi</artifactId>
-            <version>0.1.8-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 </project>
