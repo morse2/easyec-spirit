@@ -78,6 +78,19 @@ public abstract class EcService implements InitializingBean {
     }
 
     /**
+     * 创建一个新的分页代理对象。
+     * 此代理对象是通过一个{@link AbstractSearchFormBean}
+     * 对象实例和分页页数参数创建出来的。
+     *
+     * @param formBean {@link AbstractSearchFormBean}对象
+     * @param pageSize 分页页数
+     * @return {@link Page}实现
+     */
+    protected Page createPage(AbstractSearchFormBean formBean, int pageSize) {
+        return pageDelegate.createPage(formBean, pageSize);
+    }
+
+    /**
      * 持久化数据对象的方法。
      * 该方法包装了一般化的错误，并统一抛出
      * {@link DataPersistenceException}对象实例。

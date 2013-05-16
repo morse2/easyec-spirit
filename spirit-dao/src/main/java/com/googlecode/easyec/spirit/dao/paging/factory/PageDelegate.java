@@ -67,5 +67,20 @@ public abstract class PageDelegate<T extends Page> {
         return pageProxy.createProxy(pageDialect, currentPage, pageSize);
     }
 
+    /**
+     * 通过搜索条件，创建一个新的分页代理对象
+     *
+     * @param bean 搜索条件对象
+     * @return {@link Page}实现
+     */
     abstract public T createPage(AbstractSearchFormBean bean);
+
+    /**
+     * 通过搜索条件，外加分页页数，创建一个新的分页代理对象
+     *
+     * @param bean     搜索条件对象
+     * @param pageSize 分页页数
+     * @return {@link Page}实现
+     */
+    abstract public T createPage(AbstractSearchFormBean bean, int pageSize);
 }

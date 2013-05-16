@@ -27,7 +27,12 @@ final class DefaultMybatisPageDelegate extends PageDelegate<MybatisPage> {
 
     @Override
     public MybatisPage createPage(AbstractSearchFormBean bean) {
-        MybatisPage page = createPage(bean.getPageNumber(), getPageSize());
+        return createPage(bean, getPageSize());
+    }
+
+    @Override
+    public MybatisPage createPage(AbstractSearchFormBean bean, int pageSize) {
+        MybatisPage page = createPage(bean.getPageNumber(), pageSize);
 
         if (page instanceof MybatisPageWritable) {
             // 设置搜索条件
