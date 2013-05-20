@@ -97,7 +97,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
                     int i = ((Combobox) c).getSelectedIndex();
                     if (i > -1) {
                         Comboitem item = ((Combobox) c).getSelectedItem();
-                        addOrRemoveSearchArg(c.getId(), item, bean);
+                        addOrRemoveSearchArg(c.getId(), item.getValue(), bean);
                     }
                 } else if (c instanceof Bandbox) {
                     addOrRemoveSearchArg(c.getId(), ((Bandbox) c).getValue(), bean);
