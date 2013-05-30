@@ -2,9 +2,13 @@ package com.googlecode.easyec.zkoss.paging.impl;
 
 import com.googlecode.easyec.spirit.dao.paging.Page;
 import com.googlecode.easyec.zkoss.paging.AbstractSearchablePagingExecutor;
+import com.googlecode.easyec.zkoss.paging.sort.SortComparator;
 import org.springframework.util.CollectionUtils;
+import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.ListModelList;
 import org.zkoss.zul.Listbox;
+import org.zkoss.zul.Listheader;
 import org.zkoss.zul.Paging;
 
 import java.util.List;
@@ -16,7 +20,7 @@ import java.util.List;
  */
 public abstract class ListboxSearchablePagingExecutor extends AbstractSearchablePagingExecutor<Listbox> {
 
-    private static final long serialVersionUID = 3155768642595488575L;
+    private static final long serialVersionUID = 6781613163569772619L;
 
     /**
      * 构造方法。
@@ -75,6 +79,30 @@ public abstract class ListboxSearchablePagingExecutor extends AbstractSearchable
      */
     public void setMultiple(boolean multiple) {
         this.multiple = multiple;
+    }
+
+    @Override
+    public void doInit() {
+        super.doInit();
+
+        List<Component> children = _comp.getListhead().getChildren();
+        for (int i = 0; i < children.size(); i++) {
+            Component child = children.get(i);
+
+            if (null == child) continue;
+            if (child instanceof Listheader) {
+                SortComparator ascending = createSortComparator(i, true);
+                SortComparator descending = createSortComparator(i, false);
+
+                if (null != ascending && null != descending) {
+                    ((Listheader) child).setSortAscending(ascending);
+                    ((Listheader) child).setSortDescending(descending);
+
+                    // 默认为Listheader添加监听类实例
+                    child.addEventListener(Events.ON_SORT, getSortFieldEventListener());
+                }
+            }
+        }
     }
 
     @Override

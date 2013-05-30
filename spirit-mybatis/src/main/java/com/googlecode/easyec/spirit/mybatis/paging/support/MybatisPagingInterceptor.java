@@ -57,6 +57,7 @@ public class MybatisPagingInterceptor implements PagingInterceptor, Ordered {
 
         if (page instanceof MybatisPage && mybatisPage instanceof MybatisPageWritable) {
             ((MybatisPageWritable) mybatisPage).setParameterObject(((MybatisPage) page).getParameterObject());
+            ((MybatisPageWritable) mybatisPage).setSorts(((MybatisPage) page).getSorts());
         }
 
         try {

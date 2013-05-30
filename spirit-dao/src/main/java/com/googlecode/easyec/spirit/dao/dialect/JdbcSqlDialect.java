@@ -37,7 +37,7 @@ public abstract class JdbcSqlDialect implements SqlDialect {
         StringBuffer sb = new StringBuffer();
         Matcher m = order_By_Pattern.matcher(sql);
         if (m.find()) {
-            m.appendTail(sb).append(", ");
+            sb.append(m.replaceAll("")).append(" order by ");
         } else {
             sb.append(sql).append(" order by ");
         }

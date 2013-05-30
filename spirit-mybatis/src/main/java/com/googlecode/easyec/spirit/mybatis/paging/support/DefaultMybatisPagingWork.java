@@ -7,7 +7,6 @@ import com.googlecode.easyec.spirit.dao.paging.PagingInterceptor;
 import com.googlecode.easyec.spirit.mybatis.executor.result.NumberResultHandler;
 import com.googlecode.easyec.spirit.mybatis.paging.MybatisPage;
 import com.googlecode.easyec.spirit.web.controller.sorts.Sort;
-import org.apache.commons.collections.ListUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.*;
@@ -30,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.commons.collections.CollectionUtils.collect;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 
 /**
@@ -39,14 +39,14 @@ import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
  */
 class DefaultMybatisPagingWork implements PagingInterceptor.PagingWork<MybatisPage> {
 
-    private static final Logger logger = LoggerFactory.getLogger(DefaultMybatisPagingWork.class);
-    public static final String SELECT_COUNT_KEY_SUFFIX = "!selectCountKey";
-    public static final String RESULT_MAP_KEY_SUFFIX = "!resultMapKey";
-    public static final String SELECT_CLONE_KEY_SUFFIX = "!selectCloneKey";
+    private static final Logger logger                  = LoggerFactory.getLogger(DefaultMybatisPagingWork.class);
+    public static final  String SELECT_COUNT_KEY_SUFFIX = "!selectCountKey";
+    public static final  String RESULT_MAP_KEY_SUFFIX   = "!resultMapKey";
+    public static final  String SELECT_CLONE_KEY_SUFFIX = "!selectCloneKey";
 
     private MappedStatement mappedStatement;
-    private ResultHandler resultHandler;
-    private Transaction transaction;
+    private ResultHandler   resultHandler;
+    private Transaction     transaction;
 
     public DefaultMybatisPagingWork(MappedStatement mappedStatement, ResultHandler resultHandler) {
         this.mappedStatement = mappedStatement;
@@ -159,12 +159,14 @@ class DefaultMybatisPagingWork implements PagingInterceptor.PagingWork<MybatisPa
 
         List<Sort> sorts = page.getSorts();
         if (isNotEmpty(sorts)) {
-            List list = ListUtils.transformedList(sorts, new Transformer() {
+            List<String> list = new ArrayList<String>(
+                    collect(sorts, new Transformer() {
 
-                public Object transform(Object input) {
-                    return ((Sort) input).getName() + " " + ((Sort) input).getType();
-                }
-            });
+                        public Object transform(Object input) {
+                            return ((Sort) input).getName() + " " + ((Sort) input).getType();
+                        }
+                    })
+            );
 
             thisSql = pageDialect.getSortedSql(thisSql, list);
             logger.debug("Sql for sorting: [" + thisSql + "].");

@@ -25,7 +25,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
  */
 public abstract class AbstractSearchablePagingExecutor<T extends Component> extends AbstractPagingExecutor<T> implements SearchablePagingExecutor {
 
-    private static final long serialVersionUID = 7257577166290615415L;
+    private static final long serialVersionUID = 4142039727497065768L;
 
     /**
      * 构造方法。
@@ -65,10 +65,10 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
     @Override
     public void doInit() {
         this.searchComponents = new ArrayList<Component>(5);
+        // 先初始化搜索组件
+        setSearchSelectors(SELECTORS);
 
         super.doInit();
-
-        setSearchSelectors(SELECTORS);
     }
 
     @Override

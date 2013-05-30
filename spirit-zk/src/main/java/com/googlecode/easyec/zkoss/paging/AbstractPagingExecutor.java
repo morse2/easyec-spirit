@@ -3,13 +3,25 @@ package com.googlecode.easyec.zkoss.paging;
 import com.googlecode.easyec.spirit.dao.paging.Page;
 import com.googlecode.easyec.spirit.web.controller.formbean.impl.AbstractSearchFormBean;
 import com.googlecode.easyec.spirit.web.controller.formbean.impl.SearchFormBean;
+import com.googlecode.easyec.spirit.web.controller.sorts.DefaultSort;
+import com.googlecode.easyec.spirit.web.controller.sorts.Sort;
 import com.googlecode.easyec.zkoss.paging.listener.PagingEventListener;
+import com.googlecode.easyec.zkoss.paging.listener.SortFieldEventListener;
+import com.googlecode.easyec.zkoss.paging.sort.SortComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.event.SortEvent;
+import org.zkoss.zul.Listheader;
 import org.zkoss.zul.Paging;
 import org.zkoss.zul.event.PagingEvent;
+
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
+
+import static com.googlecode.easyec.spirit.web.controller.sorts.Sort.SortTypes.DESC;
 
 /**
  * 抽象的分页操作执行器类。
@@ -19,20 +31,21 @@ import org.zkoss.zul.event.PagingEvent;
  */
 public abstract class AbstractPagingExecutor<T extends Component> implements PagingExecutor {
 
-    private static final long serialVersionUID = 1013467564935458027L;
+    private static final long   serialVersionUID = -7039295983970728988L;
     /**
      * SLF4J日志对象
      */
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
-    private boolean lazyLoad;
+    protected final      Logger logger           = LoggerFactory.getLogger(getClass());
+    private   boolean   lazyLoad;
     /**
      * ZK分页组件对象
      */
-    protected Paging _paging;
+    protected Paging    _paging;
     /**
      * ZK组件对象，用于呈现分页结果
      */
-    protected T _comp;
+    protected T         _comp;
+    protected Set<Sort> sortList;
 
     /**
      * 构造方法。
@@ -49,12 +62,16 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
     }
 
     public void doInit() {
-        if (!lazyLoad) firePaging(1); // always load first page of data
+        sortList = new HashSet<Sort>();
 
+        // 添加分页监听事件实例
         PagingEventListener pagingEventListener = getPagingEventListener();
         Assert.notNull(pagingEventListener, "PagingEventListener object is null.");
 
         _paging.addEventListener("onPaging", pagingEventListener);
+
+        // 如果分页不是延迟加载的，则默认加载第一页数据
+        if (!lazyLoad) firePaging(1); // always load first page of data
     }
 
     public boolean isLazyLoad() {
@@ -81,6 +98,20 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
 
         logger.debug("Current page for paging: [" + searchFormBean.getPageNumber() + "].");
 
+        // 如果有排序字段，则进行添加排序条件
+        if (!sortList.isEmpty()) {
+            for (Sort sort : sortList) {
+                boolean b = searchFormBean.addSort(sort);
+                if (b) {
+                    String name = sort.getName().replaceAll("\\.", "_");
+                    String value = name + "_" + sort.getType();
+                    logger.debug("Sort parameter: [{}], value: [{}]", name, value);
+
+                    searchFormBean.addSearchTerm(name, value);
+                }
+            }
+        }
+
         Page page = doPaging(searchFormBean);
         Assert.notNull(page, "Page object is null after invoking method doPaging.");
 
@@ -96,6 +127,26 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
      */
     protected PagingEventListener getPagingEventListener() {
         return new DefaultPagingEventListener();
+    }
+
+    /**
+     * 返回当前分页使用的字段排序监听类对象
+     *
+     * @return 字段排序监听实例
+     */
+    protected SortFieldEventListener getSortFieldEventListener() {
+        return new DefaultSortFieldEventListener();
+    }
+
+    /**
+     * 返回一个新的字段排序的比较类对象。
+     *
+     * @param index     列索引
+     * @param ascending 标识是否是升序
+     * @return <code>Comparator</code>
+     */
+    protected SortComparator createSortComparator(int index, boolean ascending) {
+        return null; // 默认不做实现，交由子类根据实际情况进行字段排序
     }
 
     /**
@@ -129,6 +180,48 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
 
         public void onEvent(PagingEvent event) throws Exception {
             AbstractPagingExecutor.this.firePaging(event.getActivePage() + 1);
+        }
+    }
+
+    /**
+     * 默认的基于数据库字段进行排序的默认的事件监听类
+     */
+    private class DefaultSortFieldEventListener implements SortFieldEventListener {
+
+        private static final long serialVersionUID = 1271754732132111589L;
+
+        public void onEvent(SortEvent event) throws Exception {
+            Listheader listheader = (Listheader) event.getTarget();
+            String direction = listheader.getSortDirection();
+            if ("natural".equals(direction)) {
+                Comparator ascending = listheader.getSortAscending();
+                Assert.notNull(ascending, "There was not set ascending sort comparator.");
+
+                SortComparator sc = (SortComparator) ascending;
+                sortList.clear();
+                sortList.add(new DefaultSort(sc.getFullSortField()));
+            } else if ("ascending".equals(direction)) {
+                Comparator descending = listheader.getSortDescending();
+                Assert.notNull(descending, "There was not set descending sort comparator.");
+
+                SortComparator sc = (SortComparator) descending;
+                sortList.clear();
+                sortList.add(new DefaultSort(sc.getFullSortField(), DESC));
+            } else if ("descending".equals(direction)) {
+                Comparator ascending = listheader.getSortAscending();
+                Assert.notNull(ascending, "There was not set ascending sort comparator.");
+
+                SortComparator sc = (SortComparator) ascending;
+                sortList.clear();
+                sortList.add(new DefaultSort(sc.getFullSortField()));
+            } else {
+                logger.debug("Undefined sort direction.");
+
+                event.stopPropagation();
+                return;
+            }
+
+            firePaging(_paging.getActivePage() + 1);
         }
     }
 }

@@ -2,10 +2,10 @@ package com.googlecode.easyec.spirit.web.controller.formbean.impl;
 
 import com.googlecode.easyec.spirit.web.controller.sorts.Sort;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 表单搜索的Bean类。
@@ -14,10 +14,10 @@ import java.util.Map;
  */
 public class SearchFormBean extends AbstractSearchFormBean {
 
-    private static final long serialVersionUID = 3216967564312120125L;
-    private Map<String, Object> searchTerms = new LinkedHashMap<String, Object>();
-    private List<Sort> sorts = new LinkedList<Sort>();
-    private int currentPage = 1;
+    private static final long                serialVersionUID = 6820591059266007614L;
+    private              Map<String, Object> searchTerms      = new LinkedHashMap<String, Object>();
+    private              Set<Sort>           sorts            = new HashSet<Sort>();
+    private              int                 currentPage      = 1;
 
     public Map<String, Object> getSearchTerms() {
         return searchTerms;
@@ -31,7 +31,7 @@ public class SearchFormBean extends AbstractSearchFormBean {
         return searchTerms.remove(name) != null;
     }
 
-    public List<Sort> getSorts() {
+    public Set<Sort> getSorts() {
         return sorts;
     }
 

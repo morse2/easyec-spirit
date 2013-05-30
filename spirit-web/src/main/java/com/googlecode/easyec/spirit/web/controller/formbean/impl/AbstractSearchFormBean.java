@@ -4,6 +4,7 @@ import com.googlecode.easyec.spirit.web.controller.sorts.Sort;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 抽象的表单搜索Bean类。
@@ -47,7 +48,7 @@ public abstract class AbstractSearchFormBean extends AbstractFormBean {
      *
      * @return 排序对象列表
      */
-    abstract public List<Sort> getSorts();
+    abstract public Set<Sort> getSorts();
 
     /**
      * 添加一个排序信息
