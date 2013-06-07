@@ -3,7 +3,7 @@
     <parent>
         <artifactId>spirit</artifactId>
         <groupId>com.googlecode.easyec</groupId>
-        <version>0.1.13-SNAPSHOT</version>
+        <version>0.1.14-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -37,7 +37,7 @@
         <dependency>
             <groupId>com.googlecode.easyec</groupId>
             <artifactId>spirit-dao</artifactId>
-            <version>0.1.13-SNAPSHOT</version>
+            <version>0.1.14-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>

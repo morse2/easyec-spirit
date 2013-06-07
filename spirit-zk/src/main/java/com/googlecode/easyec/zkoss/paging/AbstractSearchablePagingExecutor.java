@@ -4,9 +4,12 @@ import com.googlecode.easyec.spirit.web.controller.formbean.impl.AbstractSearchF
 import com.googlecode.easyec.spirit.web.controller.formbean.impl.SearchFormBean;
 import org.apache.commons.collections.MapUtils;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.event.KeyEvent;
+import org.zkoss.zk.ui.event.SerializableEventListener;
 import org.zkoss.zk.ui.select.Selectors;
 import org.zkoss.zul.*;
 import org.zkoss.zul.impl.FormatInputElement;
+import org.zkoss.zul.impl.InputElement;
 import org.zkoss.zul.impl.NumberInputElement;
 
 import java.math.BigDecimal;
@@ -16,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.zkoss.zk.ui.event.Events.ON_OK;
 
 /**
  * 抽象的分页搜索操作执行器类。
@@ -66,7 +70,14 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
     public void doInit() {
         this.searchComponents = new ArrayList<Component>(5);
         // 先初始化搜索组件
-        setSearchSelectors(SELECTORS);
+        addSearchSelectors(SELECTORS);
+
+        // 默认为Input控件添加OnOK事件，提高搜索效率
+        for (Component comp : searchComponents) {
+            if (comp instanceof InputElement) {
+                comp.addEventListener(ON_OK, new KeyPressOKEventListener());
+            }
+        }
 
         super.doInit();
     }
@@ -231,6 +242,20 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
             }
         } else {
             bean.removeSearchTerm(id);
+        }
+    }
+
+    /**
+     * 键盘回车事件监听类
+     */
+    private class KeyPressOKEventListener implements SerializableEventListener<KeyEvent> {
+
+        private static final long serialVersionUID = -3087898078561018010L;
+
+        public void onEvent(KeyEvent event) throws Exception {
+            if (ON_OK.equals(event.getName())) {
+                AbstractSearchablePagingExecutor.this.firePaging(1);
+            }
         }
     }
 }

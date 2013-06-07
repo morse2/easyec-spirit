@@ -113,6 +113,7 @@ public abstract class ListboxPagingExecutor extends AbstractPagingExecutor<Listb
     @Override
     public void redraw(Page page) {
         _paging.setPageSize(page.getPageSize());
+        _paging.setActivePage(page.getCurrentPage() - 1);
         _paging.setTotalSize(page.getTotalRecordsCount());
 
         List<?> list = page.getRecords();
