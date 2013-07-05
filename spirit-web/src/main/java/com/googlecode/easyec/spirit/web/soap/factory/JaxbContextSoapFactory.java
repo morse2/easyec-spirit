@@ -19,7 +19,7 @@ import java.io.StringWriter;
  */
 public class JaxbContextSoapFactory extends AbstractSoapFactory implements InitializingBean {
 
-    private JAXBContext jaxbContext;
+    protected JAXBContext jaxbContext;
 
     public JaxbContextSoapFactory(Class<?>[] classes) throws JAXBException {
         if (ArrayUtils.isEmpty(classes)) classes = new Class[0];

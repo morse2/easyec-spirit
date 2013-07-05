@@ -19,9 +19,10 @@ import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.getBean;
  */
 public class CacheServiceCache implements Cache {
 
-    private static final Logger logger = LoggerFactory.getLogger(CacheServiceCache.class);
-    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
-    private final CacheService cacheService = getBean(CacheService.class);
+    private static final Logger        logger        = LoggerFactory.getLogger(CacheServiceCache.class);
+    private final        ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private CacheService cacheService;
+    private boolean      initialized;
 
     private String id;
 
@@ -29,9 +30,6 @@ public class CacheServiceCache implements Cache {
         Assert.notNull(id, "Cache id cannot be null.");
 
         this.id = id;
-        // 初始化缓存区
-        boolean b = cacheService.addCacheIfAbsent(this.id);
-        logger.debug("Result of adding cache. [{}]", b);
     }
 
     public String getId() {
@@ -39,10 +37,12 @@ public class CacheServiceCache implements Cache {
     }
 
     public int getSize() {
+        initialize();
         return Long.valueOf(cacheService.getStatistics(this.id).getObjectCount()).intValue();
     }
 
     public void putObject(Object key, Object value) {
+        initialize();
         String thisKey = toKey(key);
 
         if (null != value) {
@@ -52,6 +52,7 @@ public class CacheServiceCache implements Cache {
     }
 
     public Object getObject(Object key) {
+        initialize();
         Object o = this.cacheService.get(this.id, toKey(key));
         if (null == o) return null;
 
@@ -67,6 +68,7 @@ public class CacheServiceCache implements Cache {
     }
 
     public void clear() {
+        initialize();
         this.cacheService.removeAll(this.id);
     }
 
@@ -78,6 +80,65 @@ public class CacheServiceCache implements Cache {
         StringBuffer key = new StringBuffer();
         key.append(id).append("!").append(k);
         return String.valueOf(key.toString().hashCode());
+    }
+
+    /**
+     * 初始化方法。
+     * 在第一次使用到<code>CacheService</code>的时候，
+     * 会被调用并初始化缓存实例
+     */
+    protected synchronized void initialize() {
+        if (!initialized) {
+            // 初始化缓存区
+            if (null == cacheService) {
+                logger.debug("CacheService object is null, so find from Spring context.");
+
+                cacheService = getBean(CacheService.class);
+                Assert.notNull(cacheService, "CacheService object is still null. Is there no CacheService instance?");
+            }
+
+            boolean b = cacheService.addCacheIfAbsent(this.id);
+            logger.debug("Result of adding cache. [{}]", b);
+
+            Assert.isTrue(b, "Initialize the cache fragment failed");
+            initialized = true;
+        }
+    }
+
+    /**
+     * 返回此缓存使用的缓存服务对象实例
+     *
+     * @return <code>CacheService</code>
+     */
+    public CacheService getCacheService() {
+        return cacheService;
+    }
+
+    /**
+     * 设置此缓存使用到的服务对象实例
+     *
+     * @param cacheService <code>CacheService</code>对象
+     */
+    public void setCacheService(CacheService cacheService) {
+        this.cacheService = cacheService;
+    }
+
+    /**
+     * 返回此类是否已经被初始化过
+     *
+     * @return 真或假
+     */
+    public boolean isInitialized() {
+        return initialized;
+    }
+
+    /**
+     * 设置标识当前类是否已经被初始化过
+     *
+     * @param initialized 布尔值
+     */
+    public void setInitialized(boolean initialized) {
+        this.initialized = initialized;
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.googlecode.easyec.zkoss.paging;
 
 import com.googlecode.easyec.spirit.dao.paging.Page;
 import com.googlecode.easyec.spirit.web.controller.formbean.impl.AbstractSearchFormBean;
+import org.zkoss.zul.Paging;
 
 import java.io.Serializable;
 
@@ -48,4 +49,11 @@ public interface PagingExecutor extends Serializable {
      * @param currentPage 当前页码
      */
     void firePaging(int currentPage);
+
+    /**
+     * 返回当前分页执行器对象依赖的实际分页对象
+     *
+     * @return <code>Paging</code>
+     */
+    Paging getPaging();
 }

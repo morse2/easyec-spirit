@@ -17,7 +17,7 @@ import java.io.StringWriter;
  */
 public class Jaxb2MarshallerSoapFactory extends AbstractSoapFactory implements InitializingBean {
 
-    private Jaxb2Marshaller jaxb2Marshaller;
+    protected Jaxb2Marshaller jaxb2Marshaller;
 
     public Jaxb2MarshallerSoapFactory(Jaxb2Marshaller jaxb2Marshaller) {
         this.jaxb2Marshaller = jaxb2Marshaller;

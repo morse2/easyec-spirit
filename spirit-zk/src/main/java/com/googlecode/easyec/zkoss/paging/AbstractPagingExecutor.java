@@ -31,10 +31,7 @@ import static com.googlecode.easyec.spirit.web.controller.sorts.Sort.SortTypes.D
  */
 public abstract class AbstractPagingExecutor<T extends Component> implements PagingExecutor {
 
-    private static final long   serialVersionUID = -7039295983970728988L;
-    /**
-     * SLF4J日志对象
-     */
+    private static final long   serialVersionUID = -2980917974352805963L;
     protected final      Logger logger           = LoggerFactory.getLogger(getClass());
     private   boolean   lazyLoad;
     /**
@@ -86,6 +83,10 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
         AbstractSearchFormBean searchFormBean = new SearchFormBean();
         searchFormBean.setPageNumber(currentPage);
         firePaging(searchFormBean);
+    }
+
+    public Paging getPaging() {
+        return this._paging;
     }
 
     /**
