@@ -18,19 +18,9 @@ public class Soap11Body extends Body {
     /**
      * 构造方法
      *
-     * @param bodyContent 消息体内容对象
+     * @param bodyContents 一组消息体内容对象列表
      */
-    public Soap11Body(BodyContent bodyContent) {
-        super(bodyContent);
-    }
-
-    /**
-     * 构造方法
-     *
-     * @param bodyContent 消息体内容对象
-     * @param fault       消息体错误对象
-     */
-    public Soap11Body(BodyContent bodyContent, Soap11Fault fault) {
-        super(bodyContent, fault);
+    public Soap11Body(BodyContent[] bodyContents) {
+        super(bodyContents);
     }
 }

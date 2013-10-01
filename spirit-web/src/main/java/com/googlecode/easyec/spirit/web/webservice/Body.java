@@ -2,6 +2,12 @@ package com.googlecode.easyec.spirit.web.webservice;
 
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.Collections.addAll;
+import static java.util.Collections.unmodifiableList;
+import static org.apache.commons.lang.ArrayUtils.isEmpty;
 
 /**
  * 信封的消息体类。
@@ -12,9 +18,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public abstract class Body {
 
     @XmlElementRef
-    private BodyContent bodyContent;
-    @XmlElementRef
-    private Fault       fault;
+    private List<BodyContent> bodyContents = new ArrayList<BodyContent>();
 
     /**
      * 默认构造方法
@@ -24,38 +28,93 @@ public abstract class Body {
     /**
      * 构造方法
      *
-     * @param bodyContent 消息体内容对象
+     * @param bodyContents 一组消息体内容对象列表
      */
-    protected Body(BodyContent bodyContent) {
-        this.bodyContent = bodyContent;
+    protected Body(BodyContent[] bodyContents) {
+        if (!isEmpty(bodyContents)) {
+            addAll(this.bodyContents, bodyContents);
+        }
     }
 
     /**
-     * 构造方法
+     * 返回消息体内容对象列表
+     *
+     * @return <code>BodyContent</code>对象列表
+     */
+    public List<BodyContent> getBodyContents() {
+        return unmodifiableList(bodyContents);
+    }
+
+    /**
+     * 向当前列表中添加一个消息体内容对象
      *
      * @param bodyContent 消息体内容对象
-     * @param fault       消息体错误对象
+     * @return 添加成功则返回真
      */
-    protected Body(BodyContent bodyContent, Fault fault) {
-        this.bodyContent = bodyContent;
-        this.fault = fault;
+    public boolean addBodyContent(BodyContent bodyContent) {
+        return null != bodyContent && bodyContents.add(bodyContent);
     }
 
     /**
-     * 返回消息体内容对象
+     * 删除给定索引号的消息头对象
      *
-     * @return <code>BodyContent</code>对象
+     * @param index 消息体内容列表的索引号
+     * @return 删除成功返回真
      */
-    public BodyContent getBodyContent() {
-        return bodyContent;
+    public boolean removeBodyContent(int index) {
+        return
+            index > -1
+                && index < bodyContents.size()
+                && null != bodyContents.remove(index);
     }
 
     /**
-     * 获取消息错误体
+     * 判断有无消息体内容
      *
-     * @return <code>Fault</code>对象
+     * @return 有消息体内容返回真
      */
-    Fault getFault() {
-        return fault;
+    public boolean hasBodyContent() {
+        return !this.bodyContents.isEmpty();
+    }
+
+    /**
+     * 查找给定类型的消息体内容对象
+     *
+     * @param cls 指定消息体内容类型
+     * @param <T> 泛型类型
+     * @return 符合条件的消息体内容对象列表
+     */
+    public <T extends BodyContent> List<T> find(Class<T> cls) {
+        List<T> result = new ArrayList<T>();
+
+        if (null != cls) {
+            for (BodyContent bodyContent : bodyContents) {
+                if (cls.isInstance(bodyContent)) {
+                    result.add(cls.cast(bodyContent));
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * 查找给定类型的消息体内容对象。
+     * 此方法返回第一个匹配条件的对象。
+     *
+     * @param cls 指定消息体内容类型
+     * @param <T> 泛型类型
+     * @return 符合条件的消息体内容对象
+     */
+    public <T extends BodyContent> T findFirst(Class<T> cls) {
+        if (null != cls) {
+            for (BodyContent bodyContent : bodyContents) {
+                if (cls.isInstance(bodyContent)) {
+                    return cls.cast(bodyContent);
+                }
+            }
+        }
+
+        return null;
     }
 }

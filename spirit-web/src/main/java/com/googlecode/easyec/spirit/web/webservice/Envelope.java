@@ -1,7 +1,5 @@
 package com.googlecode.easyec.spirit.web.webservice;
 
-import org.springframework.util.Assert;
-
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -43,8 +41,6 @@ public abstract class Envelope {
      * @param body   消息体对象
      */
     protected Envelope(Header header, Body body) {
-        Assert.notNull(body, "Body object cannot be null.");
-
         this.header = header;
         this.body = body;
     }

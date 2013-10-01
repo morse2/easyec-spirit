@@ -1,6 +1,6 @@
 package com.googlecode.easyec.spirit.web.webservice.soap.v11;
 
-import com.googlecode.easyec.spirit.web.webservice.Fault;
+import com.googlecode.easyec.spirit.web.webservice.BodyContent;
 import com.googlecode.easyec.spirit.web.webservice.soap.FaultCodes;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author JunJie
  */
 @XmlRootElement(name = "Fault")
-public class Soap11Fault extends Fault {
+public class Soap11Fault extends BodyContent {
 
     @XmlElement(name = "faultcode")
     private FaultCodes faultCode;

@@ -31,7 +31,7 @@ public class SoapTest {
         fault.setFaultCode(FaultCodes.CLIENT);
         fault.setFaultString("test wrong.");
 
-        Soap12 soap12 = new Soap12(new Soap12Header(null), new Soap12Body(user, fault));
+        Soap12 soap12 = new Soap12(new Soap12Header(null), null);
         JAXBContext ctx = JAXBContext.newInstance(
             Soap12.class,
             Soap12Header.class,

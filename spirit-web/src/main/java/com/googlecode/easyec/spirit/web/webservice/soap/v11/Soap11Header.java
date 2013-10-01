@@ -23,9 +23,9 @@ public class Soap11Header extends Header {
     /**
      * 构造方法
      *
-     * @param headContent 消息头内容对象
+     * @param headContents 一组消息头内容对象列表
      */
-    public Soap11Header(HeadContent headContent) {
-        super(headContent);
+    public Soap11Header(HeadContent[] headContents) {
+        super(headContents);
     }
 }
