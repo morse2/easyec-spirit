@@ -3,8 +3,13 @@ package com.googlecode.easyec.zkoss.mvvm;
 import com.googlecode.easyec.zkoss.utils.MessageboxUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zkoss.bind.annotation.AfterCompose;
+import org.zkoss.bind.annotation.ContextParam;
+import org.zkoss.bind.annotation.ContextType;
+import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.SerializableEventListener;
+import org.zkoss.zk.ui.select.Selectors;
 import org.zkoss.zul.Messagebox;
 
 import java.io.Serializable;
@@ -15,13 +20,29 @@ import java.io.Serializable;
  *
  * @author JunJie
  */
-public class BaseVM implements Serializable {
+public class BaseVM<T extends Component> implements Serializable {
 
-    private static final long serialVersionUID = -1192986133579366061L;
-    /**
-     * SLF4J日志对象
-     */
+    private static final long serialVersionUID = -453388816345015725L;
     protected final Logger logger = LoggerFactory.getLogger(getClass());
+    private T self;
+
+    /**
+     * 返回当前组件的引用对象
+     *
+     * @return <code>Component</code>子类
+     */
+    public T getSelf() {
+        return self;
+    }
+
+    @AfterCompose
+    public void afterInit(@ContextParam(ContextType.COMPONENT) T comp) {
+        this.self = comp;
+        // 注入组件对象
+        Selectors.wireComponents(comp, this, false);
+
+        logger.trace("afterInit() done!");
+    }
 
     /**
      * 显示一个提示信息框。

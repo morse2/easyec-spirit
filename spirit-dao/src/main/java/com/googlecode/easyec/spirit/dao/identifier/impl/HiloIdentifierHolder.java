@@ -71,7 +71,8 @@ public class HiloIdentifierHolder implements IdentifierHolder {
 
             ResultSet selectRs = selectPs.executeQuery();
             if (selectRs.next()) {
-                hiVal = selectRs.wasNull() ? 0 : selectRs.getLong(1);
+                hiVal = selectRs.getLong(1);
+                if (hiVal < 0) hiVal = 0;
 
                 PreparedStatement updatePs = conn.prepareStatement(updateSql);
                 updatePs.setLong(1, hiVal + 1);

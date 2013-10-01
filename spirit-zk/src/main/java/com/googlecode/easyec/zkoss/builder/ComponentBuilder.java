@@ -1,15 +1,17 @@
 package com.googlecode.easyec.zkoss.builder;
 
+import com.googlecode.easyec.zkoss.builder.paratemters.ComponentParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zk.ui.Executions;
 
 import java.util.Map;
 
+import static com.googlecode.easyec.zkoss.builder.paratemters.ComponentParameter.ComponentParameterBuilder;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.zkoss.zk.ui.Executions.createComponents;
 
 /**
  * ZK组件页面构建器类。
@@ -21,7 +23,7 @@ public final class ComponentBuilder implements InitializingBean {
     private static final Logger logger = LoggerFactory.getLogger(ComponentBuilder.class);
     private String prefix;
     private String suffix;
-    private StringBuffer pathPattern = new StringBuffer();
+    private final StringBuffer pathPattern = new StringBuffer();
 
     /**
      * 设置页面路径的前缀。
@@ -47,7 +49,7 @@ public final class ComponentBuilder implements InitializingBean {
      * @param uri 组件相对路径名
      * @return ZK组件对象
      */
-    public Component create(String uri) {
+    public <T extends Component> T create(String uri) {
         return create(uri, null, null);
     }
 
@@ -58,7 +60,7 @@ public final class ComponentBuilder implements InitializingBean {
      * @param parent 当前被创建组件的父组件
      * @return ZK组件对象
      */
-    public Component create(String uri, Component parent) {
+    public <T extends Component> T create(String uri, Component parent) {
         return create(uri, parent, null);
     }
 
@@ -69,7 +71,7 @@ public final class ComponentBuilder implements InitializingBean {
      * @param paramMap 当前组件接受的参数
      * @return ZK组件对象
      */
-    public Component create(String uri, Map<String, Object> paramMap) {
+    public <T extends Component> T create(String uri, Map<String, Object> paramMap) {
         return create(uri, null, paramMap);
     }
 
@@ -81,15 +83,25 @@ public final class ComponentBuilder implements InitializingBean {
      * @param paramMap 当前组件接受的参数
      * @return ZK组件对象
      */
-    public Component create(String uri, Component parent, Map<String, Object> paramMap) {
-        if (isBlank(uri)) {
-            logger.warn("Parameter uri is null.");
+    public <T extends Component> T create(String uri, Component parent, Map<String, Object> paramMap) {
+        return create(
+            new ComponentParameterBuilder(uri)
+                .parameters(paramMap)
+                .parent(parent)
+                .build()
+        );
+    }
 
-            return null;
-        }
+    public <T extends Component> T create(ComponentParameter parameter) {
+        return doCreate(parameter);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends Component> T doCreate(ComponentParameter parameter) {
+        if (isBlank(parameter.getUri())) return null;
 
         String path = pathPattern.toString();
-        String page = uri;
+        String page = parameter.getUri();
         if (page.startsWith("/")) {
             page = page.substring(1);
         }
@@ -97,7 +109,11 @@ public final class ComponentBuilder implements InitializingBean {
         path = path.replaceAll("\\{Placeholder}", page);
         logger.debug("Path to create component: [" + path + "].");
 
-        return Executions.createComponents(path, parent, paramMap);
+        return (T) createComponents(
+            path,
+            parameter.getParent(),
+            parameter.getParameters()
+        );
     }
 
     public void afterPropertiesSet() throws Exception {

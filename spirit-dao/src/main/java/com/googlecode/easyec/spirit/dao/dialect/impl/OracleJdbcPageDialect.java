@@ -33,7 +33,7 @@ public class OracleJdbcPageDialect extends JdbcPageDialect {
     }
 
     public int[] getPagedParameters(int currentPage, int pageSize) {
-        int[] params = { (currentPage - 1) * pageSize, currentPage * pageSize };
+        int[] params = { currentPage * pageSize, (currentPage - 1) * pageSize };
         logger.debug("Parameters of Paged SQL in Oracle: [" + Arrays.toString(params) + "].");
 
         return params;

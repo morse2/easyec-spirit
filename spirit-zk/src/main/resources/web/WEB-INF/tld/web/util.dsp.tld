@@ -33,4 +33,10 @@
             java.lang.String getLabel(java.lang.String,java.lang.Object,java.lang.Object[])
         </function-signature>
     </function>
+
+    <function>
+        <name>fmtDate</name>
+        <function-class>com.googlecode.easyec.zkoss.utils.CommonFnsUtils</function-class>
+        <function-signature>java.lang.String formatDate(java.util.Date,java.lang.String)</function-signature>
+    </function>
 </taglib>

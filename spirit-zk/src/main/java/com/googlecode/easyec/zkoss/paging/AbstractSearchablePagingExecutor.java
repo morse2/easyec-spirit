@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.googlecode.easyec.zkoss.utils.SelectorUtils.find;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.zkoss.zk.ui.event.Events.ON_OK;
 
@@ -29,7 +30,7 @@ import static org.zkoss.zk.ui.event.Events.ON_OK;
  */
 public abstract class AbstractSearchablePagingExecutor<T extends Component> extends AbstractPagingExecutor<T> implements SearchablePagingExecutor {
 
-    private static final long serialVersionUID = 4142039727497065768L;
+    private static final long serialVersionUID = -8185828077276939433L;
 
     /**
      * 构造方法。
@@ -43,6 +44,29 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
 
     private static final String SELECTORS = "textbox,combobox,datebox,intbox,decimalbox,div";
     private List<Component> searchComponents;
+    private Component       searchScope;
+
+    public void setSearchScope(Component searchScope) {
+        this.searchScope = searchScope;
+    }
+
+    /**
+     * 返回参加查询条件的组件
+     *
+     * @return 组件列表
+     */
+    protected List<Component> getSearchComponents() {
+        return searchComponents;
+    }
+
+    /**
+     * 返回查询条件组件的搜索范围。
+     *
+     * @return 搜索范围的组件对象
+     */
+    protected Component getSearchScope() {
+        return searchScope;
+    }
 
     /**
      * 设置搜索控件的选择器。
@@ -51,7 +75,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
      * @param searchSelectors 搜索控件的选择器
      */
     public void setSearchSelectors(String searchSelectors) {
-        this.searchComponents = Selectors.find(this._comp, searchSelectors);
+        this.searchComponents = find(getActualSearchScope(), searchSelectors);
     }
 
     /**
@@ -62,7 +86,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
      */
     public void addSearchSelectors(String searchSelectors) {
         if (isNotBlank(searchSelectors)) {
-            this.searchComponents.addAll(Selectors.find(this._comp, searchSelectors));
+            this.searchComponents.addAll(Selectors.find(getActualSearchScope(), searchSelectors));
         }
     }
 
@@ -243,6 +267,15 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         } else {
             bean.removeSearchTerm(id);
         }
+    }
+
+    /**
+     * 返回实际搜索范围的组件对象。
+     *
+     * @return <code>Component</code>对象
+     */
+    private Component getActualSearchScope() {
+        return null != searchScope ? searchScope : this._comp;
     }
 
     /**

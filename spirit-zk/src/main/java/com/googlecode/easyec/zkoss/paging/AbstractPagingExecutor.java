@@ -68,7 +68,8 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
         _paging.addEventListener("onPaging", pagingEventListener);
 
         // 如果分页不是延迟加载的，则默认加载第一页数据
-        if (!lazyLoad) firePaging(1); // always load first page of data
+        if (!lazyLoad) firePaging(1); // 总是加载第一页的数据
+        else _comp.setVisible(false); // 如果延迟加载，则设置显示区域不可见
     }
 
     public boolean isLazyLoad() {
@@ -116,6 +117,8 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
         Page page = doPaging(searchFormBean);
         Assert.notNull(page, "Page object is null after invoking method doPaging.");
 
+        // 如果页面为延迟加载，此时则应该显示组件
+        if (lazyLoad) _comp.setVisible(true);
         if (page.getTotalSize() < 1) clear(page);
         else if (page.getTotalSize() > 0) redraw(page);
     }

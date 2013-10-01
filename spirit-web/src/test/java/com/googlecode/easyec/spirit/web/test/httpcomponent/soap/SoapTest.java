@@ -1,12 +1,16 @@
 package com.googlecode.easyec.spirit.web.test.httpcomponent.soap;
 
-import com.googlecode.easyec.spirit.web.soap.Soap;
-import com.googlecode.easyec.spirit.web.soap.factory.JaxbContextSoapFactory;
-import com.googlecode.easyec.spirit.web.soap.factory.SoapFactory;
-import com.googlecode.easyec.spirit.web.soap.impl.Soap11;
+import com.googlecode.easyec.spirit.web.webservice.soap.FaultCodes;
+import com.googlecode.easyec.spirit.web.webservice.soap.v12.Soap12;
+import com.googlecode.easyec.spirit.web.webservice.soap.v12.Soap12Body;
+import com.googlecode.easyec.spirit.web.webservice.soap.v12.Soap12Fault;
+import com.googlecode.easyec.spirit.web.webservice.soap.v12.Soap12Header;
 import org.junit.Test;
 
-import javax.xml.bind.JAXBException;
+import javax.xml.bind.JAXBContext;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.StringWriter;
 
 /**
  * SOAP测试类。
@@ -16,18 +20,34 @@ import javax.xml.bind.JAXBException;
 public class SoapTest {
 
     @Test
-    public void marshalUser() throws JAXBException {
+    public void marshalUser() throws Exception {
         User user = new User();
         user.setName("JunJie");
         user.setAge(30);
 
-        Soap11 soap11 = new Soap11(user);
+        StringWriter w = new StringWriter();
 
-        SoapFactory sf = new JaxbContextSoapFactory(new Class[] { User.class });
-        String s = sf.asXml(soap11);
+        Soap12Fault fault = new Soap12Fault();
+        fault.setFaultCode(FaultCodes.CLIENT);
+        fault.setFaultString("test wrong.");
+
+        Soap12 soap12 = new Soap12(new Soap12Header(null), new Soap12Body(user, fault));
+        JAXBContext ctx = JAXBContext.newInstance(
+            Soap12.class,
+            Soap12Header.class,
+            Soap12Body.class,
+            Soap12Fault.class,
+            User.class
+        );
+
+        ctx.createMarshaller().marshal(soap12, w);
+
+        String s = w.toString();
         System.out.println(s);
+        InputStream bis = new ByteArrayInputStream(s.getBytes());
 
-        Soap soap = sf.asSoap(s);
-        System.out.println(soap);
+        Object o = ctx.createUnmarshaller().unmarshal(bis);
+
+        System.out.println(o);
     }
 }

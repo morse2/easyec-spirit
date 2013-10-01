@@ -1,5 +1,7 @@
 package com.googlecode.easyec.spirit.web.test.httpcomponent.soap;
 
+import com.googlecode.easyec.spirit.web.webservice.BodyContent;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -14,11 +16,10 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(namespace = "http://easyec.googlecode.com/soap/", name = "User")
-public class User {
+public class User extends BodyContent {
 
     @XmlElement(name = "Name", namespace = "http://easyec.googlecode.com/soap/")
     private String name;
-    @XmlElement(name = "Age", namespace = "http://easyec.googlecode.com/soap/")
     private Integer age;
 
     public String getName() {
@@ -29,6 +30,7 @@ public class User {
         this.name = name;
     }
 
+//    @XmlElement(name = "Age", namespace = "http://easyec.googlecode.com/soap/")
     public Integer getAge() {
         return age;
     }

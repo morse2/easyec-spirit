@@ -3,7 +3,9 @@ package com.googlecode.easyec.zkoss.mvvm;
 import com.googlecode.easyec.spirit.domain.PersistentDomainModel;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.util.Assert;
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Init;
+import org.zkoss.zk.ui.Component;
 
 import java.util.Map;
 
@@ -21,18 +23,19 @@ import static org.zkoss.zk.ui.Executions.getCurrent;
  *
  * @author JunJie
  */
-public abstract class BaseFormVM<T extends PersistentDomainModel> extends BaseVM {
+@AfterCompose(superclass = true)
+public abstract class BaseFormVM<T extends Component, M extends PersistentDomainModel> extends BaseVM<T> {
 
     /**
      * 当前线程中的表单参数的Key。
      */
-    public static final String ARG_FORM_OBJECT = "formObj";
-    private static final long serialVersionUID = -6277012969801233057L;
+    public static final  String ARG_FORM_OBJECT  = "com.googlecode.easyec.zkoss.mvvm.FormObject";
+    private static final long   serialVersionUID = -7906315687396164649L;
 
     /**
      * 域模型对象实例。此对象不能为空。
      */
-    protected T domainModel;
+    protected M          domainModel;
     protected FormAction action;
 
     /**
@@ -40,7 +43,7 @@ public abstract class BaseFormVM<T extends PersistentDomainModel> extends BaseVM
      *
      * @return <code>PersistentDomainModel</code>对象实例
      */
-    public T getDomainModel() {
+    public M getDomainModel() {
         return domainModel;
     }
 
@@ -52,7 +55,7 @@ public abstract class BaseFormVM<T extends PersistentDomainModel> extends BaseVM
      *
      * @return 域模型对象实例
      */
-    abstract public T createIfNull();
+    abstract public M createIfNull();
 
     /**
      * 初始化加载域模型对象实例。
@@ -60,7 +63,7 @@ public abstract class BaseFormVM<T extends PersistentDomainModel> extends BaseVM
      * @param model 当前参数传递的域模型对象
      * @return 加载完后的域模型对象实例
      */
-    abstract public T loadModel(T model);
+    abstract public M loadModel(M model);
 
     /**
      * 初始化方法。
@@ -86,10 +89,21 @@ public abstract class BaseFormVM<T extends PersistentDomainModel> extends BaseVM
                     domainModel = createIfNull();
                     action = FormAction.INSERT;
                 } else {
-                    domainModel = loadModel((T) o);
+                    domainModel = loadModel((M) o);
                     action = FormAction.UPDATE;
                 }
             }
+        }
+    }
+
+    /**
+     * 当此VM的动作为新增的情况时，
+     * 调用此方法，将会重置域模型的主键值为null
+     */
+    protected void setNullUid() {
+        switch (action) {
+            case INSERT:
+                domainModel.setUidPk(null);
         }
     }
 

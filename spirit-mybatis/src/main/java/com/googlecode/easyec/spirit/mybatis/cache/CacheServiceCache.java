@@ -1,6 +1,5 @@
 package com.googlecode.easyec.spirit.mybatis.cache;
 
-import com.googlecode.easyec.cache.CacheElement;
 import com.googlecode.easyec.cache.CacheService;
 import org.apache.ibatis.cache.Cache;
 import org.slf4j.Logger;
@@ -46,18 +45,14 @@ public class CacheServiceCache implements Cache {
         String thisKey = toKey(key);
 
         if (null != value) {
-            boolean b = this.cacheService.put(this.id, thisKey, new DefaultCacheServiceCacheElement(thisKey, value));
+            boolean b = this.cacheService.put(this.id, thisKey, value);
             logger.debug("Result of putting into cache. [{}]", b);
         }
     }
 
     public Object getObject(Object key) {
         initialize();
-        Object o = this.cacheService.get(this.id, toKey(key));
-        if (null == o) return null;
-
-        if (!(o instanceof CacheElement)) return o;
-        return ((CacheElement) o).getValue();
+        return this.cacheService.get(this.id, toKey(key));
     }
 
     public Object removeObject(Object key) {
