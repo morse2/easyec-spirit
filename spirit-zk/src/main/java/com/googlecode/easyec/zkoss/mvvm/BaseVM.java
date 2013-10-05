@@ -20,9 +20,9 @@ import java.io.Serializable;
  *
  * @author JunJie
  */
-public class BaseVM<T extends Component> implements Serializable {
+public abstract class BaseVM<T extends Component> implements Serializable {
 
-    private static final long serialVersionUID = -453388816345015725L;
+    private static final long serialVersionUID = -3519872813801853382L;
     protected final Logger logger = LoggerFactory.getLogger(getClass());
     private T self;
 

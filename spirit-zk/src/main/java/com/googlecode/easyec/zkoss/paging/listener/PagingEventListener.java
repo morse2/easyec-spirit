@@ -4,7 +4,7 @@ import org.zkoss.zk.ui.event.SerializableEventListener;
 import org.zkoss.zul.event.PagingEvent;
 
 /**
- * 分页时间监听器类。
+ * 分页事件监听器类。
  *
  * @author JunJie
  */
