@@ -5,6 +5,7 @@ import com.googlecode.easyec.spirit.dao.paging.Page;
 import com.googlecode.easyec.spirit.domain.GenericPersistentDomainModel;
 import com.googlecode.easyec.spirit.mybatis.mapper.DelegateDao;
 import com.googlecode.easyec.spirit.mybatis.service.DelegateService;
+import com.googlecode.easyec.spirit.mybatis.service.DelegateServiceCtrl;
 import com.googlecode.easyec.spirit.service.EcService;
 import com.googlecode.easyec.spirit.web.controller.formbean.impl.AbstractSearchFormBean;
 
@@ -17,7 +18,9 @@ import java.util.List;
  * @author JunJie
  */
 public class DelegateServiceMask<T extends DelegateDao<M, ID>, M extends GenericPersistentDomainModel<ID>, ID extends Serializable>
-    extends EcService implements DelegateService<T, M, ID> {
+    extends EcService implements DelegateService<T, M, ID>, DelegateServiceCtrl<T, M, ID> {
+
+    private T delegateDao;
 
     public void saveOrUpdate(M model) throws DataPersistenceException {
         logger.trace("Implementation via proxy class.");
@@ -46,6 +49,10 @@ public class DelegateServiceMask<T extends DelegateDao<M, ID>, M extends Generic
     }
 
     public T getDelegateDao() {
-        return null;
+        return delegateDao;
+    }
+
+    public void setDelegateDao(T delegateDao) {
+        this.delegateDao = delegateDao;
     }
 }

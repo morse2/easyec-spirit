@@ -6,6 +6,7 @@ import com.googlecode.easyec.spirit.dao.paging.factory.PageDelegate;
 import com.googlecode.easyec.spirit.domain.GenericPersistentDomainModel;
 import com.googlecode.easyec.spirit.mybatis.mapper.DelegateDao;
 import com.googlecode.easyec.spirit.mybatis.service.DelegateService;
+import com.googlecode.easyec.spirit.mybatis.service.DelegateServiceCtrl;
 import com.googlecode.easyec.spirit.web.controller.formbean.impl.AbstractSearchFormBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,10 +37,15 @@ final class DelegateServiceInvocationHandler implements InvocationHandler, Deleg
     private DelegateDao delegateDao;
     private BeanFactory beanFactory;
 
+    @SuppressWarnings("unchecked")
     public DelegateServiceInvocationHandler(Object targetBean, DelegateDao delegateDao, BeanFactory beanFactory) {
         this.targetBean = targetBean;
         this.delegateDao = delegateDao;
         this.beanFactory = beanFactory;
+
+        if (DelegateServiceCtrl.class.isInstance(targetBean)) {
+            ((DelegateServiceCtrl) targetBean).setDelegateDao(delegateDao);
+        }
     }
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
