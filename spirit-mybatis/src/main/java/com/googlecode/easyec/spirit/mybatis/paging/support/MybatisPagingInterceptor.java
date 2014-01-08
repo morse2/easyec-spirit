@@ -1,8 +1,10 @@
 package com.googlecode.easyec.spirit.mybatis.paging.support;
 
 import com.googlecode.easyec.spirit.dao.paging.*;
+import com.googlecode.easyec.spirit.mybatis.mapper.DelegateDao;
 import com.googlecode.easyec.spirit.mybatis.paging.MybatisPage;
 import com.googlecode.easyec.spirit.mybatis.paging.MybatisPageWritable;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.ibatis.executor.result.DefaultResultHandler;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.session.Configuration;
@@ -14,6 +16,11 @@ import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
+import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * MyBatis分页拦截器类。
@@ -26,7 +33,7 @@ public class MybatisPagingInterceptor implements PagingInterceptor, Ordered {
     private static final Logger logger = LoggerFactory.getLogger(MybatisPagingInterceptor.class);
 
     private SqlSessionFactory sqlSessionFactory;
-    private int order;
+    private int               order;
 
     /**
      * set方法注入一个{@link SqlSessionFactory}的实例。
@@ -50,9 +57,9 @@ public class MybatisPagingInterceptor implements PagingInterceptor, Ordered {
     public Object intercept(ProceedingJoinPoint joinPoint, Page page) throws Throwable {
         // must be created a new proxy every time.
         MybatisPage mybatisPage = MybatisPageProxy.newProxy(
-                page.getPageDialect(),
-                page.getCurrentPage(),
-                page.getPageSize()
+            page.getPageDialect(),
+            page.getCurrentPage(),
+            page.getPageSize()
         );
 
         if (page instanceof MybatisPage && mybatisPage instanceof MybatisPageWritable) {
@@ -61,14 +68,54 @@ public class MybatisPagingInterceptor implements PagingInterceptor, Ordered {
         }
 
         try {
+            List<String> mappedStatementIds = new ArrayList<String>();
+
+            // 获取方法签名
             Signature signature = joinPoint.getSignature();
+            // 获取MyBatis的配置信息
+            Configuration config = sqlSessionFactory.getConfiguration();
+            MappedStatement ms = null;
+
+            boolean b = DelegateDao.class.getName().equals(signature.getDeclaringTypeName());
+            logger.debug("Is DAO instance of class DelegateDao? [{}]", b);
+
+            if (b) {
+                Class[] interfaces = ClassUtils.getAllInterfaces(joinPoint.getTarget());
+                if (ArrayUtils.isNotEmpty(interfaces)) {
+                    for (Class cls : interfaces) {
+                        if (DelegateDao.class.isAssignableFrom(cls)) {
+                            StringBuffer sb = new StringBuffer();
+                            sb.append(cls.getName()).append(".");
+                            sb.append(signature.getName());
+                            logger.debug("Mapped statement id in proxy interface is: [{}].", sb);
+
+                            mappedStatementIds.add(sb.toString());
+                        }
+                    }
+                }
+            }
 
             StringBuffer sb = new StringBuffer();
             sb.append(signature.getDeclaringTypeName());
             sb.append(".").append(signature.getName());
+            logger.debug("Original mapped statement id is: [{}].", sb);
 
-            Configuration config = sqlSessionFactory.getConfiguration();
-            MappedStatement ms = config.getMappedStatement(sb.toString());
+            mappedStatementIds.add(sb.toString());
+
+            boolean continued = true;
+            for (int i = 0; continued && i < mappedStatementIds.size(); i++) {
+                try {
+                    ms = config.getMappedStatement(mappedStatementIds.get(i));
+                    continued = (null == ms);
+                } catch (Exception e) {
+                    // 如果报错，则说明没找到MappedStatement配置信息，
+                    // 需要从代理类的接口中查找签名信息，
+                    // 以获取正确的MappedStatement配置信息
+                    logger.trace(e.getMessage(), e);
+                }
+            }
+
+            Assert.notNull(ms, "No MappedStatement object was found in MyBatis configuration.");
 
             DefaultResultHandler resultHandler = new DefaultResultHandler();
             new DefaultMybatisPagingWork(ms, resultHandler).doPaging(mybatisPage);

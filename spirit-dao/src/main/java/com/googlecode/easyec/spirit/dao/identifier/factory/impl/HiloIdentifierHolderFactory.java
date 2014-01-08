@@ -5,7 +5,8 @@ import com.googlecode.easyec.spirit.dao.identifier.IdentifierHolder;
 import com.googlecode.easyec.spirit.dao.identifier.IdentifierNameResolver;
 import com.googlecode.easyec.spirit.dao.identifier.factory.IdentifierHolderFactory;
 import com.googlecode.easyec.spirit.dao.identifier.impl.HiloIdentifierHolder;
-import com.googlecode.easyec.spirit.domain.PersistentDomainModel;
+import com.googlecode.easyec.spirit.domain.GenericPersistentDomainModel;
+import com.googlecode.easyec.spirit.utils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.slf4j.Logger;
@@ -38,6 +39,7 @@ import static org.springframework.util.ClassUtils.getQualifiedName;
 public class HiloIdentifierHolderFactory extends AbstractIdentifierHolderFactory implements FactoryBean<IdentifierHolderFactory> {
 
     private static final Logger logger = LoggerFactory.getLogger(HiloIdentifierHolderFactory.class);
+
     public static final String DEFAULT_INSERT_SQL = "insert into sequence_generator (id_name, id_value) values (?, ?)";
     public static final String DEFAULT_UPDATE_SQL = "update sequence_generator set id_value = ? where id_name = ?";
     public static final String DEFAULT_SELECT_SQL = "select id_value from sequence_generator where id_name = ?";
@@ -47,7 +49,7 @@ public class HiloIdentifierHolderFactory extends AbstractIdentifierHolderFactory
     private String selectSql = DEFAULT_SELECT_SQL;
 
     private DataSource dataSource;
-    private long maxLoVal;
+    private long       maxLoVal;
 
     public void setSelectSql(String sql) {
         Assert.isTrue(isNotBlank(sql), "Select SQL mustn't be null.");
@@ -79,12 +81,26 @@ public class HiloIdentifierHolderFactory extends AbstractIdentifierHolderFactory
         CollectionUtils.filter(c, new Predicate() {
 
             public boolean evaluate(Object o) {
-                if (null == o || !(o instanceof PersistentDomainModel)) return false;
+                if (null == o || !(o instanceof GenericPersistentDomainModel)) return false;
 
-                Long uidPk = ((PersistentDomainModel) o).getUidPk();
-                logger.debug("Current uid pk value in POJO object. [" + uidPk + "].");
+                try {
+                    // 获取泛型类型
+                    Class genericType = BeanUtils.getGenericType(o, 0);
+                    if (null == genericType) return false;
+                    logger.debug("Current POJO object's generic type is: [{}].", genericType.getName());
 
-                return null == uidPk || uidPk.intValue() < 1;
+                    // 判断是否是数字类型
+                    if (!Number.class.isAssignableFrom(genericType)) return false;
+
+                    Number ser = (Number) ((GenericPersistentDomainModel) o).getUidPk();
+                    logger.debug("Current uid pk value in POJO object. [" + ser + "].");
+
+                    return null == ser || ser.intValue() < 1;
+                } catch (Exception e) {
+                    logger.trace(e.getMessage(), e);
+
+                    return false;
+                }
             }
         });
 
@@ -102,7 +118,7 @@ public class HiloIdentifierHolderFactory extends AbstractIdentifierHolderFactory
                 for (Object e : c) {
                     String tableId = identifierNameResolver.populate(e);
                     logger.debug("Table id: [" + tableId + "]. Object type: ["
-                            + getQualifiedName(e.getClass()) + "].");
+                        + getQualifiedName(e.getClass()) + "].");
 
                     IdentifierHolder holder = find(tableId);
                     if (holder == null) {

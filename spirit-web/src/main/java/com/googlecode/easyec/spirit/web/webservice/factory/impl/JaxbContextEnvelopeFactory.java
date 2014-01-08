@@ -9,8 +9,6 @@ import org.springframework.util.Assert;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -27,19 +25,16 @@ public class JaxbContextEnvelopeFactory implements EnvelopeFactory {
     private static final Logger logger = LoggerFactory.getLogger(JaxbContextEnvelopeFactory.class);
 
     private Charset charset = forName("UTF-8");
-    private Unmarshaller unmarshaller;
-    private Marshaller   marshaller;
+    private JAXBContext jaxbContext;
 
     public JaxbContextEnvelopeFactory(Class[] classes) throws JAXBException {
-        try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(classes);
-            unmarshaller = jaxbContext.createUnmarshaller();
-            marshaller = jaxbContext.createMarshaller();
-        } catch (JAXBException e) {
-            logger.error(e.getMessage(), e);
+        this(JAXBContext.newInstance(classes));
+    }
 
-            throw e;
-        }
+    public JaxbContextEnvelopeFactory(JAXBContext jaxbContext) {
+        Assert.notNull(jaxbContext, "JAXBContext object cannot be null.");
+
+        this.jaxbContext = jaxbContext;
     }
 
     /**
@@ -55,7 +50,7 @@ public class JaxbContextEnvelopeFactory implements EnvelopeFactory {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
         try {
-            marshaller.marshal(envelope, bos);
+            getJAXBContext().createMarshaller().marshal(envelope, bos);
             return new String(bos.toByteArray(), charset);
         } catch (JAXBException e) {
             logger.error(e.getMessage(), e);
@@ -70,7 +65,7 @@ public class JaxbContextEnvelopeFactory implements EnvelopeFactory {
         InputStream bis = IOUtils.toInputStream(xml, charset);
 
         try {
-            Object o = unmarshaller.unmarshal(bis);
+            Object o = getJAXBContext().createUnmarshaller().unmarshal(bis);
             if (null != o) {
                 Assert.isInstanceOf(Envelope.class, o);
 
@@ -85,5 +80,14 @@ public class JaxbContextEnvelopeFactory implements EnvelopeFactory {
         }
 
         return null;
+    }
+
+    /**
+     * 返回当前工厂类已初始化的JAXB上下文对象实例
+     *
+     * @return <code>JAXBContext</code>对象
+     */
+    protected JAXBContext getJAXBContext() {
+        return jaxbContext;
     }
 }

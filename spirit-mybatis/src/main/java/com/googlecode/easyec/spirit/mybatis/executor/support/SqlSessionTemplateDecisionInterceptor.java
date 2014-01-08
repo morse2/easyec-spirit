@@ -35,7 +35,7 @@ public class SqlSessionTemplateDecisionInterceptor implements Ordered {
 
     private boolean executeWithinBatch = true;
     private SqlSessionFactory sqlSessionFactory;
-    private int order;
+    private int               order;
 
     /**
      * 设置{@link Batch}注解标记是否启用。
@@ -91,16 +91,10 @@ public class SqlSessionTemplateDecisionInterceptor implements Ordered {
                 // 强转成方法签名类
                 MethodSignature signature = (MethodSignature) joinPoint.getSignature();
                 Method method = AopUtils.getMostSpecificMethod(signature.getMethod(), targetClass);
-                if (null == method) {
-                    method = signature.getMethod();
-                }
+                if (null == method) method = signature.getMethod();
 
                 Batch batch = method.getAnnotation(Batch.class);
-                if (null != batch) {
-                    createSqlSessionTemplate(true);
-                } else {
-                    createSqlSessionTemplate(false);
-                }
+                createSqlSessionTemplate(null != batch);
             } else {
                 createSqlSessionTemplate(false);
             }

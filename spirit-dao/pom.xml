@@ -3,13 +3,12 @@
     <parent>
         <groupId>com.googlecode.easyec</groupId>
         <artifactId>spirit</artifactId>
-        <version>0.2.1-SNAPSHOT</version>
+        <version>0.2.7-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.googlecode.easyec</groupId>
     <artifactId>spirit-dao</artifactId>
-    <version>0.2.1-SNAPSHOT</version>
+    <version>0.2.7-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>spirit-dao</name>
     <url>http://code.google.com/p/easyec</url>
@@ -46,7 +45,7 @@
         <dependency>
             <groupId>com.googlecode.easyec</groupId>
             <artifactId>spirit-web</artifactId>
-            <version>0.2.1-SNAPSHOT</version>
+            <version>0.2.7-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>

@@ -2,6 +2,8 @@ package com.googlecode.easyec.zkoss.paging;
 
 import org.zkoss.zk.ui.Component;
 
+import java.util.Map;
+
 /**
  * 可搜索的分页操作执行器类。
  *
@@ -24,4 +26,11 @@ public interface SearchablePagingExecutor extends PagingExecutor {
      * @param searchScope 搜索范围的组件对象
      */
     void setSearchScope(Component searchScope);
+
+    /**
+     * 返回当前的搜索条件信息。
+     *
+     * @return 搜索条件列表
+     */
+    Map<String, Object> getSearchTerms();
 }

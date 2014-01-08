@@ -3,6 +3,7 @@ package com.googlecode.easyec.zkoss.mvvm;
 import com.googlecode.easyec.zkoss.paging.PagingExecutor;
 import org.springframework.util.Assert;
 import org.zkoss.bind.annotation.AfterCompose;
+import org.zkoss.bind.annotation.Init;
 import org.zkoss.zk.ui.Component;
 
 /**
@@ -14,6 +15,7 @@ import org.zkoss.zk.ui.Component;
  * @author JunJie
  * @see PagingExecutor
  */
+@Init(superclass = true)
 public abstract class BasePagingVM<T extends Component> extends BaseVM<T> {
 
     private static final long serialVersionUID = 5973760726936949220L;
@@ -33,6 +35,8 @@ public abstract class BasePagingVM<T extends Component> extends BaseVM<T> {
         this.pagingExecutor = createPagingExecutor();
         Assert.notNull(pagingExecutor, "PagingExecutor is also null.");
 
+        // 执行分页执行类的初始化前置方法
+        beforePagingExecutorInit(pagingExecutor);
         // 初始化分页执行类的初始方法
         this.pagingExecutor.doInit();
     }
@@ -46,4 +50,14 @@ public abstract class BasePagingVM<T extends Component> extends BaseVM<T> {
      * @return <code>PagingExecutor</code>对象
      */
     abstract public PagingExecutor createPagingExecutor();
+
+    /**
+     * 在<code>PagingExecutor</code>对象被初始化之前执行的方法
+     *
+     * @param exec PagingExecutor对象实例
+     * @see PagingExecutor#doInit()
+     */
+    protected void beforePagingExecutorInit(PagingExecutor exec) {
+        logger.trace("beforePagingExecutorInit() done..");
+    }
 }

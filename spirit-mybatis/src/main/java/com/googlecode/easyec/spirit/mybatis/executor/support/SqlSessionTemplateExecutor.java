@@ -1,12 +1,17 @@
 package com.googlecode.easyec.spirit.mybatis.executor.support;
 
+import com.googlecode.easyec.spirit.mybatis.mapper.DelegateDao;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.ibatis.binding.MapperMethod;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.mybatis.spring.SqlSessionTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
+import org.springframework.util.ClassUtils;
 
 /**
  * <code>SqlSessionTemplate</code>执行器。
@@ -18,6 +23,7 @@ import org.springframework.core.Ordered;
 @Aspect
 public class SqlSessionTemplateExecutor implements Ordered {
 
+    private static final Logger logger = LoggerFactory.getLogger(SqlSessionTemplateExecutor.class);
     private int order;
 
     public int getOrder() {
@@ -39,15 +45,45 @@ public class SqlSessionTemplateExecutor implements Ordered {
 
         if (null == sqlSessionTemplate) {
             throw new UnsupportedOperationException("No SqlSessionTemplate was set. " +
-                    "You must configurer SQlSessionTemplateDecisionInterceptor class firstly.");
+                "You must configurer SQlSessionTemplateDecisionInterceptor class firstly.");
         }
 
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
 
+        if (DelegateDao.class.getName().equals(signature.getDeclaringTypeName())) {
+            Class[] interfaces = ClassUtils.getAllInterfaces(joinPoint.getTarget());
+            if (ArrayUtils.isNotEmpty(interfaces)) {
+                boolean failed = false;
+
+                for (Class cls : interfaces) {
+                    if (DelegateDao.class.isAssignableFrom(cls)) {
+                        try {
+                            return new MapperMethod(
+                                cls,
+                                signature.getMethod(),
+                                sqlSessionTemplate.getConfiguration()
+                            ).execute(sqlSessionTemplate, joinPoint.getArgs());
+                        } catch (Exception e) {
+                            logger.trace(e.getMessage(), e);
+
+                            failed = true;
+                        }
+                    }
+                }
+
+                if (failed) {
+                    logger.warn("Some method was invoked by DelegateDao object, " +
+                        "but some errors were occurred. Please check the log in trace level.");
+
+                    return null;
+                }
+            }
+        }
+
         return new MapperMethod(
-                signature.getDeclaringType(),
-                signature.getMethod(),
-                sqlSessionTemplate.getConfiguration()
+            signature.getDeclaringType(),
+            signature.getMethod(),
+            sqlSessionTemplate.getConfiguration()
         ).execute(sqlSessionTemplate, joinPoint.getArgs());
     }
 }

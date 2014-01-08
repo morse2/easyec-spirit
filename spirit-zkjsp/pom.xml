@@ -1,0 +1,31 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>spirit</artifactId>
+        <groupId>com.googlecode.easyec</groupId>
+        <version>0.2.7-SNAPSHOT</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>spirit-zkjsp</artifactId>
+    <packaging>jar</packaging>
+    <name>spirit-zkjsp</name>
+    <url>http://code.google.com/p/easyec</url>
+    <description>
+        A ZK extension project for JSP.
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.googlecode.easyec</groupId>
+            <artifactId>spirit-zk</artifactId>
+            <version>0.2.7-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils-core</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+    </dependencies>
+</project>

@@ -31,9 +31,10 @@ import static com.googlecode.easyec.spirit.web.controller.sorts.Sort.SortTypes.D
  */
 public abstract class AbstractPagingExecutor<T extends Component> implements PagingExecutor {
 
-    private static final long   serialVersionUID = -2980917974352805963L;
-    protected final      Logger logger           = LoggerFactory.getLogger(getClass());
-    private   boolean   lazyLoad;
+    private static final long serialVersionUID = -2821626435750058814L;
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
+    private boolean lazyLoad;
+    private boolean visible = true;
     /**
      * ZK分页组件对象
      */
@@ -69,7 +70,7 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
 
         // 如果分页不是延迟加载的，则默认加载第一页数据
         if (!lazyLoad) firePaging(1); // 总是加载第一页的数据
-        else _comp.setVisible(false); // 如果延迟加载，则设置显示区域不可见
+        else _comp.setVisible(visible); // 如果延迟加载，则设置显示区域可见或不可见
     }
 
     public boolean isLazyLoad() {
@@ -78,6 +79,10 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
 
     public void setLazyLoad(boolean lazyLoad) {
         this.lazyLoad = lazyLoad;
+    }
+
+    public void setVisibleIfLazyLoad(boolean visible) {
+        this.visible = visible;
     }
 
     public void firePaging(int currentPage) {

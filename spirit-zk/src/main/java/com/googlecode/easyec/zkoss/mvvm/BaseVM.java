@@ -5,14 +5,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.ContextParam;
-import org.zkoss.bind.annotation.ContextType;
+import org.zkoss.bind.annotation.Init;
+import org.zkoss.web.util.resource.ServletRequestResolver;
+import org.zkoss.xel.VariableResolver;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.SerializableEventListener;
 import org.zkoss.zk.ui.select.Selectors;
+import org.zkoss.zkplus.spring.DelegatingVariableResolver;
 import org.zkoss.zul.Messagebox;
 
 import java.io.Serializable;
+import java.util.Arrays;
+
+import static org.zkoss.bind.annotation.ContextType.COMPONENT;
 
 /**
  * 模型视图-视图模型的基础类。
@@ -22,7 +28,7 @@ import java.io.Serializable;
  */
 public abstract class BaseVM<T extends Component> implements Serializable {
 
-    private static final long serialVersionUID = -3519872813801853382L;
+    private static final long serialVersionUID = -8780204220793693935L;
     protected final Logger logger = LoggerFactory.getLogger(getClass());
     private T self;
 
@@ -35,11 +41,24 @@ public abstract class BaseVM<T extends Component> implements Serializable {
         return self;
     }
 
-    @AfterCompose
-    public void afterInit(@ContextParam(ContextType.COMPONENT) T comp) {
+    @Init
+    public void initVM(@ContextParam(COMPONENT) T comp) {
         this.self = comp;
+        // 注入全局变量
+        Selectors.wireVariables(comp, this,
+            Arrays.<VariableResolver>asList(
+                new DelegatingVariableResolver(),
+                new ServletRequestResolver()
+            )
+        );
+
+        logger.trace("initVM() done!");
+    }
+
+    @AfterCompose
+    public void afterInit() {
         // 注入组件对象
-        Selectors.wireComponents(comp, this, false);
+        Selectors.wireComponents(self, this, false);
 
         logger.trace("afterInit() done!");
     }

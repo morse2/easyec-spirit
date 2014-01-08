@@ -44,6 +44,14 @@ public interface PagingExecutor extends Serializable {
     void setLazyLoad(boolean lazyLoad);
 
     /**
+     * 当设置了延迟加载时候，
+     * 此方法设置主组件的可见性。
+     *
+     * @param visible 真为可见，否则不可见
+     */
+    void setVisibleIfLazyLoad(boolean visible);
+
+    /**
      * 触发分页动作的方法。
      *
      * @param currentPage 当前页码

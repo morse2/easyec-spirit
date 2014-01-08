@@ -2,6 +2,8 @@ package com.googlecode.easyec.zkoss.paging;
 
 import com.googlecode.easyec.spirit.web.controller.formbean.impl.AbstractSearchFormBean;
 import com.googlecode.easyec.spirit.web.controller.formbean.impl.SearchFormBean;
+import com.googlecode.easyec.spirit.web.controller.formbean.terms.SearchTermsTransform;
+import com.googlecode.easyec.spirit.web.controller.formbean.terms.impl.FuzzyMatchTermsTransform;
 import org.apache.commons.collections.MapUtils;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.KeyEvent;
@@ -30,7 +32,7 @@ import static org.zkoss.zk.ui.event.Events.ON_OK;
  */
 public abstract class AbstractSearchablePagingExecutor<T extends Component> extends AbstractPagingExecutor<T> implements SearchablePagingExecutor {
 
-    private static final long serialVersionUID = -8185828077276939433L;
+    private static final long serialVersionUID = 4884192010222266864L;
 
     /**
      * 构造方法。
@@ -117,13 +119,17 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         firePaging(searchFormBean);
     }
 
+    public Map<String, Object> getSearchTerms() {
+        return combineSearchTerms().getSearchTerms();
+    }
+
     /**
      * 合并搜索参数。
      *
      * @return <code>AbstractSearchFormBean</code>
      */
     protected AbstractSearchFormBean combineSearchTerms() {
-        AbstractSearchFormBean bean = new SearchFormBean();
+        AbstractSearchFormBean bean = createSearchFormBean();
 
         for (Component c : searchComponents) {
             // 合并文本框的值
@@ -180,7 +186,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
      * @return <code>AbstractSearchFormBean</code>
      */
     protected AbstractSearchFormBean clearSearchTerms() {
-        AbstractSearchFormBean bean = new SearchFormBean();
+        AbstractSearchFormBean bean = createSearchFormBean();
 
         for (Component c : searchComponents) {
             // 清除文本框的值
@@ -230,6 +236,13 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         return bean;
     }
 
+    protected List<SearchTermsTransform> createSearchTermsTransforms() {
+        List<SearchTermsTransform> transforms = new ArrayList<SearchTermsTransform>();
+        transforms.add(new FuzzyMatchTermsTransform());
+
+        return transforms;
+    }
+
     /**
      * 合并添加组件中的自定义属性作为搜索条件。
      *
@@ -276,6 +289,15 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
      */
     private Component getActualSearchScope() {
         return null != searchScope ? searchScope : this._comp;
+    }
+
+    /**
+     * 创建默认的搜索Bean对象实例
+     *
+     * @return 搜索Bean对象
+     */
+    private AbstractSearchFormBean createSearchFormBean() {
+        return new SearchFormBean(createSearchTermsTransforms());
     }
 
     /**
