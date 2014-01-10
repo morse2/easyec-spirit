@@ -64,6 +64,7 @@ public class SqlSessionTemplateExecutor implements Ordered {
                                 sqlSessionTemplate.getConfiguration()
                             ).execute(sqlSessionTemplate, joinPoint.getArgs());
                         } catch (Exception e) {
+                            logger.debug(e.getMessage(), e);
                             logger.trace(e.getMessage(), e);
 
                             failed = true;
