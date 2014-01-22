@@ -1,5 +1,6 @@
 package com.googlecode.easyec.zkoss.mvvm;
 
+import com.googlecode.easyec.spirit.domain.GenericPersistentDomainModel;
 import com.googlecode.easyec.spirit.domain.PersistentDomainModel;
 import com.googlecode.easyec.spirit.utils.BeanUtils;
 import org.apache.commons.collections.MapUtils;
@@ -38,16 +39,20 @@ public abstract class BaseFormVM<T extends Component, M extends PersistentDomain
     /**
      * 表单参数对象的KEY
      */
-    public static final String ARG_FORM_OBJECT = "com.googlecode.easyec.zkoss.mvvm.FormObject";
+    public static final  String ARG_FORM_OBJECT  = "com.googlecode.easyec.zkoss.mvvm.FormObject";
     /**
      * 表单参数指向的URI的KEY
      */
-    public static final String ARG_REQUEST_URI = "com.googlecode.easyec.zkoss.mvvm.ZKRequestURI";
+    public static final  String ARG_REQUEST_URI  = "com.googlecode.easyec.zkoss.mvvm.ZKRequestURI";
     /**
      * 标识是否校验表单对象的主键为空
      */
-    public static final String ARG_CHECK_UIDPK = "com.googlecode.easyec.zkoss.mvvm.CheckUidPK";
-    private static final long serialVersionUID = -5587545110164954993L;
+    public static final  String ARG_CHECK_UIDPK  = "com.googlecode.easyec.zkoss.mvvm.CheckUidPK";
+    /**
+     * 标识是否匹配VM对象类型
+     */
+    public static final  String ARG_MATCH_VM     = "com.googlecode.easyec.zkoss.mvvm.MatchVM";
+    private static final long   serialVersionUID = 8575235562676085828L;
 
     /**
      * 域模型对象实例。此对象不能为空。
@@ -94,6 +99,7 @@ public abstract class BaseFormVM<T extends Component, M extends PersistentDomain
     private void resolveFormVariable() {
         Object var;
         Boolean shouldCheck = true;
+        Class matchesVM = null;
         Map<?, ?> arg = getCurrent().getArg();
         if (MapUtils.isNotEmpty(arg) && arg.containsKey(ARG_FORM_OBJECT)) {
             var = arg.get(ARG_FORM_OBJECT);
@@ -106,6 +112,8 @@ public abstract class BaseFormVM<T extends Component, M extends PersistentDomain
             if (null != b) shouldCheck = b;
             // 从session中获取此表单请求的URI
             String uri = (String) session.getAttribute(ARG_REQUEST_URI);
+            // 从session中获取此表单匹配VM参数
+            matchesVM = (Class) session.getAttribute(ARG_MATCH_VM);
             // 如果URI参数为空，认为这是ajax提交的请求，则将表单对象remove掉
             if (isBlank(uri)) {
                 session.removeAttribute(ARG_FORM_OBJECT);
@@ -114,10 +122,12 @@ public abstract class BaseFormVM<T extends Component, M extends PersistentDomain
         }
 
         if (null != var) {
-            Assert.isInstanceOf(PersistentDomainModel.class, var);
+            Assert.isInstanceOf(GenericPersistentDomainModel.class, var);
 
-            if (!shouldCheck || null != ((PersistentDomainModel) var).getUidPk()) {
+            if (!shouldCheck || null != ((GenericPersistentDomainModel) var).getUidPk()) {
+                boolean b = (null == matchesVM || matchesVM.isInstance(this));
                 Class cls = BeanUtils.getGenericType(this, 1);
+
                 if (null == cls) {
                     action = FormAction.UPDATE;
                     domainModel = loadModel((M) var);
@@ -125,7 +135,7 @@ public abstract class BaseFormVM<T extends Component, M extends PersistentDomain
                     return;
                 }
 
-                if (cls.isInstance(var)) {
+                if (cls.isInstance(var) && b) {
                     action = FormAction.UPDATE;
                     domainModel = loadModel((M) var);
 

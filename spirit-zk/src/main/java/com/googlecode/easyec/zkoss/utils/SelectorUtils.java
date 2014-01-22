@@ -33,7 +33,19 @@ public class SelectorUtils {
      * @return 符合条件的第一个组件对象
      */
     public static Component findFirst(Component root, String selector) {
-        List<Component> list = find(root, selector);
+        return findFirst(root, selector, true);
+    }
+
+    /**
+     * 查找给定的css选择器的组件信息。
+     *
+     * @param root       根组件对象，搜索的起始范围
+     * @param selector   css选择器表达式
+     * @param findInPage 指出如果给定的组件级别范围不能找到相应的组件，则是否要从Page范围进行查找
+     * @return 符合条件的第一个组件对象
+     */
+    public static Component findFirst(Component root, String selector, boolean findInPage) {
+        List<Component> list = find(root, selector, findInPage);
         return list.isEmpty() ? null : list.get(0);
     }
 
@@ -45,6 +57,18 @@ public class SelectorUtils {
      * @return 符合条件的组件对象集合
      */
     public static List<Component> find(Component root, String selector) {
+        return find(root, selector, true);
+    }
+
+    /**
+     * 查找给定的css选择器的组件信息。
+     *
+     * @param root       根组件对象，搜索的起始范围
+     * @param selector   css选择器表达式
+     * @param findInPage 指出如果给定的组件级别范围不能找到相应的组件，则是否要从Page范围进行查找
+     * @return 符合条件的组件对象集合
+     */
+    public static List<Component> find(Component root, String selector, boolean findInPage) {
         if (null == root) {
             logger.debug("Component is null.");
 
@@ -52,7 +76,7 @@ public class SelectorUtils {
         }
 
         List<Component> result = Selectors.find(root, selector);
-        return isEmpty(result) ? find(root.getPage(), selector) : result;
+        return isEmpty(result) && findInPage ? find(root.getPage(), selector) : result;
     }
 
     /**
@@ -67,7 +91,23 @@ public class SelectorUtils {
      * @return 符合条件的第一个组件对象
      */
     public static <T extends Component> T findFirst(Component root, String selector, Class<T> clazz) {
-        List<T> list = find(root, selector, clazz);
+        return findFirst(root, selector, clazz, true);
+    }
+
+    /**
+     * 查找给定的css选择器的组件信息。
+     * 并且组件类型是给定的类型，
+     * 不符合给定的类型的组件将被忽略过滤。
+     *
+     * @param root       根组件对象，搜索的起始范围
+     * @param selector   css选择器表达式
+     * @param clazz      指定查找的组件的类型
+     * @param findInPage 指出如果给定的组件级别范围不能找到相应的组件，则是否要从Page范围进行查找
+     * @param <T>        组件的泛型类型
+     * @return 符合条件的第一个组件对象
+     */
+    public static <T extends Component> T findFirst(Component root, String selector, Class<T> clazz, boolean findInPage) {
+        List<T> list = find(root, selector, clazz, findInPage);
         return list.isEmpty() ? null : list.get(0);
     }
 
@@ -83,10 +123,26 @@ public class SelectorUtils {
      * @return 符合条件的组件对象集合
      */
     public static <T extends Component> List<T> find(Component root, String selector, Class<T> clazz) {
+        return find(root, selector, clazz, true);
+    }
+
+    /**
+     * 查找给定的css选择器的组件信息。
+     * 并且组件类型是给定的类型，
+     * 不符合给定的类型的组件将被忽略过滤。
+     *
+     * @param root       根组件对象，搜索的起始范围
+     * @param selector   css选择器表达式
+     * @param clazz      指定查找的组件的类型
+     * @param findInPage 指出如果给定的组件级别范围不能找到相应的组件，则是否要从Page范围进行查找
+     * @param <T>        组件的泛型类型
+     * @return 符合条件的组件对象集合
+     */
+    public static <T extends Component> List<T> find(Component root, String selector, Class<T> clazz, boolean findInPage) {
         Assert.notNull(clazz, "Type of class is null.");
 
         List<T> result = new ArrayList<T>();
-        List<Component> list = find(root, selector);
+        List<Component> list = find(root, selector, findInPage);
         for (Component comp : list) {
             if (clazz.isAssignableFrom(comp.getClass())) {
                 result.add(clazz.cast(comp));

@@ -8,7 +8,6 @@ import org.apache.commons.collections.MapUtils;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.KeyEvent;
 import org.zkoss.zk.ui.event.SerializableEventListener;
-import org.zkoss.zk.ui.select.Selectors;
 import org.zkoss.zul.*;
 import org.zkoss.zul.impl.FormatInputElement;
 import org.zkoss.zul.impl.InputElement;
@@ -32,7 +31,7 @@ import static org.zkoss.zk.ui.event.Events.ON_OK;
  */
 public abstract class AbstractSearchablePagingExecutor<T extends Component> extends AbstractPagingExecutor<T> implements SearchablePagingExecutor {
 
-    private static final long serialVersionUID = 4884192010222266864L;
+    private static final long serialVersionUID = -6240850960089282666L;
 
     /**
      * 构造方法。
@@ -45,8 +44,9 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
     }
 
     private static final String SELECTORS = "textbox,combobox,datebox,intbox,decimalbox,div";
-    private List<Component> searchComponents;
-    private Component       searchScope;
+
+    private final List<Component> searchComponents = new ArrayList<Component>();
+    private Component searchScope;
 
     public void setSearchScope(Component searchScope) {
         this.searchScope = searchScope;
@@ -77,7 +77,10 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
      * @param searchSelectors 搜索控件的选择器
      */
     public void setSearchSelectors(String searchSelectors) {
-        this.searchComponents = find(getActualSearchScope(), searchSelectors);
+        if (isNotBlank(searchSelectors)) {
+            this.searchComponents.clear();
+            this.searchComponents.addAll(find(getActualSearchScope(), searchSelectors));
+        }
     }
 
     /**
@@ -88,13 +91,13 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
      */
     public void addSearchSelectors(String searchSelectors) {
         if (isNotBlank(searchSelectors)) {
-            this.searchComponents.addAll(Selectors.find(getActualSearchScope(), searchSelectors));
+            this.searchComponents.addAll(find(getActualSearchScope(), searchSelectors));
         }
     }
 
     @Override
     public void doInit() {
-        this.searchComponents = new ArrayList<Component>(5);
+        // fix at 0.2.8
         // 先初始化搜索组件
         addSearchSelectors(SELECTORS);
 

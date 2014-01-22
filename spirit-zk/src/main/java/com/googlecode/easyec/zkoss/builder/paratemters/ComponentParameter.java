@@ -54,7 +54,7 @@ public class ComponentParameter {
     /**
      * ZK组件参数构建类
      */
-    public static class ComponentParameterBuilder {
+    public static final class ParameterBuilder {
 
         private ComponentParameter parameter;
 
@@ -63,7 +63,7 @@ public class ComponentParameter {
          *
          * @param uri ZK页面路径，不能为空
          */
-        public ComponentParameterBuilder(String uri) {
+        public ParameterBuilder(String uri) {
             Assert.notNull(uri, "Parameter URI cannot be null.");
 
             this.parameter = new ComponentParameter(uri);
@@ -75,7 +75,7 @@ public class ComponentParameter {
          * @param parent 父组件对象
          * @return ZK组件参数构建类
          */
-        public ComponentParameterBuilder parent(Component parent) {
+        public ParameterBuilder parent(Component parent) {
             this.parameter.parent = parent;
             return this;
         }
@@ -87,7 +87,7 @@ public class ComponentParameter {
          * @param v 参数的值
          * @return ZK组件参数构建类
          */
-        public ComponentParameterBuilder parameter(String k, Object v) {
+        public ParameterBuilder parameter(String k, Object v) {
             this.parameter.parameters.put(k, v);
             return this;
         }
@@ -98,7 +98,7 @@ public class ComponentParameter {
          * @param params 参数集合对象
          * @return ZK组件参数构建类
          */
-        public ComponentParameterBuilder parameters(Map<String, Object> params) {
+        public ParameterBuilder parameters(Map<String, Object> params) {
             if (MapUtils.isNotEmpty(params)) {
                 this.parameter.parameters.putAll(params);
             }

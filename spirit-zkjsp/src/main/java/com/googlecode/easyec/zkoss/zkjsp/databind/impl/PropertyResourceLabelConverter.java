@@ -20,17 +20,16 @@ public class PropertyResourceLabelConverter extends ResourceLabelConverter {
     public String coerceToUi(Object val, Map<String, Object> bindingArgs) {
         String property = (String) bindingArgs.get(PROPERTY_PATH);
 
-        try {
-            Assert.isTrue(isNotBlank(property), "Binding arg 'property' is required.");
+        Assert.isTrue(isNotBlank(property), "Binding arg 'property' is required.");
 
-            return super.coerceToUi(
-                PropertyUtils.getProperty(val, property),
-                bindingArgs
-            );
+        Object ret = null;
+
+        try {
+            ret = PropertyUtils.getProperty(val, property);
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            logger.warn(e.getMessage(), e);
         }
 
-        return null;
+        return super.coerceToUi(ret, bindingArgs);
     }
 }

@@ -20,6 +20,8 @@ public class DateFormatConverter extends ReadonlyFieldTypeConverter<Date, String
 
     @Override
     public String coerceToUi(Date val, Map<String, Object> bindingArgs) {
+        if (null == val) return "";
+
         String pattern = (String) bindingArgs.get(ARG_PATTERN);
         if (isBlank(pattern)) pattern = DEFAULT_PATTERN;
 

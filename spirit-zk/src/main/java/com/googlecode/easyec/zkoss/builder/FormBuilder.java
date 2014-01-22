@@ -1,6 +1,6 @@
 package com.googlecode.easyec.zkoss.builder;
 
-import com.googlecode.easyec.spirit.domain.PersistentDomainModel;
+import com.googlecode.easyec.spirit.domain.GenericPersistentDomainModel;
 import com.googlecode.easyec.zkoss.builder.paratemters.FormParameter;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
@@ -59,8 +59,19 @@ public class FormBuilder implements InitializingBean {
      * @param uri 页面的URI
      * @param dm  表单对象
      */
-    public void redirectTo(String uri, PersistentDomainModel dm) {
+    public void redirectTo(String uri, GenericPersistentDomainModel<?> dm) {
         redirectTo(uri, dm, true);
+    }
+
+    /**
+     * 重定向页面到给定的URI
+     *
+     * @param uri   页面的URI
+     * @param dm    表单对象
+     * @param vmCls 匹配VM的类型
+     */
+    public void redirectTo(String uri, GenericPersistentDomainModel<?> dm, Class<?> vmCls) {
+        redirectTo(uri, null, dm, true, vmCls);
     }
 
     /**
@@ -70,7 +81,7 @@ public class FormBuilder implements InitializingBean {
      * @param dm  表单对象
      * @param b   标识是否对DomainModel对象主键进行为空的判断
      */
-    public void redirectTo(String uri, PersistentDomainModel dm, boolean b) {
+    public void redirectTo(String uri, GenericPersistentDomainModel<?> dm, boolean b) {
         redirectTo(uri, null, dm, b);
     }
 
@@ -81,7 +92,7 @@ public class FormBuilder implements InitializingBean {
      * @param target 目标浏览器。例如_self、_blank
      * @param dm     表单对象
      */
-    public void redirectTo(String uri, String target, PersistentDomainModel dm) {
+    public void redirectTo(String uri, String target, GenericPersistentDomainModel<?> dm) {
         redirectTo(uri, target, dm, true);
     }
 
@@ -93,12 +104,26 @@ public class FormBuilder implements InitializingBean {
      * @param dm     表单对象
      * @param b      标识是否对DomainModel对象主键进行为空的判断
      */
-    public void redirectTo(String uri, String target, PersistentDomainModel dm, boolean b) {
+    public void redirectTo(String uri, String target, GenericPersistentDomainModel<?> dm, boolean b) {
+        redirectTo(uri, target, dm, b, null);
+    }
+
+    /**
+     * 重定向页面到给定的URI
+     *
+     * @param uri    页面的URI
+     * @param target 目标浏览器。例如_self、_blank
+     * @param dm     表单对象
+     * @param b      标识是否对DomainModel对象主键进行为空的判断
+     * @param vmCls  匹配VM的类型
+     */
+    public void redirectTo(String uri, String target, GenericPersistentDomainModel<?> dm, boolean b, Class<?> vmCls) {
         Execution current = Executions.getCurrent();
         if (null != dm) {
             current.getSession().setAttribute(ARG_CHECK_UIDPK, b);
             current.getSession().setAttribute(ARG_FORM_OBJECT, dm);
             current.getSession().setAttribute(ARG_REQUEST_URI, uri);
+            current.getSession().setAttribute(ARG_MATCH_VM, vmCls);
         }
 
         current.sendRedirect(uri, target);

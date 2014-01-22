@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.util.ClassUtils;
 
+import java.util.List;
+
 /**
  * <code>SqlSessionTemplate</code>执行器。
  * 此类必须依赖于<code>SqlSessionTemplateDecisionInterceptor</code>类，
@@ -53,7 +55,7 @@ public class SqlSessionTemplateExecutor implements Ordered {
         if (DelegateDao.class.getName().equals(signature.getDeclaringTypeName())) {
             Class[] interfaces = ClassUtils.getAllInterfaces(joinPoint.getTarget());
             if (ArrayUtils.isNotEmpty(interfaces)) {
-                boolean failed = false;
+                SqlSessionNestedException ex = new SqlSessionNestedException();
 
                 for (Class cls : interfaces) {
                     if (DelegateDao.class.isAssignableFrom(cls)) {
@@ -64,19 +66,22 @@ public class SqlSessionTemplateExecutor implements Ordered {
                                 sqlSessionTemplate.getConfiguration()
                             ).execute(sqlSessionTemplate, joinPoint.getArgs());
                         } catch (Exception e) {
-                            logger.debug(e.getMessage(), e);
-                            logger.trace(e.getMessage(), e);
-
-                            failed = true;
+                            ex.addException(e);
                         }
                     }
                 }
 
-                if (failed) {
+                if (ex.hasExceptions()) {
                     logger.warn("Some method was invoked by DelegateDao object, " +
-                        "but some errors were occurred. Please check the log in trace level.");
+                        "but some errors were occurred. Please catch this exception and " +
+                        "check the log in trace level.");
 
-                    return null;
+                    List<Exception> exceptions = ex.getLinkedExceptions();
+                    for (Exception e : exceptions) {
+                        logger.trace(e.getMessage(), e);
+                    }
+
+                    throw ex;
                 }
             }
         }

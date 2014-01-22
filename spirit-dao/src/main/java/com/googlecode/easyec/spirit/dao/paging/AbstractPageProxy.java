@@ -1,6 +1,5 @@
 package com.googlecode.easyec.spirit.dao.paging;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -29,12 +28,6 @@ public abstract class AbstractPageProxy<T extends Page> implements PageProxy<T> 
             if (logger.isDebugEnabled()) {
                 logger.debug("Proxy class: [" + proxy.getClass().getName() + "].");
                 logger.debug("Method name: [" + method.getName() + "].");
-
-                if (ArrayUtils.isNotEmpty(args)) {
-                    for (int i = 0; i < args.length; i++) {
-                        logger.debug("Parameter [" + i + "], [" + args[i] + "].");
-                    }
-                }
             }
 
             return method.invoke(page, args);

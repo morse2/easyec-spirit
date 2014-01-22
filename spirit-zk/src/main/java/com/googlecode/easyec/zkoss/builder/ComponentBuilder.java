@@ -8,7 +8,6 @@ import org.zkoss.zk.ui.Component;
 
 import java.util.Map;
 
-import static com.googlecode.easyec.zkoss.builder.paratemters.ComponentParameter.ComponentParameterBuilder;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.zkoss.zk.ui.Executions.createComponents;
@@ -85,7 +84,7 @@ public final class ComponentBuilder implements InitializingBean {
      */
     public <T extends Component> T create(String uri, Component parent, Map<String, Object> paramMap) {
         return create(
-            new ComponentParameterBuilder(uri)
+            new ComponentParameter.ParameterBuilder(uri)
                 .parameters(paramMap)
                 .parent(parent)
                 .build()

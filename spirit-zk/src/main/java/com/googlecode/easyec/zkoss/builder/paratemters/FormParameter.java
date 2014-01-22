@@ -66,7 +66,7 @@ public class FormParameter {
      *
      * @author JunJie
      */
-    public static class ParameterBuilder {
+    public static final class ParameterBuilder {
 
         private FormParameter parameter;
 
