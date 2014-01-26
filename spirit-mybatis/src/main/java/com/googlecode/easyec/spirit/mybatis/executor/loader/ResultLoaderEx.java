@@ -46,7 +46,7 @@ public class ResultLoaderEx extends ResultLoader {
     private <E> List<E> selectList() throws SQLException {
         Executor localExecutor = executor;
         // 如果执行器被关闭了，则创建一个新的执行器实例
-        if (localExecutor.isClosed()) {
+        if (Thread.currentThread().getId() != this.creatorThreadId || localExecutor.isClosed()) {
             localExecutor = newExecutor();
         } else {
             // 检查当前执行器中的数据库链接，如果关闭了，则创建一个新的执行器实例
