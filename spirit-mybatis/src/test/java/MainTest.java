@@ -1,3 +1,4 @@
+import com.googlecode.easyec.spirit.dao.dialect.impl.MySqlJdbcPageDialect;
 import com.googlecode.easyec.spirit.dao.paging.Page;
 import com.googlecode.easyec.spirit.dao.paging.factory.PageDelegate;
 import org.junit.Test;
@@ -23,5 +24,19 @@ public class MainTest extends AbstractJUnit4SpringContextTests {
     public void testIt() {
         Page page = pageDelegate.createPage(1, pageDelegate.getPageSize());
         Assert.notNull(page);
+    }
+
+    @Test
+    public void getCountSqlWithDistinct() {
+        String sql = "select distinct a.field1, a.field2 from Table1 a join Table2 b on a.id = b.id";
+        String countSql = new MySqlJdbcPageDialect().getCountSql(sql);
+        System.out.println(countSql);
+    }
+
+    @Test
+    public void getCountSqlWithUnion() {
+        String sql = "select a.field1, a.field2 from Table1 a order by a.id desc union select b.field1, b.field2 from Table2 b";
+        String countSql = new MySqlJdbcPageDialect().getCountSql(sql);
+        System.out.println(countSql);
     }
 }

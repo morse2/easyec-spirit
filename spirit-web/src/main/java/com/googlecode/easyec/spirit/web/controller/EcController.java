@@ -2,8 +2,6 @@ package com.googlecode.easyec.spirit.web.controller;
 
 import com.googlecode.easyec.spirit.web.controller.formbean.FormBeansFactory;
 import com.googlecode.easyec.spirit.web.controller.formbean.impl.AbstractSearchFormBean;
-import com.googlecode.easyec.spirit.web.controller.util.UriComponents;
-import com.googlecode.easyec.spirit.web.controller.util.UriComponentsBuilder;
 import com.googlecode.easyec.spirit.web.message.MessageUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -11,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.util.NumberUtils;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Locale;
@@ -34,7 +34,7 @@ public abstract class EcController {
      */
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private MessageSource messageSource;
+    private MessageSource    messageSource;
     private FormBeansFactory formBeansFactory;
 
     @Autowired(required = false)
@@ -178,11 +178,7 @@ public abstract class EcController {
             }
         }
 
-        if (params != null && params.length > 0) {
-            builder.pathSegment(params);
-        }
-
-        return builder.build();
+        return builder.buildAndExpand(params);
     }
 
     /**

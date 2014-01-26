@@ -15,10 +15,16 @@ import static java.util.regex.Pattern.compile;
  */
 public abstract class JdbcPageDialect extends JdbcSqlDialect implements PageDialect {
 
+    /* common pattern */
     protected static final Pattern select_Pattern_1 = compile("[\\w\\W\\s]*from\\s*", CASE_INSENSITIVE);
-    protected static final Pattern select_Pattern_2 = compile("(distinct)\\s+[\\w\\W&&[^,]]*", CASE_INSENSITIVE);
-    protected static final Pattern select_Pattern_2_From = compile("\\s*from\\s*", CASE_INSENSITIVE);
+    /* distinct pattern */
+    protected static final Pattern select_Pattern_2 = compile("(distinct)\\s+[\\w\\W]*", CASE_INSENSITIVE);
+    /* from pattern */
+    protected static final Pattern select_Pattern_f = compile("\\s*from\\s*", CASE_INSENSITIVE);
+    /* group by pattern */
     protected static final Pattern select_Pattern_3 = compile("\\s*group\\s*by[\\s\\S\\w\\W]*", CASE_INSENSITIVE);
+    /* union pattern */
+    protected static final Pattern select_Pattern_u = compile("\\s*union\\s*", CASE_INSENSITIVE);
 
     public String getCountSql(String jdbcSql) {
         if (StringUtils.isBlank(jdbcSql)) {
@@ -26,8 +32,31 @@ public abstract class JdbcPageDialect extends JdbcSqlDialect implements PageDial
         }
 
         logger.debug("Original JDBC sql: [" + jdbcSql + "].");
-        String sql = jdbcSql;
 
+        // matches whether has union keyword
+        Matcher um = select_Pattern_u.matcher(jdbcSql);
+        if (um.find()) {
+            StringBuffer sb = new StringBuffer();
+            sb.append("select count(*) from (");
+
+            String[] parts = jdbcSql.split(um.group());
+            for (int i = 0; i < parts.length; i++) {
+                if (i > 0) sb.append(" union ");
+                String sql = parts[i];
+                logger.debug("Part of sql: [{}].", sql);
+
+                Matcher m1 = order_By_Pattern.matcher(sql);
+                if (m1.find()) sb.append(m1.replaceAll(""));
+                else sb.append(sql);
+            }
+
+            return sb.append(") _t_0").toString();
+        }
+
+        return doGetCountSql(jdbcSql);
+    }
+
+    private String doGetCountSql(String sql) {
         StringBuffer sb = new StringBuffer();
         // remove order by statement if exists
         Matcher m1 = order_By_Pattern.matcher(sql);
@@ -59,7 +88,7 @@ public abstract class JdbcPageDialect extends JdbcSqlDialect implements PageDial
                     Matcher m3 = select_Pattern_2.matcher(group);
                     if (m3.find()) {
                         String g = m3.group();
-                        Matcher m3_from = select_Pattern_2_From.matcher(g);
+                        Matcher m3_from = select_Pattern_f.matcher(g);
                         if (m3_from.find()) {
                             g = m3_from.replaceAll("");
                         }
