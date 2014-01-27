@@ -16,13 +16,15 @@ import static java.util.regex.Pattern.compile;
 public abstract class JdbcPageDialect extends JdbcSqlDialect implements PageDialect {
 
     /* common pattern */
-    protected static final Pattern select_Pattern_1 = compile("[\\w\\W\\s]*from\\s*", CASE_INSENSITIVE);
+    protected static final Pattern select_Pattern_m = compile("[\\w\\W\\s]*from\\s*", CASE_INSENSITIVE);
     /* distinct pattern */
-    protected static final Pattern select_Pattern_2 = compile("(distinct)\\s+[\\w\\W]*", CASE_INSENSITIVE);
+    protected static final Pattern select_Pattern_d = compile("(distinct)\\s+[\\w\\W]*", CASE_INSENSITIVE);
+    /* select pattern */
+    protected static final Pattern select_Pattern_s = compile("^select\\s*", CASE_INSENSITIVE);
     /* from pattern */
     protected static final Pattern select_Pattern_f = compile("\\s*from\\s*", CASE_INSENSITIVE);
     /* group by pattern */
-    protected static final Pattern select_Pattern_3 = compile("\\s*group\\s*by[\\s\\S\\w\\W]*", CASE_INSENSITIVE);
+    protected static final Pattern select_Pattern_g = compile("\\s*group\\s*by[\\s\\S\\w\\W]*", CASE_INSENSITIVE);
     /* union pattern */
     protected static final Pattern select_Pattern_u = compile("\\s*union\\s*", CASE_INSENSITIVE);
 
@@ -59,49 +61,51 @@ public abstract class JdbcPageDialect extends JdbcSqlDialect implements PageDial
     private String doGetCountSql(String sql) {
         StringBuffer sb = new StringBuffer();
         // remove order by statement if exists
-        Matcher m1 = order_By_Pattern.matcher(sql);
-        if (m1.find()) {
-            m1.appendReplacement(sb, "");
-        }
+        Matcher mo = order_By_Pattern.matcher(sql);
+        if (mo.find()) mo.appendReplacement(sb, "");
 
-        sql = m1.appendTail(sb).toString();
+        sql = mo.appendTail(sb).toString();
 
         logger.debug("JDBC SQL after removing 'order by' statement. SQL: [" + sql + "].");
 
-        StringBuffer sb1 = new StringBuffer();
+        // matches distinct sql
+        Matcher md = select_Pattern_d.matcher(sql);
+        if (md.find()) {
+            return new StringBuffer()
+                .append("select count(*) from (")
+                .append(sql)
+                .append(") _t_1")
+                .toString();
+        }
 
         String countSql;
         // resolve group by statement
-        Matcher m4 = select_Pattern_3.matcher(sql);
+        Matcher m4 = select_Pattern_g.matcher(sql);
         if (m4.find()) {
-            countSql = "select count(*) from (" + sql + ") _t_1";
-        } else {
-            // replace count sql
-            Matcher m2 = select_Pattern_1.matcher(sql);
-            if (m2.find()) {
-                String replaceStr = "select count(*) from ";
-                String group = m2.group();
-
-                if (m4.find()) {
-                    replaceStr = "select count(*) from (" + group + ") _t_1";
-                } else {
-                    Matcher m3 = select_Pattern_2.matcher(group);
-                    if (m3.find()) {
-                        String g = m3.group();
-                        Matcher m3_from = select_Pattern_f.matcher(g);
-                        if (m3_from.find()) {
-                            g = m3_from.replaceAll("");
-                        }
-
-                        replaceStr = "select count(" + g + ") from ";
-                    }
-                }
-
-                m2.appendReplacement(sb1, replaceStr);
-            }
-
-            countSql = m2.appendTail(sb1).toString();
+            return new StringBuffer()
+                .append("select count(*) from (")
+                .append(sql)
+                .append(") _t_2")
+                .toString();
         }
+
+        sb = new StringBuffer();
+        // replace count sql
+        Matcher mm = select_Pattern_m.matcher(sql);
+        if (mm.find()) {
+            String projections = mm.group();
+            logger.debug("SQL of projections is: [{}].", projections);
+
+            Matcher mp = select_Pattern_s.matcher(projections);
+            if (mp.find()) projections = mp.replaceAll("");
+
+            Matcher mf = select_Pattern_f.matcher(projections);
+            if (mf.find()) projections = mf.replaceAll("");
+
+            mm.appendReplacement(sb, "select count(" + projections + ") from ");
+        }
+
+        countSql = mm.appendTail(sb).toString();
 
         logger.info("Native JDBC SQL for counting: [" + countSql + "].");
 
