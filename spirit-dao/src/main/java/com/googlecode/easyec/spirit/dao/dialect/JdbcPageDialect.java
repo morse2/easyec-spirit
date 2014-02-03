@@ -19,10 +19,6 @@ public abstract class JdbcPageDialect extends JdbcSqlDialect implements PageDial
     protected static final Pattern select_Pattern_m = compile("[\\w\\W\\s]*from\\s*", CASE_INSENSITIVE);
     /* distinct pattern */
     protected static final Pattern select_Pattern_d = compile("(distinct)\\s+[\\w\\W]*", CASE_INSENSITIVE);
-    /* select pattern */
-    protected static final Pattern select_Pattern_s = compile("^select\\s*", CASE_INSENSITIVE);
-    /* from pattern */
-    protected static final Pattern select_Pattern_f = compile("\\s*from\\s*", CASE_INSENSITIVE);
     /* group by pattern */
     protected static final Pattern select_Pattern_g = compile("\\s*group\\s*by[\\s\\S\\w\\W]*", CASE_INSENSITIVE);
     /* union pattern */
@@ -52,7 +48,7 @@ public abstract class JdbcPageDialect extends JdbcSqlDialect implements PageDial
                 else sb.append(sql);
             }
 
-            return sb.append(") _t_0").toString();
+            return sb.append(") t_0").toString();
         }
 
         return doGetCountSql(jdbcSql);
@@ -74,7 +70,7 @@ public abstract class JdbcPageDialect extends JdbcSqlDialect implements PageDial
             return new StringBuffer()
                 .append("select count(*) from (")
                 .append(sql)
-                .append(") _t_1")
+                .append(") t_1")
                 .toString();
         }
 
@@ -85,7 +81,7 @@ public abstract class JdbcPageDialect extends JdbcSqlDialect implements PageDial
             return new StringBuffer()
                 .append("select count(*) from (")
                 .append(sql)
-                .append(") _t_2")
+                .append(") t_2")
                 .toString();
         }
 
@@ -93,16 +89,7 @@ public abstract class JdbcPageDialect extends JdbcSqlDialect implements PageDial
         // replace count sql
         Matcher mm = select_Pattern_m.matcher(sql);
         if (mm.find()) {
-            String projections = mm.group();
-            logger.debug("SQL of projections is: [{}].", projections);
-
-            Matcher mp = select_Pattern_s.matcher(projections);
-            if (mp.find()) projections = mp.replaceAll("");
-
-            Matcher mf = select_Pattern_f.matcher(projections);
-            if (mf.find()) projections = mf.replaceAll("");
-
-            mm.appendReplacement(sb, "select count(" + projections + ") from ");
+            mm.appendReplacement(sb, "select count(*) from ");
         }
 
         countSql = mm.appendTail(sb).toString();

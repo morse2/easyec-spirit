@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://easyec.googlecode.com/schema/dao/util"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:beans="http://www.springframework.org/schema/beans"
+            targetNamespace="http://easyec.googlecode.com/schema/dao/util"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified">
+
+    <xsd:import namespace="http://www.springframework.org/schema/beans"/>
+
+    <xsd:element name="identifier-generator">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="beans:identifiedType">
+                    <xsd:group ref="sequenceGroup"/>
+                    <xsd:attributeGroup ref="identifierAttributes"/>
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:group name="sequenceGroup">
+        <xsd:sequence>
+            <xsd:choice minOccurs="1" maxOccurs="1">
+                <xsd:element name="sequence-generator-chain">
+                    <xsd:complexType>
+                        <xsd:attribute name="data-source" type="xsd:string" use="required"/>
+                        <xsd:attribute name="converter" type="named-converter" use="required"/>
+                        <xsd:attribute name="hilo-maxLoVal" type="xsd:positiveInteger" default="10"/>
+                    </xsd:complexType>
+                </xsd:element>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:group>
+
+    <xsd:attributeGroup name="identifierAttributes">
+        <xsd:attribute name="order" type="xsd:nonNegativeInteger" use="required"/>
+        <xsd:attribute name="transaction-manager" type="xsd:string" default="transactionManager"/>
+    </xsd:attributeGroup>
+
+    <xsd:simpleType name="named-converter">
+        <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="classname"/>
+            <xsd:enumeration value="annotation"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+</xsd:schema>

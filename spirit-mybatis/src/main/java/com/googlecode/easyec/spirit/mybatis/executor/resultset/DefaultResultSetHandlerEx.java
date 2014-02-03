@@ -1,5 +1,6 @@
 package com.googlecode.easyec.spirit.mybatis.executor.resultset;
 
+import com.googlecode.easyec.spirit.mybatis.executor.loader.ResultLoaderEx;
 import org.apache.ibatis.cache.Cache;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
@@ -559,7 +560,7 @@ public class DefaultResultSetHandlerEx implements ResultSetHandler {
             if (nestedQueryCacheObject != null) {
                 value = resultExtractor.extractObjectFromList(nestedQueryCacheObject, targetType);
             } else {
-                final ResultLoader resultLoader = new ResultLoader(configuration, executor, nestedQuery, nestedQueryParameterObject, targetType, key, nestedBoundSql);
+                final ResultLoader resultLoader = new ResultLoaderEx(configuration, executor, nestedQuery, nestedQueryParameterObject, targetType, key, nestedBoundSql);
                 value = resultLoader.loadResult();
             }
         }
@@ -584,7 +585,7 @@ public class DefaultResultSetHandlerEx implements ResultSetHandler {
             } else if (executor.isCached(nestedQuery, key)) {
                 executor.deferLoad(nestedQuery, metaResultObject, property, key, targetType);
             } else {
-                final ResultLoader resultLoader = new ResultLoader(configuration, executor, nestedQuery, nestedQueryParameterObject, targetType, key, nestedBoundSql);
+                final ResultLoader resultLoader = new ResultLoaderEx(configuration, executor, nestedQuery, nestedQueryParameterObject, targetType, key, nestedBoundSql);
                 if (configuration.isLazyLoadingEnabled()) {
                     lazyLoader.addLoader(property, metaResultObject, resultLoader);
                 } else {
