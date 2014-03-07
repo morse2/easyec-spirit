@@ -55,10 +55,6 @@ public abstract class GridSearchablePagingExecutor extends AbstractSearchablePag
     }
 
     public void redraw(Page page) {
-        _paging.setPageSize(page.getPageSize());
-        _paging.setActivePage(page.getCurrentPage() - 1);
-        _paging.setTotalSize(page.getTotalRecordsCount());
-
         List<?> list = page.getRecords();
         if (isEmpty(list) && page.getPrevPageAvailable()) {
             firePaging(page.getCurrentPage() - 1);
@@ -69,9 +65,6 @@ public abstract class GridSearchablePagingExecutor extends AbstractSearchablePag
     }
 
     public void clear(Page page) {
-        _paging.setPageSize(page.getPageSize());
-        _paging.setTotalSize(page.getTotalRecordsCount());
-
         removeRowsChild(_comp.getRows());
         _comp.setEmptyMessage(getEmptyMessage());
     }

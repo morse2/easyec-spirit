@@ -106,10 +106,6 @@ public abstract class ListboxSearchablePagingExecutor extends AbstractSearchable
     }
 
     public void redraw(Page page) {
-        _paging.setPageSize(page.getPageSize());
-        _paging.setActivePage(page.getCurrentPage() - 1);
-        _paging.setTotalSize(page.getTotalRecordsCount());
-
         List<?> list = page.getRecords();
         if (CollectionUtils.isEmpty(list) && page.getPrevPageAvailable()) {
             firePaging(page.getCurrentPage() - 1);
@@ -124,9 +120,6 @@ public abstract class ListboxSearchablePagingExecutor extends AbstractSearchable
     }
 
     public void clear(Page page) {
-        _paging.setPageSize(page.getPageSize());
-        _paging.setTotalSize(page.getTotalRecordsCount());
-
         _comp.getItems().clear();
         _comp.setEmptyMessage(getEmptyMessage());
     }

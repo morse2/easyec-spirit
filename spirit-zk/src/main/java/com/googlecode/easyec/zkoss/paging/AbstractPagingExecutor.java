@@ -31,7 +31,7 @@ import static com.googlecode.easyec.spirit.web.controller.sorts.Sort.SortTypes.D
  */
 public abstract class AbstractPagingExecutor<T extends Component> implements PagingExecutor {
 
-    private static final long serialVersionUID = -5592601622679656708L;
+    private static final long serialVersionUID = 5612179200246645081L;
     protected final Logger logger = LoggerFactory.getLogger(getClass());
     private boolean lazyLoad;
     private boolean visible = true;
@@ -126,8 +126,8 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
 
         // 如果页面为延迟加载，此时则应该显示组件
         if (lazyLoad) _comp.setVisible(true);
-        if (page.getTotalSize() < 1) clear(page);
-        else if (page.getTotalSize() > 0) redraw(page);
+        if (page.getTotalSize() < 1) doClear(page);
+        else if (page.getTotalSize() > 0) doRedraw(page);
     }
 
     /**
@@ -176,6 +176,31 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
      */
     protected SortComparator createSortComparator(int index, boolean ascending) {
         return null; // 默认不做实现，交由子类根据实际情况进行字段排序
+    }
+
+    /**
+     * 执行清除ZK控件内容的操作
+     *
+     * @param page 分页结果对象
+     */
+    protected void doClear(Page page) {
+        _paging.setPageSize(page.getPageSize());
+        _paging.setTotalSize(page.getTotalRecordsCount());
+
+        clear(page);
+    }
+
+    /**
+     * 执行重画ZK控件内容的操作
+     *
+     * @param page 分页结果对象
+     */
+    private void doRedraw(Page page) {
+        _paging.setPageSize(page.getPageSize());
+        _paging.setActivePage(page.getCurrentPage() - 1);
+        _paging.setTotalSize(page.getTotalRecordsCount());
+
+        redraw(page);
     }
 
     /**
