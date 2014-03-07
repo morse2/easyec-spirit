@@ -31,7 +31,7 @@ import static com.googlecode.easyec.spirit.web.controller.sorts.Sort.SortTypes.D
  */
 public abstract class AbstractPagingExecutor<T extends Component> implements PagingExecutor {
 
-    private static final long serialVersionUID = -2821626435750058814L;
+    private static final long serialVersionUID = -5592601622679656708L;
     protected final Logger logger = LoggerFactory.getLogger(getClass());
     private boolean lazyLoad;
     private boolean visible = true;
@@ -119,13 +119,33 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
             }
         }
 
+        beforePaging(searchFormBean);
         Page page = doPaging(searchFormBean);
         Assert.notNull(page, "Page object is null after invoking method doPaging.");
+        afterPaging(page);
 
         // 如果页面为延迟加载，此时则应该显示组件
         if (lazyLoad) _comp.setVisible(true);
         if (page.getTotalSize() < 1) clear(page);
         else if (page.getTotalSize() > 0) redraw(page);
+    }
+
+    /**
+     * 分页方法执行前的前置方法
+     *
+     * @param searchFormBean 搜索条件对象
+     */
+    protected void beforePaging(AbstractSearchFormBean searchFormBean) {
+        logger.debug("Nothing to do.");
+    }
+
+    /**
+     * 分页方法执行后的后置方法
+     *
+     * @param page 分页结果对象
+     */
+    protected void afterPaging(Page page) {
+        logger.debug("Nothing to do.");
     }
 
     /**
@@ -157,21 +177,6 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
     protected SortComparator createSortComparator(int index, boolean ascending) {
         return null; // 默认不做实现，交由子类根据实际情况进行字段排序
     }
-
-    /**
-     * 重画分页区域内容的方法。
-     *
-     * @param page <code>Page</code>对象
-     */
-    abstract public void redraw(Page page);
-
-    /**
-     * 清空当前分页区内记录。
-     * 此方法适用于没有结果集的情况。
-     *
-     * @param page <code>Page</code>对象
-     */
-    abstract public void clear(Page page);
 
     /**
      * 得到无结果的消息内容。

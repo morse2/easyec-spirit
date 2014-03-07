@@ -64,4 +64,19 @@ public interface PagingExecutor extends Serializable {
      * @return <code>Paging</code>
      */
     Paging getPaging();
+
+    /**
+     * 重画分页区域内容的方法。
+     *
+     * @param page <code>Page</code>对象
+     */
+    void redraw(Page page);
+
+    /**
+     * 清空当前分页区内记录。
+     * 此方法适用于没有结果集的情况。
+     *
+     * @param page <code>Page</code>对象
+     */
+    void clear(Page page);
 }

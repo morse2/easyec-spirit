@@ -54,7 +54,6 @@ public abstract class GridSearchablePagingExecutor extends AbstractSearchablePag
         }
     }
 
-    @Override
     public void redraw(Page page) {
         _paging.setPageSize(page.getPageSize());
         _paging.setActivePage(page.getCurrentPage() - 1);
@@ -69,7 +68,6 @@ public abstract class GridSearchablePagingExecutor extends AbstractSearchablePag
         }
     }
 
-    @Override
     public void clear(Page page) {
         _paging.setPageSize(page.getPageSize());
         _paging.setTotalSize(page.getTotalRecordsCount());
@@ -79,13 +77,15 @@ public abstract class GridSearchablePagingExecutor extends AbstractSearchablePag
     }
 
     private void removeRowsChild(Rows rows) {
-        List<Component> children = rows.getChildren();
+        if (null != rows) {
+            List<Component> children = rows.getChildren();
 
-        do {
-            if (isEmpty(children)) break;
+            do {
+                if (isEmpty(children)) break;
 
-            rows.removeChild(children.get(0));
-            children = rows.getChildren();
-        } while (true);
+                rows.removeChild(children.get(0));
+                children = rows.getChildren();
+            } while (true);
+        }
     }
 }
