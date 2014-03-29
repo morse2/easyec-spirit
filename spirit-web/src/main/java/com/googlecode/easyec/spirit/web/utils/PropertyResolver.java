@@ -1,5 +1,7 @@
 package com.googlecode.easyec.spirit.web.utils;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -36,7 +38,11 @@ public class PropertyResolver {
     }
 
     public String getString(String key) {
-        return properties.getProperty(key);
+        return getString(key, new Object[0]);
+    }
+
+    public String getString(String key, Object... params) {
+        return formatStr(properties.getProperty(key), params);
     }
 
     public Integer getInt(String key) {
@@ -57,5 +63,21 @@ public class PropertyResolver {
 
             return null;
         }
+    }
+
+    /* 格式化匹配的参数值 */
+    private String formatStr(String val, Object... params) {
+        if (StringUtils.isBlank(val)) return null;
+        if (ArrayUtils.isEmpty(params)) return val;
+
+        String s = val;
+        for (int i = 0; i < params.length; i++) {
+            Object p = params[i];
+            if (null == p) p = "";
+
+            s = s.replaceAll("\\{" + i + "}", p.toString());
+        }
+
+        return s;
     }
 }
