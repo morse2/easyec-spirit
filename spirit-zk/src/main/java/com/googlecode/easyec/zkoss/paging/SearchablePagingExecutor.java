@@ -33,4 +33,21 @@ public interface SearchablePagingExecutor extends PagingExecutor {
      * @return 搜索条件列表
      */
     Map<String, Object> getSearchTerms();
+
+    /**
+     * 移除存在的不可变的搜索条件
+     *
+     * @param key 搜索条件KEY
+     * @return bool值
+     */
+    boolean removeImmutableSearchTerm(String key);
+
+    /**
+     * 添加一个不可变的搜索条件
+     *
+     * @param key   搜索条件KEY
+     * @param value 搜索条件VAL
+     * @return 添加成功返回真，否则返回假
+     */
+    boolean addImmutableSearchTerm(String key, Object value);
 }

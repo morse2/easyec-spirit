@@ -1,21 +1,36 @@
 package com.googlecode.easyec.spirit.web.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.util.Assert;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 import javax.servlet.ServletRequest;
+
+import static org.springframework.beans.factory.config.AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE;
 
 /**
  * 支持Spring上下文操作的工具类。
  *
  * @author JunJie
  */
-public final class SpringContextUtils implements ApplicationContextAware {
+public final class SpringContextUtils implements ApplicationContextAware, BeanFactoryAware, InitializingBean {
 
+    private static final Logger logger = LoggerFactory.getLogger(SpringContextUtils.class);
+
+    /* global variable */
     private static final SpringContextUtils instance = new SpringContextUtils();
+
+    /* local variables here */
     private ApplicationContext applicationContext;
+    private BeanFactory        beanFactory;
 
     /**
      * 从Spring上下文中获取给定类的实例对象。
@@ -69,7 +84,49 @@ public final class SpringContextUtils implements ApplicationContextAware {
         return RequestContextUtils.getWebApplicationContext(sr).getBean(name, type);
     }
 
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    /**
+     * 为给定的Bean对象实例实现自动织入属性变量的方法。
+     * <p>
+     * 此方法默认以{@link AutowireCapableBeanFactory#AUTOWIRE_BY_TYPE}
+     * 方式注入Bean的属性，并且指出是否对Bean属性进行依赖检查
+     * </p>
+     *
+     * @param bean            Bean对象
+     * @param dependencyCheck 是否对Bean属性进行依赖检查
+     */
+    public static void autowireBeanProperties(Object bean, boolean dependencyCheck) {
+        autowireBeanProperties(bean, AUTOWIRE_BY_TYPE, dependencyCheck);
+    }
+
+    /**
+     * 为给定的Bean对象实例实现自动织入属性变量的方法。
+     *
+     * @param bean            Bean对象
+     * @param autowireType    Bean属性织入方式
+     * @param dependencyCheck 是否对Bean属性进行依赖检查
+     */
+    public static void autowireBeanProperties(Object bean, int autowireType, boolean dependencyCheck) {
+        synchronized (instance) {
+            if (instance.beanFactory instanceof AutowireCapableBeanFactory) {
+                ((AutowireCapableBeanFactory) instance.beanFactory)
+                    .autowireBeanProperties(bean, autowireType, dependencyCheck);
+            } else {
+                logger.warn("BeanFactory object isn't instance of AutowireCapableBeanFactory." +
+                    " Actual type: [{}].", instance.beanFactory.getClass().getName());
+            }
+        }
+    }
+
+    public final void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         instance.applicationContext = applicationContext;
+    }
+
+    public final void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        instance.beanFactory = beanFactory;
+    }
+
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(instance.applicationContext, "ApplicationContext object cannot be null.");
+        Assert.notNull(instance.beanFactory, "BeanFactory object cannot be null.");
     }
 }

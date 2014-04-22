@@ -2,8 +2,10 @@ package com.googlecode.easyec.zkoss.paging;
 
 import com.googlecode.easyec.spirit.web.controller.formbean.impl.AbstractSearchFormBean;
 import com.googlecode.easyec.spirit.web.controller.formbean.impl.SearchFormBean;
+import com.googlecode.easyec.spirit.web.controller.formbean.terms.SearchTermsFilter;
 import com.googlecode.easyec.spirit.web.controller.formbean.terms.SearchTermsTransform;
 import com.googlecode.easyec.spirit.web.controller.formbean.terms.impl.FuzzyMatchTermsTransform;
+import com.googlecode.easyec.zkoss.paging.terms.BindComposerSearchTermFilter;
 import org.apache.commons.collections.MapUtils;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.KeyEvent;
@@ -14,10 +16,7 @@ import org.zkoss.zul.impl.InputElement;
 import org.zkoss.zul.impl.NumberInputElement;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.googlecode.easyec.zkoss.utils.SelectorUtils.find;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
@@ -31,8 +30,6 @@ import static org.zkoss.zk.ui.event.Events.ON_OK;
  */
 public abstract class AbstractSearchablePagingExecutor<T extends Component> extends AbstractPagingExecutor<T> implements SearchablePagingExecutor {
 
-    private static final long serialVersionUID = -6240850960089282666L;
-
     /**
      * 构造方法。
      *
@@ -45,7 +42,12 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
 
     private static final String SELECTORS = "textbox,combobox,datebox,intbox,decimalbox,div";
 
+    /* 不可变的搜索条件集合 */
+    private final Map<String, Object> immutableSearchTerms = new HashMap<String, Object>();
+
+    /* 可变的搜索条件组件集合 */
     private final List<Component> searchComponents = new ArrayList<Component>();
+    /* 搜索条件的根组件，搜索条件应该放在此组件下 */
     private Component searchScope;
 
     public void setSearchScope(Component searchScope) {
@@ -101,7 +103,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         // 先初始化搜索组件
         addSearchSelectors(SELECTORS);
 
-        // 默认为Input控件添加OnOK事件，提高搜索效率
+        // 默认为Input控件添加OnOK事件，提高搜索体验
         for (Component comp : searchComponents) {
             if (comp instanceof InputElement) {
                 comp.addEventListener(ON_OK, new KeyPressOKEventListener());
@@ -126,6 +128,26 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         return combineSearchTerms().getSearchTerms();
     }
 
+    public boolean removeImmutableSearchTerm(String key) {
+        if (isNotBlank(key) && immutableSearchTerms.containsKey(key)) {
+            immutableSearchTerms.remove(key);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean addImmutableSearchTerm(String key, Object value) {
+        if (isNotBlank(key) && null != value) {
+            immutableSearchTerms.put(key, value);
+
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * 合并搜索参数。
      *
@@ -134,6 +156,13 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
     protected AbstractSearchFormBean combineSearchTerms() {
         AbstractSearchFormBean bean = createSearchFormBean();
 
+        // 添加固定的搜索条件
+        Set<String> keySet = immutableSearchTerms.keySet();
+        for (String key : keySet) {
+            bean.addSearchTerm(key, immutableSearchTerms.get(key));
+        }
+
+        // 添加动态的搜索条件
         for (Component c : searchComponents) {
             // 合并文本框的值
             if (c instanceof Textbox) {
@@ -191,6 +220,13 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
     protected AbstractSearchFormBean clearSearchTerms() {
         AbstractSearchFormBean bean = createSearchFormBean();
 
+        // 添加固定的搜索条件
+        Set<String> keySet = immutableSearchTerms.keySet();
+        for (String key : keySet) {
+            bean.addSearchTerm(key, immutableSearchTerms.get(key));
+        }
+
+        // 清除动态的搜索条件
         for (Component c : searchComponents) {
             // 清除文本框的值
             if (c instanceof Textbox) {
@@ -239,11 +275,30 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         return bean;
     }
 
+    /**
+     * 为搜索条件Bean提供一组搜索条件的转换类，
+     * 用于转换搜索条件值。
+     *
+     * @return <code>SearchTermsTransform</code>对象
+     */
     protected List<SearchTermsTransform> createSearchTermsTransforms() {
         List<SearchTermsTransform> transforms = new ArrayList<SearchTermsTransform>();
         transforms.add(new FuzzyMatchTermsTransform());
 
         return transforms;
+    }
+
+    /**
+     * 为搜索条件Bean提供一组搜索条件的过滤器类，
+     * 用于判断是否接受设置的搜索条件。
+     *
+     * @return <code>SearchTermsFilter</code>对象
+     */
+    protected List<SearchTermsFilter> createSearchTermsFilters() {
+        List<SearchTermsFilter> filters = new ArrayList<SearchTermsFilter>();
+        filters.add(new BindComposerSearchTermFilter());
+
+        return filters;
     }
 
     /**
@@ -300,7 +355,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
      * @return 搜索Bean对象
      */
     private AbstractSearchFormBean createSearchFormBean() {
-        return new SearchFormBean(createSearchTermsTransforms());
+        return new SearchFormBean(createSearchTermsTransforms(), createSearchTermsFilters());
     }
 
     /**

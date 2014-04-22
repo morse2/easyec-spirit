@@ -4,12 +4,9 @@ import com.googlecode.easyec.spirit.web.httpcomponent.HttpRequest;
 import com.googlecode.easyec.spirit.web.httpcomponent.HttpRequestFactory;
 import com.googlecode.easyec.spirit.web.httpcomponent.HttpRequestHandler;
 import com.googlecode.easyec.spirit.web.httpcomponent.HttpRequestNoResultHandler;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
+import com.googlecode.easyec.spirit.web.utils.SpringContextUtils;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.util.Assert;
 
 /**
@@ -21,9 +18,7 @@ import org.springframework.util.Assert;
  * @author JunJie
  * @see HttpRequestFactory
  */
-public class AutowireCapableHttpRequestBean implements HttpRequest, BeanFactoryAware, FactoryBean<HttpRequest>, InitializingBean {
-
-    private AutowireCapableBeanFactory autowireCapableBeanFactory;
+public class AutowireCapableHttpRequestBean implements HttpRequest, FactoryBean<HttpRequest>, InitializingBean {
 
     private HttpRequest httpRequest;
 
@@ -36,10 +31,6 @@ public class AutowireCapableHttpRequestBean implements HttpRequest, BeanFactoryA
      */
     public void setHttpRequest(HttpRequest httpRequest) {
         this.httpRequest = httpRequest;
-    }
-
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        this.autowireCapableBeanFactory = (AutowireCapableBeanFactory) beanFactory;
     }
 
     public HttpRequest getObject() throws Exception {
@@ -72,8 +63,6 @@ public class AutowireCapableHttpRequestBean implements HttpRequest, BeanFactoryA
 
     /* 自动为请求处理类对象注入属性 */
     private void autowireBeanProperties(HttpRequestHandler<?> handler) {
-        this.autowireCapableBeanFactory.autowireBeanProperties(
-            handler, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true
-        );
+        SpringContextUtils.autowireBeanProperties(handler, false);
     }
 }
