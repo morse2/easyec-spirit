@@ -12,6 +12,7 @@ import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.SerializableEventListener;
 import org.zkoss.zk.ui.select.Selectors;
+import org.zkoss.zk.ui.util.ComponentActivationListener;
 import org.zkoss.zkplus.spring.DelegatingVariableResolver;
 import org.zkoss.zul.Messagebox;
 
@@ -26,10 +27,15 @@ import static org.zkoss.bind.annotation.ContextType.COMPONENT;
  *
  * @author JunJie
  */
-public abstract class BaseVM<T extends Component> implements Serializable {
+public abstract class BaseVM<T extends Component> implements ComponentActivationListener, Serializable {
 
-    private static final long serialVersionUID = -8780204220793693935L;
+    private static final long serialVersionUID = -1490158705786378009L;
     protected final Logger logger = LoggerFactory.getLogger(getClass());
+
+    /* 标识是否做过激活操作 */
+    private boolean _activated;
+
+    /* 当前ZK组件对象 */
     private T self;
 
     /**
@@ -45,12 +51,7 @@ public abstract class BaseVM<T extends Component> implements Serializable {
     public void initVM(@ContextParam(COMPONENT) T comp) {
         this.self = comp;
         // 注入全局变量
-        Selectors.wireVariables(comp, this,
-            Arrays.<VariableResolver>asList(
-                new DelegatingVariableResolver(),
-                new ServletRequestResolver()
-            )
-        );
+        wireVariables(comp);
 
         logger.trace("initVM() done!");
     }
@@ -61,6 +62,31 @@ public abstract class BaseVM<T extends Component> implements Serializable {
         Selectors.wireComponents(self, this, false);
 
         logger.trace("afterInit() done!");
+    }
+
+    /**
+     * 为给定的ZK组件注入变量的方法
+     *
+     * @param comp ZK组件对象
+     */
+    protected void wireVariables(Component comp) {
+        Selectors.wireVariables(comp, this,
+            Arrays.<VariableResolver>asList(
+                new DelegatingVariableResolver(),
+                new ServletRequestResolver()
+            )
+        );
+    }
+
+    public void didActivate(Component comp) {
+        if (!_activated && self.equals(comp)) {
+            wireVariables(comp);
+            _activated = true;
+        }
+    }
+
+    public void willPassivate(Component comp) {
+        /* no op */
     }
 
     /**
