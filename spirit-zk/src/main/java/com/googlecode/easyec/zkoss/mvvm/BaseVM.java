@@ -29,11 +29,11 @@ import static org.zkoss.bind.annotation.ContextType.COMPONENT;
  */
 public abstract class BaseVM<T extends Component> implements ComponentActivationListener, Serializable {
 
-    private static final long serialVersionUID = -1490158705786378009L;
+    private static final long serialVersionUID = 8067492887166356066L;
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     /* 标识是否做过激活操作 */
-    private boolean _activated;
+    private transient boolean _activated;
 
     /* 当前ZK组件对象 */
     private T self;
