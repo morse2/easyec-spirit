@@ -5,9 +5,19 @@ import com.googlecode.easyec.spirit.web.controller.formbean.impl.SearchFormBean;
 import com.googlecode.easyec.spirit.web.controller.formbean.terms.SearchTermsFilter;
 import com.googlecode.easyec.spirit.web.controller.formbean.terms.SearchTermsTransform;
 import com.googlecode.easyec.spirit.web.controller.formbean.terms.impl.FuzzyMatchTermsTransform;
+import com.googlecode.easyec.spirit.web.qseditors.CustomDateQsEditor;
+import com.googlecode.easyec.spirit.web.qseditors.CustomNumberQsEditor;
+import com.googlecode.easyec.spirit.web.qseditors.CustomStringQsEditor;
+import com.googlecode.easyec.spirit.web.qseditors.QueryStringEditor;
+import com.googlecode.easyec.spirit.web.utils.WebUtils;
 import com.googlecode.easyec.zkoss.paging.terms.BindComposerSearchTermFilter;
+import com.googlecode.easyec.zkoss.paging.terms.BlankStringSearchTermFilter;
 import org.apache.commons.collections.MapUtils;
+import org.springframework.util.Assert;
+import org.zkoss.xel.fn.CommonFns;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.event.Event;
+import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.KeyEvent;
 import org.zkoss.zk.ui.event.SerializableEventListener;
 import org.zkoss.zul.*;
@@ -17,10 +27,12 @@ import org.zkoss.zul.impl.NumberInputElement;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.googlecode.easyec.zkoss.utils.SelectorUtils.find;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.zkoss.zk.ui.event.Events.ON_OK;
+import static org.zkoss.zul.event.ZulEvents.ON_AFTER_RENDER;
 
 /**
  * 抽象的分页搜索操作执行器类。
@@ -29,6 +41,9 @@ import static org.zkoss.zk.ui.event.Events.ON_OK;
  * @author JunJie
  */
 public abstract class AbstractSearchablePagingExecutor<T extends Component> extends AbstractPagingExecutor<T> implements SearchablePagingExecutor {
+
+    public static final  String AFTER_RENDER_LISTENER = "afterRenderListener";
+    private static final long   serialVersionUID      = 3094803487619175846L;
 
     /**
      * 构造方法。
@@ -49,6 +64,9 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
     private final List<Component> searchComponents = new ArrayList<Component>();
     /* 搜索条件的根组件，搜索条件应该放在此组件下 */
     private Component searchScope;
+
+    /* URL查询参数 */
+    private String qs;
 
     public void setSearchScope(Component searchScope) {
         this.searchScope = searchScope;
@@ -103,10 +121,69 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         // 先初始化搜索组件
         addSearchSelectors(SELECTORS);
 
+        // 如果查询参数可用，则进行解码动作
+        Map<String, Object> queryMap = null;
+        if (isNotBlank(qs)) {
+            AbstractSearchFormBean bean = createSearchFormBean();
+            bean.setSearchTermsAsText(WebUtils.decodeQueryString(qs));
+            queryMap = bean.getRawSearchTerms();
+        }
+
         // 默认为Input控件添加OnOK事件，提高搜索体验
-        for (Component comp : searchComponents) {
-            if (comp instanceof InputElement) {
-                comp.addEventListener(ON_OK, new KeyPressOKEventListener());
+        for (Component c : searchComponents) {
+            if (c instanceof InputElement) {
+                c.addEventListener(ON_OK, new KeyPressOKEventListener());
+            }
+
+            if (queryMap != null && !queryMap.isEmpty()) {
+                // 如果组件的ID可用，并且与查询参数的key相等，则设置组件的值
+                String id = c.getId();
+                if (isNotBlank(id) && queryMap.containsKey(id)) {
+                    Object v = queryMap.get(id);
+
+                    // 设置文本框的值
+                    if (c instanceof Textbox) {
+                        if (c instanceof Combobox) {
+                            Object o = c.getAttribute(AFTER_RENDER_LISTENER);
+                            if (o != null) {
+                                try {
+                                    c.addEventListener(
+                                        ON_AFTER_RENDER,
+                                        (EventListener<? extends Event>) CommonFns.new_(o, v)
+                                    );
+                                } catch (Exception e) {
+                                    logger.error(e.getMessage(), e);
+                                }
+                            } else {
+                                logger.warn("No any listener was set. so ignore.");
+                            }
+                        } else ((Textbox) c).setRawValue(v);
+                    }
+                    // 设置数字框的值
+                    else if (c instanceof NumberInputElement) {
+                        ((NumberInputElement) c).setRawValue(v);
+                    }
+                    // 设置日期框的值
+                    else if (c instanceof FormatInputElement) {
+                        ((FormatInputElement) c).setRawValue(v);
+                    }
+                }
+            }
+        }
+
+        if (!isLazyLoad()) {
+            List<Component> list = find(getActualSearchScope(), "combobox");
+            if (!list.isEmpty()) {
+                // 设置当前搜索为延迟加载
+                setLazyLoad(true);
+
+                // 初始化统一延迟加载搜索控制事件监听对象
+                UniversalLazyLoadingEventListener lstnr
+                    = new UniversalLazyLoadingEventListener(list.size());
+
+                for (Component c : list) {
+                    c.addEventListener(ON_AFTER_RENDER, lstnr);
+                }
             }
         }
 
@@ -124,8 +201,34 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         firePaging(searchFormBean);
     }
 
+    public void setQueryString(String qs) {
+        this.qs = qs;
+    }
+
+    public String encodeSearchTerms() {
+        return WebUtils.encodeQueryString(
+            combineSearchTerms(false).getSearchTermsAsText()
+        );
+    }
+
+    public Map<String, Object> getRawSearchTerms() {
+        return combineSearchTerms().getRawSearchTerms();
+    }
+
     public Map<String, Object> getSearchTerms() {
         return combineSearchTerms().getSearchTerms();
+    }
+
+    public Map<String, Object> getMutableRawSearchTerms() {
+        return combineSearchTerms(false).getRawSearchTerms();
+    }
+
+    public Map<String, Object> getMutableSearchTerms() {
+        return combineSearchTerms(false).getSearchTerms();
+    }
+
+    public Map<String, Object> getImmutableSearchTerms() {
+        return new HashMap<String, Object>(immutableSearchTerms);
     }
 
     public boolean removeImmutableSearchTerm(String key) {
@@ -154,12 +257,24 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
      * @return <code>AbstractSearchFormBean</code>
      */
     protected AbstractSearchFormBean combineSearchTerms() {
+        return combineSearchTerms(true);
+    }
+
+    /**
+     * 合并搜索参数。
+     *
+     * @param withImmutableSearchTerms 是否带固定的搜索条件
+     * @return <code>AbstractSearchFormBean</code>
+     */
+    protected AbstractSearchFormBean combineSearchTerms(boolean withImmutableSearchTerms) {
         AbstractSearchFormBean bean = createSearchFormBean();
 
-        // 添加固定的搜索条件
-        Set<String> keySet = immutableSearchTerms.keySet();
-        for (String key : keySet) {
-            bean.addSearchTerm(key, immutableSearchTerms.get(key));
+        if (withImmutableSearchTerms) {
+            // 添加固定的搜索条件
+            Set<String> keySet = immutableSearchTerms.keySet();
+            for (String key : keySet) {
+                bean.addSearchTerm(key, immutableSearchTerms.get(key));
+            }
         }
 
         // 添加动态的搜索条件
@@ -297,8 +412,69 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
     protected List<SearchTermsFilter> createSearchTermsFilters() {
         List<SearchTermsFilter> filters = new ArrayList<SearchTermsFilter>();
         filters.add(new BindComposerSearchTermFilter());
+        filters.add(new BlankStringSearchTermFilter());
 
         return filters;
+    }
+
+    /**
+     * 为搜索条件Bean提供一组URL查询参数编辑器类，
+     * 该组编辑类对象用于URL参数和业务对象之间的转换。
+     * <p>
+     * 此方法默认通过当前注入的ZK组件来判断，
+     * 如果有ID，则判断组件类型，为其加入默认
+     * 的URL查询参数编辑对象
+     * </p>
+     *
+     * @return 一组<code>QueryStringEditor</code>对象
+     */
+    protected Map<String, QueryStringEditor> createQueryStringEditors() {
+        Map<String, QueryStringEditor> editors = new HashMap<String, QueryStringEditor>();
+
+        for (Component c : searchComponents) {
+            // 主键ID不为空
+            if (isNotBlank(c.getId())) {
+                // 为文本框控件设置QsEditor
+                if (c instanceof Textbox) {
+                    if (!(c instanceof Combobox)) {
+                        editors.put(c.getId(), new CustomStringQsEditor());
+                        logger.debug("Component [" + c.getClass().getName()
+                            + "] has been controlled by editor [CustomStringQsEditor].");
+                    }
+                }
+
+                // 为数字框控件设置QsEditor
+                else if (c instanceof NumberInputElement) {
+                    if (c instanceof Intbox) {
+                        editors.put(c.getId(), new CustomNumberQsEditor(Integer.class));
+                    } else if (c instanceof Longbox) {
+                        editors.put(c.getId(), new CustomNumberQsEditor(Long.class));
+                    } else if (c instanceof Decimalbox) {
+                        editors.put(c.getId(), new CustomNumberQsEditor(BigDecimal.class));
+                    } else if (c instanceof Doublebox) {
+                        editors.put(c.getId(), new CustomNumberQsEditor(Double.class));
+                    } else if (c instanceof Spinner) {
+                        editors.put(c.getId(), new CustomNumberQsEditor(Integer.class));
+                    } else {
+                        editors.put(c.getId(), new CustomNumberQsEditor(Double.class));
+                    }
+
+                    logger.debug("Component [" + c.getClass().getName()
+                        + "] has been controlled by editor [CustomNumberQsEditor].");
+                }
+
+                // 为日期或其他格式化的控件设置QsEditor
+                else if (c instanceof FormatInputElement) {
+                    if ((c instanceof Datebox) || (c instanceof Timebox)) {
+                        editors.put(c.getId(), new CustomDateQsEditor());
+                        logger.debug("Component [" + c.getClass().getName()
+                            + "] has been controlled by editor [CustomDateQsEditor].");
+                    }
+                }
+            }
+        }
+
+        return editors;
     }
 
     /**
@@ -328,7 +504,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         if (null != value) {
             if (value instanceof String) {
                 if (isNotBlank((String) value)) {
-                    bean.addSearchTerm(id, ((String) value).replaceAll("\\*", "%"));
+                    bean.addSearchTerm(id, value);
                 } else {
                     bean.removeSearchTerm(id);
                 }
@@ -355,7 +531,11 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
      * @return 搜索Bean对象
      */
     private AbstractSearchFormBean createSearchFormBean() {
-        return new SearchFormBean(createSearchTermsTransforms(), createSearchTermsFilters());
+        return new SearchFormBean(
+            createSearchTermsTransforms(),
+            createSearchTermsFilters(),
+            createQueryStringEditors()
+        );
     }
 
     /**
@@ -367,6 +547,29 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
 
         public void onEvent(KeyEvent event) throws Exception {
             if (ON_OK.equals(event.getName())) {
+                AbstractSearchablePagingExecutor.this.firePaging(1);
+            }
+        }
+    }
+
+    /**
+     * 统一延迟加载触发分页查询事件监听类
+     * 该类在搜索控件中有下拉框组件，并且
+     * 当前分页是非延迟加载的情况下才使用。
+     */
+    private class UniversalLazyLoadingEventListener implements SerializableEventListener<Event> {
+
+        private static final long serialVersionUID = 4261571937927810833L;
+        private final AtomicInteger ai;
+
+        private UniversalLazyLoadingEventListener(int count) {
+            Assert.isTrue(count > 0, "Parameter 'count' must be greater than 0.");
+
+            this.ai = new AtomicInteger(count);
+        }
+
+        public void onEvent(Event event) throws Exception {
+            if (this.ai.decrementAndGet() == 0) {
                 AbstractSearchablePagingExecutor.this.firePaging(1);
             }
         }

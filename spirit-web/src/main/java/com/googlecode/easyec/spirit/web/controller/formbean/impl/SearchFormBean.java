@@ -4,9 +4,14 @@ import com.googlecode.easyec.spirit.web.controller.formbean.annotations.SearchTe
 import com.googlecode.easyec.spirit.web.controller.formbean.terms.SearchTermsFilter;
 import com.googlecode.easyec.spirit.web.controller.formbean.terms.SearchTermsTransform;
 import com.googlecode.easyec.spirit.web.controller.sorts.Sort;
+import com.googlecode.easyec.spirit.web.qseditors.QueryStringEditor;
 import org.apache.commons.lang.ArrayUtils;
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.*;
+
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 /**
  * 表单搜索的Bean类。
@@ -15,7 +20,7 @@ import java.util.*;
  */
 public class SearchFormBean extends AbstractSearchFormBean {
 
-    private static final long serialVersionUID = 3758430453970592169L;
+    private static final long serialVersionUID = 3865005350368735041L;
 
     /* 搜索条件过滤器类 */
     private List<SearchTermsFilter> filters = new ArrayList<SearchTermsFilter>();
@@ -23,8 +28,11 @@ public class SearchFormBean extends AbstractSearchFormBean {
     /* 搜索条件转换类 */
     private List<SearchTermsTransform> transforms = new ArrayList<SearchTermsTransform>();
 
+    /* 查询参数转URL参数值的编辑器列表 */
+    private Map<String, QueryStringEditor> editors = new LinkedHashMap<String, QueryStringEditor>();
+
     /* 搜索条件集合 */
-    private Map<String, Object> searchTerms = new LinkedHashMap<String, Object>();
+    private Map<String, SearchValue> searchTerms = new LinkedHashMap<String, SearchValue>();
 
     /* 排序信息集合 */
     private Set<Sort> sorts = new HashSet<Sort>();
@@ -32,13 +40,17 @@ public class SearchFormBean extends AbstractSearchFormBean {
     /* 当前分页的页码 */
     private int currentPage = 1;
 
-    public SearchFormBean() { }
+    public SearchFormBean() { /* no op */ }
 
     public SearchFormBean(List<SearchTermsTransform> transforms) {
         this(transforms, Collections.<SearchTermsFilter>emptyList());
     }
 
     public SearchFormBean(List<SearchTermsTransform> transforms, List<SearchTermsFilter> filters) {
+        this(transforms, filters, Collections.<String, QueryStringEditor>emptyMap());
+    }
+
+    public SearchFormBean(List<SearchTermsTransform> transforms, List<SearchTermsFilter> filters, Map<String, QueryStringEditor> editors) {
         if (null != transforms && !transforms.isEmpty()) {
             this.transforms.addAll(transforms);
         }
@@ -46,10 +58,98 @@ public class SearchFormBean extends AbstractSearchFormBean {
         if (null != filters && !filters.isEmpty()) {
             this.filters.addAll(filters);
         }
+
+        if (null != editors && !editors.isEmpty()) {
+            this.editors.putAll(editors);
+        }
     }
 
     public Map<String, Object> getSearchTerms() {
-        return new HashMap<String, Object>(searchTerms);
+        Map<String, Object> terms = new HashMap<String, Object>();
+        Set<String> keySet = searchTerms.keySet();
+        for (String key : keySet) {
+            terms.put(key, searchTerms.get(key).getValue());
+        }
+
+        return terms;
+    }
+
+    @Override
+    public Map<String, Object> getRawSearchTerms() {
+        Map<String, Object> terms = new HashMap<String, Object>();
+        Set<String> keySet = searchTerms.keySet();
+        for (String key : keySet) {
+            terms.put(key, searchTerms.get(key).getRawValue());
+        }
+
+        return terms;
+    }
+
+    @Override
+    public void setSearchTermsAsText(Map<String, String> params) {
+        if (params != null && !params.isEmpty()) {
+            Set<String> editorKeys = editors.keySet();
+            for (String editorKey : editorKeys) {
+                if (!params.containsKey(editorKey)) {
+                    logger.warn("The editor's key isn't in URL parameter list, so skip it.");
+
+                    continue;
+                }
+
+                try {
+                    addSearchTerm(
+                        editorKey,
+                        editors.get(editorKey).coerceToBean(
+                            URLDecoder.decode(params.get(editorKey), "utf-8")
+                        )
+                    );
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+        }
+    }
+
+    @Override
+    public Map<String, String> getSearchTermsAsText() {
+        if (editors.isEmpty()) {
+            logger.warn("No any QueryStringEditor was added, so query string won't be transformed.");
+
+            return Collections.emptyMap();
+        }
+
+        Map<String, String> map = new HashMap<String, String>();
+        Set<String> editorKeys = editors.keySet();
+        for (String editKey : editorKeys) {
+            if (!searchTerms.containsKey(editKey)) {
+                logger.warn("The editor's key isn't in current search term list, so skip it.");
+
+                continue;
+            }
+
+            Object v = searchTerms.get(editKey).getRawValue();
+            if (logger.isDebugEnabled()) {
+                logger.debug("Original value is: [{}].", v);
+            }
+
+            QueryStringEditor editor = editors.get(editKey);
+            if (!editor.accept(v)) {
+                logger.debug("The value cannot be accepted by QueryStringEditor.");
+
+                continue;
+            }
+
+            try {
+                String s = editor.coerceToQs(v);
+                logger.debug("The query string is: [{}].", s);
+
+                if (isNotBlank(s)) map.put(editKey, URLEncoder.encode(s, "utf-8"));
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+
+        return map;
     }
 
     public void addSearchTerm(String name, Object value) {
@@ -85,7 +185,7 @@ public class SearchFormBean extends AbstractSearchFormBean {
                 }
             }
 
-            searchTerms.put(name, thisVal);
+            searchTerms.put(name, new SearchValue(value, thisVal));
         }
     }
 

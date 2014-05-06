@@ -28,11 +28,53 @@ public interface SearchablePagingExecutor extends PagingExecutor {
     void setSearchScope(Component searchScope);
 
     /**
+     * 设置URL的查询参数
+     *
+     * @param qs 查询字符串
+     */
+    void setQueryString(String qs);
+
+    /**
+     * 将搜索条件编码成URL查询字符串
+     *
+     * @return URL查询字符串
+     */
+    String encodeSearchTerms();
+
+    /**
+     * 返回原始设置的搜索条件集合
+     *
+     * @return 原始设置的搜索条件
+     */
+    Map<String, Object> getRawSearchTerms();
+
+    /**
      * 返回当前的搜索条件信息。
      *
      * @return 搜索条件列表
      */
     Map<String, Object> getSearchTerms();
+
+    /**
+     * 返回可变的原始的搜索条件集合
+     *
+     * @return 可变的原始搜索条件集合
+     */
+    Map<String, Object> getMutableRawSearchTerms();
+
+    /**
+     * 返回当前的可变搜索条件信息。
+     *
+     * @return 可变搜索条件列表
+     */
+    Map<String, Object> getMutableSearchTerms();
+
+    /**
+     * 返回当前的不可变搜索条件信息。
+     *
+     * @return 不可变搜索条件信息
+     */
+    Map<String, Object> getImmutableSearchTerms();
 
     /**
      * 移除存在的不可变的搜索条件

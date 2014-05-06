@@ -2,7 +2,6 @@ package com.googlecode.easyec.spirit.web.controller.formbean.impl;
 
 import com.googlecode.easyec.spirit.web.controller.sorts.Sort;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,8 +23,34 @@ public abstract class AbstractSearchFormBean extends AbstractFormBean {
      * 返回当前表单的搜索条件
      *
      * @return 以键值对形式返回
+     * @see #getRawSearchTerms()
      */
     abstract public Map<String, Object> getSearchTerms();
+
+    /**
+     * 返回当前表单的原始搜索条件。
+     * 意思是调用{@link #addSearchTerm(String, Object)}
+     * 方法所传递的原始值。
+     *
+     * @return 以键值对形式返回
+     * @see #getSearchTerms()
+     */
+    public abstract Map<String, Object> getRawSearchTerms();
+
+    /**
+     * 以文本形式设置搜索条件
+     *
+     * @param params 文本形式的搜索条件集合
+     */
+    public abstract void setSearchTermsAsText(Map<String, String> params);
+
+    /**
+     * 返回当前表单的搜索条件。
+     * 该搜索条件列表的值为文本类型。
+     *
+     * @return 以键值对形式返回
+     */
+    public abstract Map<String, String> getSearchTermsAsText();
 
     /**
      * 添加一个搜索条件
