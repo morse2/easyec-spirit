@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 /**
  * Created by 俊杰 on 2014/5/3.
@@ -62,5 +63,33 @@ public class WebUtils {
         }
 
         return params;
+    }
+
+    public static String getRefererURI(HttpServletRequest request) {
+        String referer = request.getHeader("referer");
+        if (isBlank(referer)) return "";
+
+        // 去掉URL参数
+        int j = referer.indexOf("?");
+        logger.debug("Index of question mark: [{}].", j);
+
+        if (j > -1) referer = referer.substring(0, j);
+
+        // 去掉HTTP或HTTPS
+        referer = referer.replaceAll("(http://|https://)", "");
+
+        // 去掉域名、IP、端口信息
+        int i = referer.indexOf("/");
+        logger.debug("First index of referer: [{}].", i);
+
+        referer = referer.substring(i);
+
+        // 去掉WEB应用的上下文
+        String base = request.getContextPath();
+        if (isNotBlank(base)) {
+            referer = referer.replaceFirst(base, "");
+        }
+
+        return referer;
     }
 }

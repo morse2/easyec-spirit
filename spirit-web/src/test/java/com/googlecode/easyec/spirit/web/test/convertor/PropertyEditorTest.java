@@ -21,6 +21,8 @@ import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.*;
 
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+
 /**
  * Created by 俊杰 on 2014/5/2.
  */
@@ -112,5 +114,34 @@ public class PropertyEditorTest {
 
         Date d = DateUtils.parseDate(s, new String[] { "yyyy-MM-dd'T'HH:mm:ss.SSSZ" });
         System.out.println(d);
+    }
+
+    @Test
+    public void getReferer() {
+        String s = _getReferer("HTTP://tco.cx.tnt.com/site/cases/mycases.html?category=11");
+        System.out.println(s);
+    }
+
+    private String _getReferer(String referer) {
+        // 去掉URL参数
+        int j = referer.indexOf("?");
+
+        if (j > -1) referer = referer.substring(0, j);
+
+        // 去掉HTTP或HTTPS
+        referer = referer.toLowerCase().replaceAll("(http://|https://)", "");
+
+        // 去掉域名、IP、端口信息
+        int i = referer.indexOf("/");
+
+        referer = referer.substring(i);
+
+        // 去掉WEB应用的上下文
+        String base = "/site";
+        if (isNotBlank(base)) {
+            referer = referer.replaceFirst(base, "");
+        }
+
+        return referer;
     }
 }
