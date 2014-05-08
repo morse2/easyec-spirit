@@ -20,6 +20,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
  */
 public class SearchFormBean extends AbstractSearchFormBean {
 
+    private static final String PAGE_NAME = "pageNumber";
     private static final long serialVersionUID = 3865005350368735041L;
 
     /* 搜索条件过滤器类 */
@@ -107,6 +108,13 @@ public class SearchFormBean extends AbstractSearchFormBean {
                     logger.error(e.getMessage(), e);
                 }
             }
+
+            // 设置分页页码
+            if (params.containsKey(PAGE_NAME)) {
+                try {
+                    setPageNumber(Integer.parseInt(params.get(PAGE_NAME)));
+                } catch (Exception e) { /* no op */ }
+            }
         }
     }
 
@@ -148,6 +156,9 @@ public class SearchFormBean extends AbstractSearchFormBean {
                 logger.error(e.getMessage(), e);
             }
         }
+
+        // 添加当前分页页码
+        map.put(PAGE_NAME, String.valueOf(getPageNumber()));
 
         return map;
     }

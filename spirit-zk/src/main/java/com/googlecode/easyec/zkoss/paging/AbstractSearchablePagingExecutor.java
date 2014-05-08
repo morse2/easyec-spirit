@@ -43,7 +43,7 @@ import static org.zkoss.zul.event.ZulEvents.ON_AFTER_RENDER;
 public abstract class AbstractSearchablePagingExecutor<T extends Component> extends AbstractPagingExecutor<T> implements SearchablePagingExecutor {
 
     public static final  String AFTER_RENDER_LISTENER = "afterRenderListener";
-    private static final long   serialVersionUID      = 3094803487619175846L;
+    private static final long   serialVersionUID      = -8714501738463399672L;
 
     /**
      * 构造方法。
@@ -122,10 +122,12 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         addSearchSelectors(SELECTORS);
 
         // 如果查询参数可用，则进行解码动作
+        int currentPageNumber = 1;
         Map<String, Object> queryMap = null;
         if (isNotBlank(qs)) {
             AbstractSearchFormBean bean = createSearchFormBean();
             bean.setSearchTermsAsText(WebUtils.decodeQueryString(qs));
+            currentPageNumber = bean.getPageNumber();
             queryMap = bean.getRawSearchTerms();
         }
 
@@ -179,7 +181,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
 
                 // 初始化统一延迟加载搜索控制事件监听对象
                 UniversalLazyLoadingEventListener lstnr
-                    = new UniversalLazyLoadingEventListener(list.size());
+                    = new UniversalLazyLoadingEventListener(list.size(), currentPageNumber);
 
                 for (Component c : list) {
                     c.addEventListener(ON_AFTER_RENDER, lstnr);
@@ -187,7 +189,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
             }
         }
 
-        super.doInit();
+        init0(currentPageNumber);
     }
 
     @Override
@@ -206,9 +208,10 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
     }
 
     public String encodeSearchTerms() {
-        return WebUtils.encodeQueryString(
-            combineSearchTerms(false).getSearchTermsAsText()
-        );
+        AbstractSearchFormBean bean = combineSearchTerms(false);
+        bean.setPageNumber(getPaging().getActivePage() + 1);
+
+        return WebUtils.encodeQueryString(bean.getSearchTermsAsText());
     }
 
     public Map<String, Object> getRawSearchTerms() {
@@ -559,18 +562,21 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
      */
     private class UniversalLazyLoadingEventListener implements SerializableEventListener<Event> {
 
-        private static final long serialVersionUID = 4261571937927810833L;
+        private static final long serialVersionUID = 6635885014600887877L;
         private final AtomicInteger ai;
 
-        private UniversalLazyLoadingEventListener(int count) {
+        private int initialPageNumber;
+
+        private UniversalLazyLoadingEventListener(int count, int page) {
             Assert.isTrue(count > 0, "Parameter 'count' must be greater than 0.");
 
             this.ai = new AtomicInteger(count);
+            this.initialPageNumber = page;
         }
 
         public void onEvent(Event event) throws Exception {
             if (this.ai.decrementAndGet() == 0) {
-                AbstractSearchablePagingExecutor.this.firePaging(1);
+                AbstractSearchablePagingExecutor.this.firePaging(initialPageNumber);
             }
         }
     }
