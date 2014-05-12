@@ -10,7 +10,6 @@
         <module>spirit-mybatis</module>
         <module>spirit-web</module>
         <module>spirit-zk</module>
-        <module>spirit-zkjsp</module>
     </modules>
     <packaging>pom</packaging>
     <name>spirit</name>
