@@ -31,7 +31,7 @@ import static com.googlecode.easyec.spirit.web.controller.sorts.Sort.SortTypes.D
  */
 public abstract class AbstractPagingExecutor<T extends Component> implements PagingExecutor {
 
-    private static final long serialVersionUID = -4029133006969285841L;
+    private static final long serialVersionUID = -7813436908837592374L;
     protected final Logger logger = LoggerFactory.getLogger(getClass());
     private boolean lazyLoad;
     private boolean visible = true;
@@ -102,7 +102,7 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
 
         // 如果分页不是延迟加载的，则默认加载第一页数据
         if (!lazyLoad) firePaging(currentPage); // 总是加载第一页的数据
-        else _comp.setVisible(visible); // 如果延迟加载，则设置显示区域可见或不可见
+        else setComponentVisible(_comp, visible); // 如果延迟加载，则设置显示区域可见或不可见
     }
 
     /**
@@ -135,7 +135,7 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
         afterPaging(page);
 
         // 如果页面为延迟加载，此时则应该显示组件
-        if (lazyLoad) _comp.setVisible(true);
+        if (lazyLoad) setComponentVisible(_comp, true);
         if (page.getTotalSize() < 1) doClear(page);
         else if (page.getTotalSize() > 0) doRedraw(page);
     }
@@ -201,14 +201,24 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
     }
 
     /**
+     * 设置组件是否可见的方法
+     *
+     * @param comp    分页监控的组件对象
+     * @param visible 是否可见标识
+     */
+    protected void setComponentVisible(T comp, boolean visible) {
+        comp.setVisible(visible);
+    }
+
+    /**
      * 执行重画ZK控件内容的操作
      *
      * @param page 分页结果对象
      */
     private void doRedraw(Page page) {
+        _paging.setPageSize(page.getPageSize());
         _paging.setTotalSize(page.getTotalRecordsCount());
         _paging.setActivePage(page.getCurrentPage() - 1);
-        _paging.setPageSize(page.getPageSize());
 
         redraw(page);
     }

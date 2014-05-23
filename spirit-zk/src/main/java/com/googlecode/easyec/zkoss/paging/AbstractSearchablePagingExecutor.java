@@ -10,9 +10,9 @@ import com.googlecode.easyec.spirit.web.qseditors.CustomNumberQsEditor;
 import com.googlecode.easyec.spirit.web.qseditors.CustomStringQsEditor;
 import com.googlecode.easyec.spirit.web.qseditors.QueryStringEditor;
 import com.googlecode.easyec.spirit.web.utils.WebUtils;
+import com.googlecode.easyec.zkoss.paging.terms.AfterRenderListenerSearchTermFilter;
 import com.googlecode.easyec.zkoss.paging.terms.BindComposerSearchTermFilter;
 import com.googlecode.easyec.zkoss.paging.terms.BlankStringSearchTermFilter;
-import org.apache.commons.collections.MapUtils;
 import org.springframework.util.Assert;
 import org.zkoss.xel.fn.CommonFns;
 import org.zkoss.zk.ui.Component;
@@ -30,6 +30,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.googlecode.easyec.zkoss.utils.SelectorUtils.find;
+import static org.apache.commons.collections.MapUtils.isNotEmpty;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.zkoss.zk.ui.event.Events.ON_OK;
 import static org.zkoss.zul.event.ZulEvents.ON_AFTER_RENDER;
@@ -211,7 +212,11 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         AbstractSearchFormBean bean = combineSearchTerms(false);
         bean.setPageNumber(getPaging().getActivePage() + 1);
 
-        return WebUtils.encodeQueryString(bean.getSearchTermsAsText());
+        Map<String, String> qsMap = bean.getSearchTermsAsText();
+        Map<String, String> externalQS = createExternalQS(bean);
+        if (isNotEmpty(externalQS)) qsMap.putAll(externalQS);
+
+        return WebUtils.encodeQueryString(qsMap);
     }
 
     public Map<String, Object> getRawSearchTerms() {
@@ -414,6 +419,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
      */
     protected List<SearchTermsFilter> createSearchTermsFilters() {
         List<SearchTermsFilter> filters = new ArrayList<SearchTermsFilter>();
+        filters.add(new AfterRenderListenerSearchTermFilter());
         filters.add(new BindComposerSearchTermFilter());
         filters.add(new BlankStringSearchTermFilter());
 
@@ -481,6 +487,17 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
     }
 
     /**
+     * 通过搜索Bean对象，
+     * 创建一个额外的QS条件列表
+     *
+     * @param bean 搜索Bean对象
+     * @return URL搜索参数列表
+     */
+    protected Map<String, String> createExternalQS(AbstractSearchFormBean bean) {
+        return null;
+    }
+
+    /**
      * 合并添加组件中的自定义属性作为搜索条件。
      *
      * @param c    ZK组件实例
@@ -488,7 +505,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
      */
     private void combineComponentAttributes(Component c, AbstractSearchFormBean bean) {
         Map<String, Object> attributes = c.getAttributes();
-        if (MapUtils.isNotEmpty(attributes)) {
+        if (isNotEmpty(attributes)) {
             Set<String> keySet = attributes.keySet();
             for (String key : keySet) {
                 addOrRemoveSearchArg(key, attributes.get(key), bean);
