@@ -61,6 +61,13 @@ public abstract class AbstractSearchFormBean extends AbstractFormBean {
     abstract public void addSearchTerm(String name, Object value);
 
     /**
+     * 添加一个搜索条件集合
+     *
+     * @param searchTerms 搜索条件集合对象
+     */
+    public abstract void addSearchTerms(Map<String, Object> searchTerms);
+
+    /**
      * 删除一个搜索条件
      *
      * @param name 字段名

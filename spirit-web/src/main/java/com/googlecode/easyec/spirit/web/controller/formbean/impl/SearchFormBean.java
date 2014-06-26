@@ -11,6 +11,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.*;
 
+import static org.apache.commons.collections.MapUtils.isNotEmpty;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 /**
@@ -21,7 +22,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 public class SearchFormBean extends AbstractSearchFormBean {
 
     private static final String PAGE_NAME = "pageNumber";
-    private static final long serialVersionUID = 3865005350368735041L;
+    private static final long serialVersionUID = -3274378981508970511L;
 
     /* 搜索条件过滤器类 */
     private List<SearchTermsFilter> filters = new ArrayList<SearchTermsFilter>();
@@ -197,6 +198,15 @@ public class SearchFormBean extends AbstractSearchFormBean {
             }
 
             searchTerms.put(name, new SearchValue(value, thisVal));
+        }
+    }
+
+    public void addSearchTerms(Map<String, Object> searchTerms) {
+        if (isNotEmpty(searchTerms)) {
+            Set<String> keySet = searchTerms.keySet();
+            for (String key : keySet) {
+                addSearchTerm(key, searchTerms.get(key));
+            }
         }
     }
 

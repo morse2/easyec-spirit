@@ -140,42 +140,14 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
 
             if (queryMap != null && !queryMap.isEmpty()) {
                 // 如果组件的ID可用，并且与查询参数的key相等，则设置组件的值
-                String id = c.getId();
-                if (isNotBlank(id) && queryMap.containsKey(id)) {
-                    Object v = queryMap.get(id);
-
-                    // 设置文本框的值
-                    if (c instanceof Textbox) {
-                        if (c instanceof Combobox) {
-                            Object o = c.getAttribute(AFTER_RENDER_LISTENER);
-                            if (o != null) {
-                                try {
-                                    c.addEventListener(
-                                        ON_AFTER_RENDER,
-                                        (EventListener<? extends Event>) CommonFns.new_(o, v)
-                                    );
-                                } catch (Exception e) {
-                                    logger.error(e.getMessage(), e);
-                                }
-                            } else {
-                                logger.warn("No any listener was set. so ignore.");
-                            }
-                        } else ((Textbox) c).setRawValue(v);
-                    }
-                    // 设置数字框的值
-                    else if (c instanceof NumberInputElement) {
-                        ((NumberInputElement) c).setRawValue(v);
-                    }
-                    // 设置日期框的值
-                    else if (c instanceof FormatInputElement) {
-                        ((FormatInputElement) c).setRawValue(v);
-                    }
+                if (isNotBlank(c.getId()) && queryMap.containsKey(c.getId())) {
+                    restoreQsParameter(c, queryMap.remove(c.getId()));
                 }
             }
         }
 
         if (!isLazyLoad()) {
-            List<Component> list = find(getActualSearchScope(), "combobox");
+            List<Component> list = find(getActualSearchScope(), "combobox", false);
             if (!list.isEmpty()) {
                 // 设置当前搜索为延迟加载
                 setLazyLoad(true);
@@ -257,6 +229,48 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         }
 
         return false;
+    }
+
+    /**
+     * 为给定的组件设置查询参数值。
+     * 当URL查询参数的名字与组件的ID
+     * 相等时，该方法才会被触发。
+     * <p>
+     * <b>注意：</b>
+     * 该方法默认为文本框、数字框、
+     * 日期框组件对象设置参数值
+     * </p>
+     *
+     * @param c 与查询参数名称相等ID的组件
+     * @param v 查询参数值
+     */
+    protected void restoreQsParameter(Component c, Object v) {
+        // 设置文本框的值
+        if (c instanceof Textbox) {
+            if (c instanceof Combobox) {
+                Object o = c.getAttribute(AFTER_RENDER_LISTENER);
+                if (o != null) {
+                    try {
+                        c.addEventListener(
+                            ON_AFTER_RENDER,
+                            (EventListener<? extends Event>) CommonFns.new_(o, v)
+                        );
+                    } catch (Exception e) {
+                        logger.error(e.getMessage(), e);
+                    }
+                } else {
+                    logger.warn("No any listener was set. so ignore.");
+                }
+            } else ((Textbox) c).setRawValue(v);
+        }
+        // 设置数字框的值
+        else if (c instanceof NumberInputElement) {
+            ((NumberInputElement) c).setRawValue(v);
+        }
+        // 设置日期框的值
+        else if (c instanceof FormatInputElement) {
+            ((FormatInputElement) c).setRawValue(v);
+        }
     }
 
     /**
