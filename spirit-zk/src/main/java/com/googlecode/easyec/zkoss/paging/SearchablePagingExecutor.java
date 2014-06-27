@@ -1,5 +1,6 @@
 package com.googlecode.easyec.zkoss.paging;
 
+import com.googlecode.easyec.spirit.web.controller.formbean.impl.AbstractSearchFormBean;
 import org.zkoss.zk.ui.Component;
 
 import java.util.Map;
@@ -40,6 +41,15 @@ public interface SearchablePagingExecutor extends PagingExecutor {
      * @return URL查询字符串
      */
     String encodeSearchTerms();
+
+    /**
+     * 返回并得到一个包装了搜索条件
+     * 的搜索Bean对象
+     *
+     * @return 搜索Bean对象
+     * @see AbstractSearchFormBean
+     */
+    AbstractSearchFormBean getSearchFormBean();
 
     /**
      * 返回原始设置的搜索条件集合

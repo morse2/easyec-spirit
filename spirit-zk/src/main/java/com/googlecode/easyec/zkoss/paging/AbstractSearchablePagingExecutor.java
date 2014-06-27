@@ -191,6 +191,10 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         return WebUtils.encodeQueryString(qsMap);
     }
 
+    public AbstractSearchFormBean getSearchFormBean() {
+        return combineSearchTerms();
+    }
+
     public Map<String, Object> getRawSearchTerms() {
         return combineSearchTerms().getRawSearchTerms();
     }
