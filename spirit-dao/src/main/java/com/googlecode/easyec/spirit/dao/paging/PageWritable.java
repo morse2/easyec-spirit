@@ -16,7 +16,7 @@ public interface PageWritable {
      *
      * @param records 当前分页的结果集
      */
-    void setRecords(List<?> records);
+    <T> void setRecords(List<T> records);
 
     /**
      * 设置分页总的记录数。

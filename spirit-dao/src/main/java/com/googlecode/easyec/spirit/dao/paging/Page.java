@@ -51,7 +51,7 @@ public interface Page {
      *
      * @return <code>java.util.List</code>
      */
-    List<?> getRecords();
+    <T> List<T> getRecords();
 
     /**
      * 得到总的记录数量.
