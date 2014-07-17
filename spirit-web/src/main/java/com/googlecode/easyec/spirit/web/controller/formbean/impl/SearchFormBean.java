@@ -22,7 +22,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 public class SearchFormBean extends AbstractSearchFormBean {
 
     private static final String PAGE_NAME = "pageNumber";
-    private static final long serialVersionUID = -3274378981508970511L;
+    private static final long serialVersionUID = 6930227796122550347L;
 
     /* 搜索条件过滤器类 */
     private List<SearchTermsFilter> filters = new ArrayList<SearchTermsFilter>();
@@ -37,7 +37,7 @@ public class SearchFormBean extends AbstractSearchFormBean {
     private Map<String, SearchValue> searchTerms = new LinkedHashMap<String, SearchValue>();
 
     /* 排序信息集合 */
-    private Set<Sort> sorts = new HashSet<Sort>();
+    private List<Sort> sorts = new ArrayList<Sort>();
 
     /* 当前分页的页码 */
     private int currentPage = 1;
@@ -214,7 +214,7 @@ public class SearchFormBean extends AbstractSearchFormBean {
         return searchTerms.remove(name) != null;
     }
 
-    public Set<Sort> getSorts() {
+    public List<Sort> getSorts() {
         return sorts;
     }
 
