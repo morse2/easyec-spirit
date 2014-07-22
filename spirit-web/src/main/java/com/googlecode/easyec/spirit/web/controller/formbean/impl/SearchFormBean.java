@@ -22,7 +22,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 public class SearchFormBean extends AbstractSearchFormBean {
 
     private static final String PAGE_NAME = "pageNumber";
-    private static final long serialVersionUID = 6930227796122550347L;
+    private static final long serialVersionUID = 4591332694121745162L;
 
     /* 搜索条件过滤器类 */
     private List<SearchTermsFilter> filters = new ArrayList<SearchTermsFilter>();
@@ -212,6 +212,10 @@ public class SearchFormBean extends AbstractSearchFormBean {
 
     public boolean removeSearchTerm(String name) {
         return searchTerms.remove(name) != null;
+    }
+
+    public boolean hasSearchTerm(String name) {
+        return searchTerms.containsKey(name);
     }
 
     public List<Sort> getSorts() {

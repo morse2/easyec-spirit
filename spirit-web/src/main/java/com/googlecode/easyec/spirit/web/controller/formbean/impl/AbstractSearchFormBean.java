@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public abstract class AbstractSearchFormBean extends AbstractFormBean {
 
-    private static final long serialVersionUID = -6225171420085008346L;
+    private static final long serialVersionUID = -3316765001635985093L;
 
     public FormType getFormType() {
         return FormType.SEARCH_FORM;
@@ -74,6 +74,14 @@ public abstract class AbstractSearchFormBean extends AbstractFormBean {
      * @return 删除成功则返回真，否则返回假
      */
     abstract public boolean removeSearchTerm(String name);
+
+    /**
+     * 判断是否有给定的搜索条件
+     *
+     * @param name 搜索条件的KEY
+     * @return bool值
+     */
+    public abstract boolean hasSearchTerm(String name);
 
     /**
      * 返回排序字段列表
