@@ -6,6 +6,8 @@ import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Init;
 import org.zkoss.zk.ui.Component;
 
+import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.autowireBeanProperties;
+
 /**
  * 支持分页框架的视图模型的基类。
  * <p>
@@ -18,7 +20,7 @@ import org.zkoss.zk.ui.Component;
 @Init(superclass = true)
 public abstract class BasePagingVM<T extends Component> extends BaseVM<T> {
 
-    private static final long serialVersionUID = 5973760726936949220L;
+    private static final long serialVersionUID = -2466151502994352867L;
     private PagingExecutor pagingExecutor;
 
     /**
@@ -37,6 +39,8 @@ public abstract class BasePagingVM<T extends Component> extends BaseVM<T> {
 
         // 执行分页执行类的初始化前置方法
         beforePagingExecutorInit(pagingExecutor);
+        // 使用Spring来为PageExecutor实例注入依赖对象
+        autowireBeanProperties(pagingExecutor, false);
         // 初始化分页执行类的初始方法
         this.pagingExecutor.doInit();
     }

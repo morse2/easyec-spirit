@@ -147,17 +147,19 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         }
 
         if (!isLazyLoad()) {
-            List<Component> list = find(getActualSearchScope(), "combobox", false);
+            List<Combobox> list = find(getActualSearchScope(), "combobox", Combobox.class, false);
             if (!list.isEmpty()) {
-                // 设置当前搜索为延迟加载
-                setLazyLoad(true);
-
                 // 初始化统一延迟加载搜索控制事件监听对象
                 UniversalLazyLoadingEventListener lstnr
                     = new UniversalLazyLoadingEventListener(list.size(), currentPageNumber);
 
-                for (Component c : list) {
-                    c.addEventListener(ON_AFTER_RENDER, lstnr);
+                for (Combobox c : list) {
+                    if (c.getModel() != null) {
+                        c.addEventListener(ON_AFTER_RENDER, lstnr);
+
+                        // 设置当前搜索为延迟加载
+                        if (!isLazyLoad()) setLazyLoad(true);
+                    }
                 }
             }
         }
