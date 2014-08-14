@@ -10,6 +10,7 @@ import org.zkoss.bind.annotation.Init;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Session;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -35,31 +36,34 @@ import static org.zkoss.zk.ui.Executions.getCurrent;
  * @author JunJie
  */
 @AfterCompose(superclass = true)
-public abstract class BaseFormVM<T extends Component, M extends GenericPersistentDomainModel<E>, E extends Serializable> extends BaseVM<T> {
+public abstract class BaseFormVM<T extends Component, M extends GenericPersistentDomainModel<E>, E extends Serializable>
+        extends BaseVM<T> {
 
     /**
      * 表单参数对象的KEY
      */
-    public static final  String ARG_FORM_OBJECT  = "com.googlecode.easyec.zkoss.mvvm.FormObject";
+    public static final String ARG_FORM_OBJECT = "com.googlecode.easyec.zkoss.mvvm.FormObject";
     /**
      * 表单参数指向的URI的KEY
      */
-    public static final  String ARG_REQUEST_URI  = "com.googlecode.easyec.zkoss.mvvm.ZKRequestURI";
+    public static final String ARG_REQUEST_URI = "com.googlecode.easyec.zkoss.mvvm.ZKRequestURI";
     /**
      * 标识是否校验表单对象的主键为空
      */
-    public static final  String ARG_CHECK_UIDPK  = "com.googlecode.easyec.zkoss.mvvm.CheckUidPK";
+    public static final String ARG_CHECK_UIDPK = "com.googlecode.easyec.zkoss.mvvm.CheckUidPK";
     /**
      * 标识是否匹配VM对象类型
      */
-    public static final  String ARG_MATCH_VM     = "com.googlecode.easyec.zkoss.mvvm.MatchVM";
-    private static final long   serialVersionUID = 8575235562676085828L;
+    public static final String ARG_MATCH_VM    = "com.googlecode.easyec.zkoss.mvvm.MatchVM";
+    private static final long serialVersionUID = -1513220462712781870L;
 
     /**
      * 域模型对象实例。此对象不能为空。
      */
     protected M          domainModel;
     protected FormAction action;
+
+    private String preQs;
 
     /**
      * 返回得到当前VM对象中定义的域模型对象
@@ -68,6 +72,19 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
      */
     public M getDomainModel() {
         return domainModel;
+    }
+
+    /**
+     * 返回上一个页面传递过来的查询字符串
+     *
+     * @return query string
+     */
+    public String getPreQs() {
+        if (isBlank(preQs)) return "";
+        return new StringBuffer()
+                .append("?")
+                .append(preQs)
+                .toString();
     }
 
     /**
@@ -93,6 +110,8 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
      */
     @Init(superclass = true)
     public void initBaseFormVM() {
+        preQs = ((HttpServletRequest) getCurrent().getNativeRequest()).getQueryString();
+
         resolveFormVariable();
     }
 
@@ -144,8 +163,8 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
                 }
 
                 logger.warn(
-                    "Current form object's type isn't instanceof [{}], actual type: [{}].",
-                    cls.getName(), var.getClass().getName()
+                        "Current form object's type isn't instanceof [{}], actual type: [{}].",
+                        cls.getName(), var.getClass().getName()
                 );
             }
         }
@@ -163,6 +182,22 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
             case INSERT:
                 domainModel.setUidPk(null);
         }
+    }
+
+    /**
+     * 为给定的URL追加上一个页面的查询字符串
+     *
+     * @param original 原始url
+     * @return 可能追加了查询字符串的url
+     */
+    protected String appendPreQs(String original) {
+        if (isBlank(original)) return "";
+        if (isBlank(preQs)) return original;
+        return new StringBuffer()
+                .append(original)
+                .append("?")
+                .append(preQs)
+                .toString();
     }
 
     /**

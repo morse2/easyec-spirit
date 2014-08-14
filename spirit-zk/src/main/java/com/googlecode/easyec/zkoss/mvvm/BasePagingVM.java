@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.autowireBeanProperties;
 import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.zkoss.zk.ui.Executions.getCurrent;
 
 /**
@@ -24,6 +25,7 @@ import static org.zkoss.zk.ui.Executions.getCurrent;
  */
 public abstract class BasePagingVM<T extends Component> extends BaseVM<T> {
 
+    private static final long serialVersionUID = -151434527153509069L;
     private PagingExecutor pagingExecutor;
 
     private String preQs;
@@ -35,6 +37,39 @@ public abstract class BasePagingVM<T extends Component> extends BaseVM<T> {
      */
     public PagingExecutor getPagingExecutor() {
         return pagingExecutor;
+    }
+
+    /**
+     * 返回上一个页面传递过来的查询字符串
+     *
+     * @return query string
+     */
+    public String getPreQs() {
+        if (isBlank(preQs)) return "";
+        return new StringBuffer()
+                .append("?")
+                .append(preQs)
+                .toString();
+    }
+
+    /**
+     * 返回当前页面的查询字符串
+     *
+     * @return query string
+     */
+    public String getCurQs() {
+        String qs = null;
+        if (pagingExecutor instanceof SearchablePagingExecutor) {
+            qs = ((SearchablePagingExecutor) pagingExecutor).encodeSearchTerms();
+            logger.debug("Current page's query string: [{}].", qs);
+        }
+
+        return isNotBlank(qs)
+               ? new StringBuffer()
+                       .append("?")
+                       .append(qs)
+                       .toString()
+               : "";
     }
 
     @Init(superclass = true)
@@ -104,17 +139,12 @@ public abstract class BasePagingVM<T extends Component> extends BaseVM<T> {
     protected String appendCurQs(String original) {
         if (isBlank(original)) return "";
 
-        String qs = null;
-        if (pagingExecutor instanceof SearchablePagingExecutor) {
-            qs = ((SearchablePagingExecutor) pagingExecutor).encodeSearchTerms();
-            logger.debug("Current page's query string: [{}].", qs);
-        }
+        String qs = getCurQs();
 
         if (isBlank(qs)) return original;
 
         return new StringBuffer()
                 .append(original)
-                .append("?")
                 .append(qs)
                 .toString();
     }
