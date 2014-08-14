@@ -10,6 +10,7 @@ import org.zkoss.bind.annotation.Init;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Session;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
@@ -34,7 +35,7 @@ import static org.zkoss.zk.ui.Executions.getCurrent;
  * @author JunJie
  */
 @AfterCompose(superclass = true)
-public abstract class BaseFormVM<T extends Component, M extends PersistentDomainModel> extends BaseVM<T> {
+public abstract class BaseFormVM<T extends Component, M extends GenericPersistentDomainModel<E>, E extends Serializable> extends BaseVM<T> {
 
     /**
      * 表单参数对象的KEY

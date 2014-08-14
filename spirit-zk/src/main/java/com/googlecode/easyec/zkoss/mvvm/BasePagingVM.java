@@ -1,12 +1,17 @@
 package com.googlecode.easyec.zkoss.mvvm;
 
 import com.googlecode.easyec.zkoss.paging.PagingExecutor;
+import com.googlecode.easyec.zkoss.paging.SearchablePagingExecutor;
 import org.springframework.util.Assert;
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Init;
 import org.zkoss.zk.ui.Component;
 
+import javax.servlet.http.HttpServletRequest;
+
 import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.autowireBeanProperties;
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.zkoss.zk.ui.Executions.getCurrent;
 
 /**
  * 支持分页框架的视图模型的基类。
@@ -17,11 +22,11 @@ import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.autowire
  * @author JunJie
  * @see PagingExecutor
  */
-@Init(superclass = true)
 public abstract class BasePagingVM<T extends Component> extends BaseVM<T> {
 
-    private static final long serialVersionUID = -2466151502994352867L;
     private PagingExecutor pagingExecutor;
+
+    private String preQs;
 
     /**
      * 返回分页的执行器对象
@@ -30,6 +35,11 @@ public abstract class BasePagingVM<T extends Component> extends BaseVM<T> {
      */
     public PagingExecutor getPagingExecutor() {
         return pagingExecutor;
+    }
+
+    @Init(superclass = true)
+    public void initBasePagingVM() {
+        preQs = ((HttpServletRequest) getCurrent().getNativeRequest()).getQueryString();
     }
 
     @AfterCompose(superclass = true)
@@ -63,5 +73,49 @@ public abstract class BasePagingVM<T extends Component> extends BaseVM<T> {
      */
     protected void beforePagingExecutorInit(PagingExecutor exec) {
         logger.trace("beforePagingExecutorInit() done..");
+
+        if (exec instanceof SearchablePagingExecutor) {
+            ((SearchablePagingExecutor) exec).setQueryString(preQs);
+        }
+    }
+
+    /**
+     * 为给定的URL追加上一个页面的查询字符串
+     *
+     * @param original 原始url
+     * @return 可能追加了查询字符串的url
+     */
+    protected String appendPreQs(String original) {
+        if (isBlank(original)) return "";
+        if (isBlank(preQs)) return original;
+        return new StringBuffer()
+                .append(original)
+                .append("?")
+                .append(preQs)
+                .toString();
+    }
+
+    /**
+     * 为给定的URL追加当前页面的查询字符串
+     *
+     * @param original 原始url
+     * @return 可能追加了查询字符串的url
+     */
+    protected String appendCurQs(String original) {
+        if (isBlank(original)) return "";
+
+        String qs = null;
+        if (pagingExecutor instanceof SearchablePagingExecutor) {
+            qs = ((SearchablePagingExecutor) pagingExecutor).encodeSearchTerms();
+            logger.debug("Current page's query string: [{}].", qs);
+        }
+
+        if (isBlank(qs)) return original;
+
+        return new StringBuffer()
+                .append(original)
+                .append("?")
+                .append(qs)
+                .toString();
     }
 }
