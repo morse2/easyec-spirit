@@ -31,6 +31,13 @@ public interface Query<T> {
     Page listPage(int currentPage, int pageSize);
 
     /**
+     * 计算数据的总数
+     *
+     * @return 数据总数
+     */
+    long count();
+
+    /**
      * 查询数据的方法
      *
      * @param <U> 实体对象的泛型类型

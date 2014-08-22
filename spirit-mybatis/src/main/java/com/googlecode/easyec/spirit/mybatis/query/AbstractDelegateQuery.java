@@ -6,8 +6,6 @@ import com.googlecode.easyec.spirit.query.AbstractQuery;
 
 import java.util.List;
 
-import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.autowireBeanProperties;
-
 /**
  * 抽象的委托业务代理的查询类
  *
@@ -15,10 +13,6 @@ import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.autowire
  */
 @SuppressWarnings("unchecked")
 public abstract class AbstractDelegateQuery<T> extends AbstractQuery<T> {
-
-    protected AbstractDelegateQuery() {
-        autowireBeanProperties(this, true);
-    }
 
     public Page listPage(int currentPage) {
         setPageNumber(currentPage);
@@ -28,6 +22,10 @@ public abstract class AbstractDelegateQuery<T> extends AbstractQuery<T> {
     public Page listPage(int currentPage, int pageSize) {
         setPageNumber(currentPage);
         return getDelegateService().find(getSearchFormBean(), pageSize);
+    }
+
+    public long count() {
+        return getDelegateService().count(getSearchFormBean());
     }
 
     public <U> List<U> list() {

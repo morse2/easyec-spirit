@@ -54,6 +54,12 @@ public class DelegateServiceMask<T extends DelegateDao<M, ID>, M extends Generic
         return null;
     }
 
+    public long count(AbstractSearchFormBean formBean) {
+        logger.trace("Implementation via proxy class.");
+
+        return 0;
+    }
+
     public T getDelegateDao() {
         return delegateDao;
     }

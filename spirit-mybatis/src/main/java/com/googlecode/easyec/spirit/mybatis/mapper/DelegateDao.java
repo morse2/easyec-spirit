@@ -65,4 +65,12 @@ public interface DelegateDao<M extends GenericPersistentDomainModel<ID>, ID exte
      * @return 模型对象列表
      */
     List<M> find(Map<String, Object> params);
+
+    /**
+     * 通过查询条件统计符合条件的记录总数
+     *
+     * @param params 查询条件
+     * @return 记录总数
+     */
+    long count(Map<String, Object> params);
 }

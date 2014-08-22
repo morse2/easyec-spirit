@@ -58,10 +58,18 @@ public interface DelegateService<T extends DelegateDao<M, ID>, M extends Generic
     /**
      * 通过查询条件查找模型信息
      *
-     * @param bean 查询条件
+     * @param formBean 查询条件
      * @return 模型对象列表
      */
-    List<M> search(AbstractSearchFormBean bean);
+    List<M> search(AbstractSearchFormBean formBean);
+
+    /**
+     * 统计符合条件的数据总数
+     *
+     * @param formBean 查询条件
+     * @return 数据总数
+     */
+    long count(AbstractSearchFormBean formBean);
 
     /**
      * 返回DAO数据层的委托类

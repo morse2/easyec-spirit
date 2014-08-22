@@ -86,6 +86,10 @@ final class DelegateServiceInvocationHandler implements InvocationHandler, Deleg
         return delegateDao.find(searchTerms);
     }
 
+    public long count(AbstractSearchFormBean formBean) {
+        return delegateDao.count(formBean.getSearchTerms());
+    }
+
     public DelegateDao getDelegateDao() {
         return delegateDao;
     }
