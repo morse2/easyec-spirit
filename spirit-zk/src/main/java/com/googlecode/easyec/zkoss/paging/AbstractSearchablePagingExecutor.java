@@ -41,7 +41,8 @@ import static org.zkoss.zul.event.ZulEvents.ON_AFTER_RENDER;
  *
  * @author JunJie
  */
-public abstract class AbstractSearchablePagingExecutor<T extends Component> extends AbstractPagingExecutor<T> implements SearchablePagingExecutor {
+public abstract class AbstractSearchablePagingExecutor<T extends Component> extends AbstractPagingExecutor<T>
+    implements SearchablePagingExecutor {
 
     public static final  String AFTER_RENDER_LISTENER = "afterRenderListener";
     private static final long   serialVersionUID      = -8714501738463399672L;
@@ -463,8 +464,10 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
                 if (c instanceof Textbox) {
                     if (!(c instanceof Combobox)) {
                         editors.put(c.getId(), new CustomStringQsEditor());
-                        logger.debug("Component [" + c.getClass().getName()
-                            + "] has been controlled by editor [CustomStringQsEditor].");
+                        logger.debug(
+                            "Component [" + c.getClass().getName()
+                            + "] has been controlled by editor [CustomStringQsEditor]."
+                        );
                     }
                 }
 
@@ -484,16 +487,20 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
                         editors.put(c.getId(), new CustomNumberQsEditor(Double.class));
                     }
 
-                    logger.debug("Component [" + c.getClass().getName()
-                        + "] has been controlled by editor [CustomNumberQsEditor].");
+                    logger.debug(
+                        "Component [" + c.getClass().getName()
+                        + "] has been controlled by editor [CustomNumberQsEditor]."
+                    );
                 }
 
                 // 为日期或其他格式化的控件设置QsEditor
                 else if (c instanceof FormatInputElement) {
                     if ((c instanceof Datebox) || (c instanceof Timebox)) {
                         editors.put(c.getId(), new CustomDateQsEditor());
-                        logger.debug("Component [" + c.getClass().getName()
-                            + "] has been controlled by editor [CustomDateQsEditor].");
+                        logger.debug(
+                            "Component [" + c.getClass().getName()
+                            + "] has been controlled by editor [CustomDateQsEditor]."
+                        );
                     }
                 }
             }
@@ -567,11 +574,12 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
      * @return 搜索Bean对象
      */
     private AbstractSearchFormBean createSearchFormBean() {
-        return new SearchFormBean(
-            createSearchTermsTransforms(),
-            createSearchTermsFilters(),
-            createQueryStringEditors()
-        );
+        SearchFormBean formBean = new SearchFormBean();
+        formBean.setEditors(createQueryStringEditors());
+        formBean.setFilters(createSearchTermsFilters());
+        formBean.setTransforms(createSearchTermsTransforms());
+
+        return formBean;
     }
 
     /**

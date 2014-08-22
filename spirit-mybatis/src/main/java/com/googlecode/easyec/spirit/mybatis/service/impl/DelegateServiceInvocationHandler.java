@@ -16,6 +16,7 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection;
 
@@ -75,8 +76,14 @@ final class DelegateServiceInvocationHandler implements InvocationHandler, Deleg
         return delegateDao.find(beanFactory.getBean(PageDelegate.class).createPage(formBean));
     }
 
+    public Page find(AbstractSearchFormBean formBean, int pageSize) {
+        return delegateDao.find(beanFactory.getBean(PageDelegate.class).createPage(formBean, pageSize));
+    }
+
     public List search(AbstractSearchFormBean bean) {
-        return delegateDao.find(bean.getSearchTerms());
+        Map<String, Object> searchTerms = bean.getSearchTerms();
+        searchTerms.put("orderBy", bean.encodeSorts());
+        return delegateDao.find(searchTerms);
     }
 
     public DelegateDao getDelegateDao() {

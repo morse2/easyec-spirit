@@ -5,13 +5,18 @@ import com.googlecode.easyec.spirit.web.controller.formbean.terms.SearchTermsFil
 import com.googlecode.easyec.spirit.web.controller.formbean.terms.SearchTermsTransform;
 import com.googlecode.easyec.spirit.web.controller.sorts.Sort;
 import com.googlecode.easyec.spirit.web.qseditors.QueryStringEditor;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.ArrayUtils;
 
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.*;
 
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.unmodifiableList;
 import static org.apache.commons.collections.MapUtils.isNotEmpty;
+import static org.apache.commons.collections.MapUtils.unmodifiableMap;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 /**
@@ -22,7 +27,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 public class SearchFormBean extends AbstractSearchFormBean {
 
     private static final String PAGE_NAME = "pageNumber";
-    private static final long serialVersionUID = 4591332694121745162L;
+    private static final long serialVersionUID = -7311418367064648005L;
 
     /* 搜索条件过滤器类 */
     private List<SearchTermsFilter> filters = new ArrayList<SearchTermsFilter>();
@@ -41,30 +46,6 @@ public class SearchFormBean extends AbstractSearchFormBean {
 
     /* 当前分页的页码 */
     private int currentPage = 1;
-
-    public SearchFormBean() { /* no op */ }
-
-    public SearchFormBean(List<SearchTermsTransform> transforms) {
-        this(transforms, Collections.<SearchTermsFilter>emptyList());
-    }
-
-    public SearchFormBean(List<SearchTermsTransform> transforms, List<SearchTermsFilter> filters) {
-        this(transforms, filters, Collections.<String, QueryStringEditor>emptyMap());
-    }
-
-    public SearchFormBean(List<SearchTermsTransform> transforms, List<SearchTermsFilter> filters, Map<String, QueryStringEditor> editors) {
-        if (null != transforms && !transforms.isEmpty()) {
-            this.transforms.addAll(transforms);
-        }
-
-        if (null != filters && !filters.isEmpty()) {
-            this.filters.addAll(filters);
-        }
-
-        if (null != editors && !editors.isEmpty()) {
-            this.editors.putAll(editors);
-        }
-    }
 
     public Map<String, Object> getSearchTerms() {
         Map<String, Object> terms = new HashMap<String, Object>();
@@ -124,7 +105,7 @@ public class SearchFormBean extends AbstractSearchFormBean {
         if (editors.isEmpty()) {
             logger.warn("No any QueryStringEditor was added, so query string won't be transformed.");
 
-            return Collections.emptyMap();
+            return emptyMap();
         }
 
         Map<String, String> map = new HashMap<String, String>();
@@ -222,6 +203,24 @@ public class SearchFormBean extends AbstractSearchFormBean {
         return sorts;
     }
 
+    public String encodeSorts() {
+        if (CollectionUtils.isEmpty(sorts)) return "";
+
+        StringBuffer buf = new StringBuffer();
+        buf.append(" order by ");
+
+        for (int i = 0; i < sorts.size(); i++) {
+            if (i > 0) buf.append(", ");
+
+            Sort sort = sorts.get(i);
+            buf.append(sort.getName());
+            buf.append(" ");
+            buf.append(sort.getType());
+        }
+
+        return buf.toString();
+    }
+
     public boolean addSort(Sort sort) {
         return sort != null && sorts.add(sort);
     }
@@ -238,5 +237,42 @@ public class SearchFormBean extends AbstractSearchFormBean {
     @Override
     public void setPageNumber(int currentPage) {
         this.currentPage = currentPage > 0 ? currentPage : 1;
+    }
+
+    @Override
+    public List<SearchTermsFilter> getFilters() {
+        return unmodifiableList(filters);
+    }
+
+    @Override
+    public List<SearchTermsTransform> getTransforms() {
+        return unmodifiableList(transforms);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Map<String, QueryStringEditor> getEditors() {
+        return unmodifiableMap(editors);
+    }
+
+    @Override
+    public void setFilters(List<SearchTermsFilter> filters) {
+        if (CollectionUtils.isNotEmpty(filters)) {
+            this.filters.addAll(filters);
+        }
+    }
+
+    @Override
+    public void setTransforms(List<SearchTermsTransform> transforms) {
+        if (CollectionUtils.isNotEmpty(transforms)) {
+            this.transforms.addAll(transforms);
+        }
+    }
+
+    @Override
+    public void setEditors(Map<String, QueryStringEditor> editors) {
+        if (MapUtils.isNotEmpty(editors)) {
+            this.editors.putAll(editors);
+        }
     }
 }
