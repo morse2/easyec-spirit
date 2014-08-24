@@ -31,7 +31,7 @@ public abstract class AbstractQuery<T> implements Query<T> {
         this.formBean.setPageNumber(bean.getPageNumber());
 
         // 复制参数bean的排序信息
-        List<Sort> sorts = formBean.getSorts();
+        List<Sort> sorts = bean.getSorts();
         for (Sort sort : sorts) {
             this.formBean.addSort(sort);
         }
