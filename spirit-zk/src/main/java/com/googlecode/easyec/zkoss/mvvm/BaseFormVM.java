@@ -37,25 +37,25 @@ import static org.zkoss.zk.ui.Executions.getCurrent;
  */
 @AfterCompose(superclass = true)
 public abstract class BaseFormVM<T extends Component, M extends GenericPersistentDomainModel<E>, E extends Serializable>
-        extends BaseVM<T> {
+    extends BaseVM<T> {
 
     /**
      * 表单参数对象的KEY
      */
-    public static final String ARG_FORM_OBJECT = "com.googlecode.easyec.zkoss.mvvm.FormObject";
+    public static final  String ARG_FORM_OBJECT  = "com.googlecode.easyec.zkoss.mvvm.FormObject";
     /**
      * 表单参数指向的URI的KEY
      */
-    public static final String ARG_REQUEST_URI = "com.googlecode.easyec.zkoss.mvvm.ZKRequestURI";
+    public static final  String ARG_REQUEST_URI  = "com.googlecode.easyec.zkoss.mvvm.ZKRequestURI";
     /**
      * 标识是否校验表单对象的主键为空
      */
-    public static final String ARG_CHECK_UIDPK = "com.googlecode.easyec.zkoss.mvvm.CheckUidPK";
+    public static final  String ARG_CHECK_UIDPK  = "com.googlecode.easyec.zkoss.mvvm.CheckUidPK";
     /**
      * 标识是否匹配VM对象类型
      */
-    public static final String ARG_MATCH_VM    = "com.googlecode.easyec.zkoss.mvvm.MatchVM";
-    private static final long serialVersionUID = -1513220462712781870L;
+    public static final  String ARG_MATCH_VM     = "com.googlecode.easyec.zkoss.mvvm.MatchVM";
+    private static final long   serialVersionUID = -1513220462712781870L;
 
     /**
      * 域模型对象实例。此对象不能为空。
@@ -82,9 +82,9 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
     public String getPreQs() {
         if (isBlank(preQs)) return "";
         return new StringBuffer()
-                .append("?")
-                .append(preQs)
-                .toString();
+            .append("?")
+            .append(preQs)
+            .toString();
     }
 
     /**
@@ -117,13 +117,22 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
 
     @SuppressWarnings("unchecked")
     private void resolveFormVariable() {
-        Object var;
+        Object var = null;
         Boolean shouldCheck = true;
         Class matchesVM = null;
         Map<?, ?> arg = getCurrent().getArg();
+        // 1. 从Execution的Arg中获取请求的表单对象
         if (MapUtils.isNotEmpty(arg) && arg.containsKey(ARG_FORM_OBJECT)) {
             var = arg.get(ARG_FORM_OBJECT);
-        } else {
+        }
+
+        // 2. 如果Execution的Arg中没有表单对象，则试图从Request的Attribute中获取
+        if (null == var) {
+            var = getCurrent().getAttribute(ARG_FORM_OBJECT);
+        }
+
+        // 3. 如果Request的Attribute中还没有表单对象，则从Session中获取
+        if (null == var) {
             Session session = getCurrent().getSession();
             // 从session中获取表单对象
             var = session.getAttribute(ARG_FORM_OBJECT);
@@ -163,8 +172,8 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
                 }
 
                 logger.warn(
-                        "Current form object's type isn't instanceof [{}], actual type: [{}].",
-                        cls.getName(), var.getClass().getName()
+                    "Current form object's type isn't instanceof [{}], actual type: [{}].",
+                    cls.getName(), var.getClass().getName()
                 );
             }
         }
@@ -194,10 +203,10 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
         if (isBlank(original)) return "";
         if (isBlank(preQs)) return original;
         return new StringBuffer()
-                .append(original)
-                .append("?")
-                .append(preQs)
-                .toString();
+            .append(original)
+            .append("?")
+            .append(preQs)
+            .toString();
     }
 
     /**
