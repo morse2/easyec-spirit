@@ -59,6 +59,15 @@ public abstract class AbstractQuery<T> implements Query<T> {
     }
 
     /**
+     * 移除一个存在的搜索条件
+     *
+     * @param key 搜索条件的KEY
+     */
+    protected void removeSearchTerm(String key) {
+        formBean.removeSearchTerm(key);
+    }
+
+    /**
      * 添加一个排序条件
      *
      * @param column    排序的列
