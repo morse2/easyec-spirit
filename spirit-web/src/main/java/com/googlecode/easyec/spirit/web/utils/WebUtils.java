@@ -11,7 +11,9 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 /**
- * Created by 俊杰 on 2014/5/3.
+ * Web工具类
+ *
+ * @author JunJie
  */
 public class WebUtils {
 
@@ -19,6 +21,12 @@ public class WebUtils {
 
     private WebUtils() { /* no op*/ }
 
+    /**
+     * 编码给定的查询字符串集合对象
+     *
+     * @param params Map集合对象
+     * @return 支持浏览器的查询字符串
+     */
     public static String encodeQueryString(Map<String, String> params) {
         if (MapUtils.isEmpty(params)) return "";
 
@@ -29,8 +37,10 @@ public class WebUtils {
 
             String key = iter.next();
             String val = params.get(key);
-            logger.debug("Query string [" + i + "], key: ["
-                + key + "], value: [" + val + "].");
+            logger.debug(
+                "Query string [" + i + "], key: ["
+                + key + "], value: [" + val + "]."
+            );
 
             buf.append(key).append("=").append(val);
         }
@@ -42,29 +52,47 @@ public class WebUtils {
         return buf.toString();
     }
 
+    /**
+     * 解码查询字符串的内容
+     *
+     * @param request HttpServletRequest对象
+     * @return 查询字符串集合对象
+     */
     public static Map<String, String> decodeQueryString(HttpServletRequest request) {
         return decodeQueryString(request.getQueryString());
     }
 
+    /**
+     * 解码查询字符串的内容
+     *
+     * @param qs 查询字符串
+     * @return 查询字符串集合对象
+     */
     public static Map<String, String> decodeQueryString(String qs) {
-        if (isBlank(qs)) return Collections.emptyMap();
-
-        logger.debug("Decode query string is: [{}].", qs);
-
         Map<String, String> params = new HashMap<String, String>();
-        StringTokenizer tokenizer = new StringTokenizer(qs, "&");
-        while (tokenizer.hasMoreTokens()) {
-            String[] parts = tokenizer.nextToken().split("=");
-            if (logger.isDebugEnabled()) {
-                logger.debug("Parameter is: {}.", Arrays.toString(parts));
-            }
+        if (isNotBlank(qs)) {
+            logger.debug("Decode query string is: [{}].", qs);
 
-            params.put(parts[0], parts[1]);
+            StringTokenizer tokenizer = new StringTokenizer(qs, "&");
+            while (tokenizer.hasMoreTokens()) {
+                String[] parts = tokenizer.nextToken().split("=");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Parameter is: {}.", Arrays.toString(parts));
+                }
+
+                params.put(parts[0], parts[1]);
+            }
         }
 
         return params;
     }
 
+    /**
+     * 获取引用的URI部分
+     *
+     * @param request HttpServletRequest对象
+     * @return 请求的地址的引用URI
+     */
     public static String getRefererURI(HttpServletRequest request) {
         String referer = request.getHeader("referer");
         if (isBlank(referer)) return "";
