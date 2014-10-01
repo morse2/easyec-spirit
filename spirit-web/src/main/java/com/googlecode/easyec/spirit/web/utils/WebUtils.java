@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
+import static org.apache.commons.lang.ArrayUtils.isNotEmpty;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
@@ -80,7 +81,10 @@ public class WebUtils {
                     logger.debug("Parameter is: {}.", Arrays.toString(parts));
                 }
 
-                params.put(parts[0], parts[1]);
+                if (isNotEmpty(parts)) {
+                    if (parts.length < 2) params.put(parts[0], "");
+                    else params.put(parts[0], parts[1]);
+                }
             }
         }
 
