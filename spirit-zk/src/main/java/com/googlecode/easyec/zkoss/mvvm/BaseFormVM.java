@@ -155,7 +155,7 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
 
             if (!shouldCheck || null != ((GenericPersistentDomainModel) var).getUidPk()) {
                 boolean b = (null == matchesVM || matchesVM.isInstance(this));
-                Class cls = BeanUtils.getGenericType(this, 1);
+                Class cls = BeanUtils.findGenericType(this, BaseFormVM.class, 1);
 
                 if (null == cls) {
                     action = FormAction.UPDATE;
