@@ -113,7 +113,16 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
      */
     public void addSearchSelectors(String searchSelectors) {
         if (isNotBlank(searchSelectors)) {
-            this.searchComponents.addAll(find(getActualSearchScope(), searchSelectors));
+            List<Component> list = find(getActualSearchScope(), searchSelectors);
+
+            // 默认为Input控件添加OnOK事件，提高搜索体验
+            for (Component c : searchComponents) {
+                if (c instanceof InputElement) {
+                    c.addEventListener(ON_OK, new KeyPressOKEventListener());
+                }
+
+                this.searchComponents.add(c);
+            }
         }
     }
 
@@ -135,10 +144,6 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
 
         // 默认为Input控件添加OnOK事件，提高搜索体验
         for (Component c : searchComponents) {
-            if (c instanceof InputElement) {
-                c.addEventListener(ON_OK, new KeyPressOKEventListener());
-            }
-
             if (queryMap != null && !queryMap.isEmpty()) {
                 // 如果组件的ID可用，并且与查询参数的key相等，则设置组件的值
                 if (isNotBlank(c.getId()) && queryMap.containsKey(c.getId())) {
@@ -307,7 +312,11 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
             Component c = searchComponents.get(j);
 
             // 判断此控件是否还有效，如果该控件失效的话，则移除此控件
-            if (c.isInvalidated()) searchComponents.remove(j--);
+            if (c.getPage() == null) {
+                searchComponents.remove(j--);
+
+                continue;
+            }
 
             // 合并文本框的值
             if (c instanceof Textbox) {
