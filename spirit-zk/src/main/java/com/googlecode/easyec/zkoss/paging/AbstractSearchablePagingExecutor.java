@@ -44,8 +44,8 @@ import static org.zkoss.zul.event.ZulEvents.ON_AFTER_RENDER;
 public abstract class AbstractSearchablePagingExecutor<T extends Component> extends AbstractPagingExecutor<T>
     implements SearchablePagingExecutor {
 
-    public static final  String AFTER_RENDER_LISTENER = "afterRenderListener";
-    private static final long   serialVersionUID      = -8714501738463399672L;
+    public static final String AFTER_RENDER_LISTENER = "afterRenderListener";
+    private static final long serialVersionUID = -8714501738463399672L;
 
     /**
      * 构造方法。
@@ -303,7 +303,12 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         }
 
         // 添加动态的搜索条件
-        for (Component c : searchComponents) {
+        for (int j = 0; j < searchComponents.size(); j++) {
+            Component c = searchComponents.get(j);
+
+            // 判断此控件是否还有效，如果该控件失效的话，则移除此控件
+            if (c.isInvalidated()) searchComponents.remove(j--);
+
             // 合并文本框的值
             if (c instanceof Textbox) {
                 if (c instanceof Combobox) {
@@ -466,7 +471,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
                         editors.put(c.getId(), new CustomStringQsEditor());
                         logger.debug(
                             "Component [" + c.getClass().getName()
-                            + "] has been controlled by editor [CustomStringQsEditor]."
+                                + "] has been controlled by editor [CustomStringQsEditor]."
                         );
                     }
                 }
@@ -489,7 +494,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
 
                     logger.debug(
                         "Component [" + c.getClass().getName()
-                        + "] has been controlled by editor [CustomNumberQsEditor]."
+                            + "] has been controlled by editor [CustomNumberQsEditor]."
                     );
                 }
 
@@ -499,7 +504,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
                         editors.put(c.getId(), new CustomDateQsEditor());
                         logger.debug(
                             "Component [" + c.getClass().getName()
-                            + "] has been controlled by editor [CustomDateQsEditor]."
+                                + "] has been controlled by editor [CustomDateQsEditor]."
                         );
                     }
                 }
