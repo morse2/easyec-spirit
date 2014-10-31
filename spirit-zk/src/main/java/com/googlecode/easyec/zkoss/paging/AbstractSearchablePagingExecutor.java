@@ -116,7 +116,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
             List<Component> list = find(getActualSearchScope(), searchSelectors);
 
             // 默认为Input控件添加OnOK事件，提高搜索体验
-            for (Component c : searchComponents) {
+            for (Component c : list) {
                 if (c instanceof InputElement) {
                     c.addEventListener(ON_OK, new KeyPressOKEventListener());
                 }
