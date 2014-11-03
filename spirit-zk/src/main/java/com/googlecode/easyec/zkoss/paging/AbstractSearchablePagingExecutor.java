@@ -153,7 +153,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         }
 
         if (!isLazyLoad()) {
-            List<Combobox> list = find(getActualSearchScope(), "combobox", Combobox.class, false);
+            List<Combobox> list = find(getActualSearchScope(), "combobox", Combobox.class);
             if (!list.isEmpty()) {
                 // 初始化统一延迟加载搜索控制事件监听对象
                 UniversalLazyLoadingEventListener lstnr
