@@ -1,6 +1,4 @@
-package com.googlecode.easyec.zkoss.utils;
-
-import com.googlecode.easyec.spirit.web.utils.WebUtils;
+package com.googlecode.easyec.spirit.web.utils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
