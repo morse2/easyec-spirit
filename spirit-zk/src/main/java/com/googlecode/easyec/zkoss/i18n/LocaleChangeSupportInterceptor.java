@@ -1,6 +1,5 @@
 package com.googlecode.easyec.zkoss.i18n;
 
-import com.sun.corba.se.spi.resolver.LocalResolver;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 import org.springframework.web.servlet.LocaleResolver;
@@ -41,7 +40,7 @@ public class LocaleChangeSupportInterceptor extends HandlerInterceptorAdapter im
     }
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(localeResolver, "Class " + LocalResolver.class.getName() + " cannot be null.");
+        Assert.notNull(localeResolver, "Class " + LocaleResolver.class.getName() + " cannot be null.");
     }
 
     /* 判断是否需要替换当前本地化语言的方法 */
