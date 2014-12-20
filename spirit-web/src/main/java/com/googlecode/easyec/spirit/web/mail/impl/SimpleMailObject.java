@@ -1,10 +1,11 @@
 package com.googlecode.easyec.spirit.web.mail.impl;
 
 import com.googlecode.easyec.spirit.web.mail.MailObject;
-import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 /**
  * 简单邮件内容对象
@@ -14,30 +15,25 @@ import java.util.List;
 public class SimpleMailObject implements MailObject {
 
     private static final long serialVersionUID = 7468896115911048193L;
-    private String       subject;
-    private String       content;
-    private String       from;
-    private List<String> recipients;
-    private List<String> ccs;
-    private List<String> bccs;
-
-    public SimpleMailObject() {
-        recipients = new ArrayList<String>();
-        ccs = new ArrayList<String>();
-        bccs = new ArrayList<String>();
-    }
+    private String subject;
+    private String content;
+    private String from;
+    private List<String> recipients = new ArrayList<String>();
+    private List<String> ccs = new ArrayList<String>();
+    private List<String> bccs = new ArrayList<String>();
 
     public boolean addRecipient(String recipient) {
-        return StringUtils.isNotBlank(recipient)
+        return isNotBlank(recipient)
+            && !recipients.contains(recipient)
             && recipients.add(recipient);
     }
 
     public boolean addCc(String cc) {
-        return StringUtils.isNotBlank(cc) && ccs.add(cc);
+        return isNotBlank(cc) && !ccs.contains(cc) && ccs.add(cc);
     }
 
     public boolean addBcc(String bcc) {
-        return StringUtils.isNotBlank(bcc) && bccs.add(bcc);
+        return isNotBlank(bcc) && !bccs.contains(bcc) && bccs.add(bcc);
     }
 
     public String getSubject() {
