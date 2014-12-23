@@ -77,7 +77,7 @@ public abstract class DomainModelSequenceGenerator implements SequenceGenerator,
             if (Number.class.isAssignableFrom(type)) {
                 Number uidPk = (Number) bw.getPropertyValue("uidPk");
                 if (null != uidPk && uidPk.longValue() > 0) {
-                    logger.warn("GenericPersistentDomainModel has primary key value, so ignore.");
+                    logger.warn("GenericPersistentDomainModel has primary key value, so ignore. Original uid: [{}].", uidPk);
 
                     continue;
                 }
