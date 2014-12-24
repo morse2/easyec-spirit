@@ -96,7 +96,9 @@ public class CommonFnsUtils {
 
         String s = label;
         for (int i = 0; i < args.length; i++) {
-            s = s.replaceAll("\\{" + i + "}", args[i].toString());
+            Object arg = args[i];
+            if (arg == null) arg = "null";
+            s = s.replaceAll("\\{" + i + "}", arg.toString());
         }
 
         return s;
