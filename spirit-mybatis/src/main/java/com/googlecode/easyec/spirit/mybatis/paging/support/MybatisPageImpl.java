@@ -14,7 +14,7 @@ import java.util.List;
  */
 class MybatisPageImpl extends AbstractMybatisPage {
 
-    private List<?> records;
+    private List records;
 
     public MybatisPageImpl(PageDialect pageDialect) {
         super(pageDialect);
@@ -28,11 +28,11 @@ class MybatisPageImpl extends AbstractMybatisPage {
         super(pageDialect, currentPage, pageSize, totalRecordsCount);
     }
 
-    public List<?> getRecords() {
+    public <T> List<T> getRecords() {
         return records;
     }
 
-    public void setRecords(List<?> records) {
+    public <T> void setRecords(List<T> records) {
         if (CollectionUtils.isEmpty(records)) {
             this.records = Collections.emptyList();
         } else {

@@ -39,7 +39,7 @@ public class DelegateServiceBeanPostProcessor implements BeanFactoryAware, BeanP
     @SuppressWarnings("unchecked")
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         if (bean instanceof DelegateService && !Proxy.isProxyClass(getTargetClass(bean))) {
-            Class<DelegateDao> aClass = BeanUtils.getGenericType(bean, 0);
+            Class<DelegateDao> aClass = BeanUtils.findGenericType(bean, DelegateService.class, 0);
             Assert.notNull(aClass, "Generics type cannot be recognized, actual type is null.");
 
             DelegateDao ret = beanFactory.getBean(aClass);

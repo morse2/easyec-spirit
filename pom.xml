@@ -4,7 +4,7 @@
 
     <groupId>com.googlecode.easyec</groupId>
     <artifactId>spirit</artifactId>
-    <version>0.3.8-SNAPSHOT</version>
+    <version>0.5.3-SNAPSHOT</version>
     <modules>
         <module>spirit-dao</module>
         <module>spirit-mybatis</module>
@@ -65,7 +65,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>3.1.4.RELEASE</version>
+            <version>3.2.8.RELEASE</version>
             <scope>test</scope>
         </dependency>
 
@@ -129,7 +129,7 @@
         <dependency>
             <groupId>com.googlecode.easyec</groupId>
             <artifactId>cache-spi</artifactId>
-            <version>0.2.0-SNAPSHOT</version>
+            <version>0.5.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

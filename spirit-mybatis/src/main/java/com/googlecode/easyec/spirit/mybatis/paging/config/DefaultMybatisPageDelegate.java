@@ -6,9 +6,6 @@ import com.googlecode.easyec.spirit.dao.paging.factory.PageDelegate;
 import com.googlecode.easyec.spirit.mybatis.paging.MybatisPage;
 import com.googlecode.easyec.spirit.mybatis.paging.MybatisPageWritable;
 import com.googlecode.easyec.spirit.web.controller.formbean.impl.AbstractSearchFormBean;
-import com.googlecode.easyec.spirit.web.controller.sorts.Sort;
-
-import java.util.ArrayList;
 
 /**
  * 默认内部的Mybatis分页委托类。
@@ -41,7 +38,7 @@ final class DefaultMybatisPageDelegate extends PageDelegate<MybatisPage> {
             // 设置搜索条件
             ((MybatisPageWritable) page).setParameterObject(bean.getSearchTerms());
             // 设置排序条件
-            ((MybatisPageWritable) page).setSorts(new ArrayList<Sort>(bean.getSorts()));
+            ((MybatisPageWritable) page).setSorts(bean.getSorts());
         }
 
         return page;

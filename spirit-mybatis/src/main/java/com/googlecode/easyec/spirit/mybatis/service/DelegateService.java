@@ -47,12 +47,29 @@ public interface DelegateService<T extends DelegateDao<M, ID>, M extends Generic
     Page find(AbstractSearchFormBean formBean);
 
     /**
+     * 分页查找模型信息
+     *
+     * @param formBean 搜索条件
+     * @param pageSize 每页显示的记录数
+     * @return 分页结果对象
+     */
+    Page find(AbstractSearchFormBean formBean, int pageSize);
+
+    /**
      * 通过查询条件查找模型信息
      *
-     * @param bean 查询条件
+     * @param formBean 查询条件
      * @return 模型对象列表
      */
-    List<M> search(AbstractSearchFormBean bean);
+    List<M> search(AbstractSearchFormBean formBean);
+
+    /**
+     * 统计符合条件的数据总数
+     *
+     * @param formBean 查询条件
+     * @return 数据总数
+     */
+    long count(AbstractSearchFormBean formBean);
 
     /**
      * 返回DAO数据层的委托类

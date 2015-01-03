@@ -3,12 +3,15 @@ package com.googlecode.easyec.spirit.service;
 import com.googlecode.easyec.spirit.dao.DataPersistenceException;
 import com.googlecode.easyec.spirit.dao.paging.Page;
 import com.googlecode.easyec.spirit.dao.paging.factory.PageDelegate;
+import com.googlecode.easyec.spirit.query.Query;
 import com.googlecode.easyec.spirit.web.controller.formbean.impl.AbstractSearchFormBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
+
+import java.util.Map;
 
 /**
  * 基本的业务对象类。
@@ -88,6 +91,21 @@ public abstract class EcService implements InitializingBean {
      */
     protected Page createPage(AbstractSearchFormBean formBean, int pageSize) {
         return pageDelegate.createPage(formBean, pageSize);
+    }
+
+    /**
+     * 提取Query对象中设置的搜索条件
+     *
+     * @param query 查询条件对象
+     * @return 查询条件映射
+     */
+    protected Map<String, Object> extractQuery(Query<?> query) {
+        AbstractSearchFormBean formBean = query.getSearchFormBean();
+        Map<String, Object> terms = formBean.getSearchTerms();
+        // 提取当前排序信息
+        terms.put("orderBy", formBean.encodeSorts());
+
+        return terms;
     }
 
     /**

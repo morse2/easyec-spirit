@@ -41,10 +41,11 @@ import static org.zkoss.zul.event.ZulEvents.ON_AFTER_RENDER;
  *
  * @author JunJie
  */
-public abstract class AbstractSearchablePagingExecutor<T extends Component> extends AbstractPagingExecutor<T> implements SearchablePagingExecutor {
+public abstract class AbstractSearchablePagingExecutor<T extends Component> extends AbstractPagingExecutor<T>
+    implements SearchablePagingExecutor {
 
-    public static final  String AFTER_RENDER_LISTENER = "afterRenderListener";
-    private static final long   serialVersionUID      = -8714501738463399672L;
+    public static final String AFTER_RENDER_LISTENER = "afterRenderListener";
+    private static final long serialVersionUID = -8714501738463399672L;
 
     /**
      * 构造方法。
@@ -112,7 +113,16 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
      */
     public void addSearchSelectors(String searchSelectors) {
         if (isNotBlank(searchSelectors)) {
-            this.searchComponents.addAll(find(getActualSearchScope(), searchSelectors));
+            List<Component> list = find(getActualSearchScope(), searchSelectors);
+
+            // 默认为Input控件添加OnOK事件，提高搜索体验
+            for (Component c : list) {
+                if (c instanceof InputElement) {
+                    c.addEventListener(ON_OK, new KeyPressOKEventListener());
+                }
+
+                this.searchComponents.add(c);
+            }
         }
     }
 
@@ -134,10 +144,6 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
 
         // 默认为Input控件添加OnOK事件，提高搜索体验
         for (Component c : searchComponents) {
-            if (c instanceof InputElement) {
-                c.addEventListener(ON_OK, new KeyPressOKEventListener());
-            }
-
             if (queryMap != null && !queryMap.isEmpty()) {
                 // 如果组件的ID可用，并且与查询参数的key相等，则设置组件的值
                 if (isNotBlank(c.getId()) && queryMap.containsKey(c.getId())) {
@@ -147,17 +153,19 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         }
 
         if (!isLazyLoad()) {
-            List<Component> list = find(getActualSearchScope(), "combobox", false);
+            List<Combobox> list = find(getActualSearchScope(), "combobox", Combobox.class);
             if (!list.isEmpty()) {
-                // 设置当前搜索为延迟加载
-                setLazyLoad(true);
-
                 // 初始化统一延迟加载搜索控制事件监听对象
                 UniversalLazyLoadingEventListener lstnr
                     = new UniversalLazyLoadingEventListener(list.size(), currentPageNumber);
 
-                for (Component c : list) {
-                    c.addEventListener(ON_AFTER_RENDER, lstnr);
+                for (Combobox c : list) {
+                    if (c.getModel() != null) {
+                        c.addEventListener(ON_AFTER_RENDER, lstnr);
+
+                        // 设置当前搜索为延迟加载
+                        if (!isLazyLoad()) setLazyLoad(true);
+                    }
                 }
             }
         }
@@ -304,7 +312,16 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         }
 
         // 添加动态的搜索条件
-        for (Component c : searchComponents) {
+        for (int j = 0; j < searchComponents.size(); j++) {
+            Component c = searchComponents.get(j);
+
+            // 判断此控件是否还有效，如果该控件失效的话，则移除此控件
+            if (c.getPage() == null) {
+                searchComponents.remove(j--);
+
+                continue;
+            }
+
             // 合并文本框的值
             if (c instanceof Textbox) {
                 if (c instanceof Combobox) {
@@ -465,8 +482,10 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
                 if (c instanceof Textbox) {
                     if (!(c instanceof Combobox)) {
                         editors.put(c.getId(), new CustomStringQsEditor());
-                        logger.debug("Component [" + c.getClass().getName()
-                            + "] has been controlled by editor [CustomStringQsEditor].");
+                        logger.debug(
+                            "Component [" + c.getClass().getName()
+                                + "] has been controlled by editor [CustomStringQsEditor]."
+                        );
                     }
                 }
 
@@ -486,16 +505,20 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
                         editors.put(c.getId(), new CustomNumberQsEditor(Double.class));
                     }
 
-                    logger.debug("Component [" + c.getClass().getName()
-                        + "] has been controlled by editor [CustomNumberQsEditor].");
+                    logger.debug(
+                        "Component [" + c.getClass().getName()
+                            + "] has been controlled by editor [CustomNumberQsEditor]."
+                    );
                 }
 
                 // 为日期或其他格式化的控件设置QsEditor
                 else if (c instanceof FormatInputElement) {
                     if ((c instanceof Datebox) || (c instanceof Timebox)) {
                         editors.put(c.getId(), new CustomDateQsEditor());
-                        logger.debug("Component [" + c.getClass().getName()
-                            + "] has been controlled by editor [CustomDateQsEditor].");
+                        logger.debug(
+                            "Component [" + c.getClass().getName()
+                                + "] has been controlled by editor [CustomDateQsEditor]."
+                        );
                     }
                 }
             }
@@ -569,11 +592,12 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
      * @return 搜索Bean对象
      */
     private AbstractSearchFormBean createSearchFormBean() {
-        return new SearchFormBean(
-            createSearchTermsTransforms(),
-            createSearchTermsFilters(),
-            createQueryStringEditors()
-        );
+        SearchFormBean formBean = new SearchFormBean();
+        formBean.setEditors(createQueryStringEditors());
+        formBean.setFilters(createSearchTermsFilters());
+        formBean.setTransforms(createSearchTermsTransforms());
+
+        return formBean;
     }
 
     /**

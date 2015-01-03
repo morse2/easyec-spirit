@@ -1,9 +1,12 @@
 package com.googlecode.easyec.spirit.web.controller.formbean.impl;
 
+import com.googlecode.easyec.spirit.web.controller.formbean.terms.SearchTermsFilter;
+import com.googlecode.easyec.spirit.web.controller.formbean.terms.SearchTermsTransform;
 import com.googlecode.easyec.spirit.web.controller.sorts.Sort;
+import com.googlecode.easyec.spirit.web.qseditors.QueryStringEditor;
 
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * 抽象的表单搜索Bean类。
@@ -13,7 +16,7 @@ import java.util.Set;
  */
 public abstract class AbstractSearchFormBean extends AbstractFormBean {
 
-    private static final long serialVersionUID = -6225171420085008346L;
+    private static final long serialVersionUID = 7364383835873539885L;
 
     public FormType getFormType() {
         return FormType.SEARCH_FORM;
@@ -76,11 +79,28 @@ public abstract class AbstractSearchFormBean extends AbstractFormBean {
     abstract public boolean removeSearchTerm(String name);
 
     /**
+     * 判断是否有给定的搜索条件
+     *
+     * @param name 搜索条件的KEY
+     * @return bool值
+     */
+    public abstract boolean hasSearchTerm(String name);
+
+    /**
      * 返回排序字段列表
      *
      * @return 排序对象列表
      */
-    abstract public Set<Sort> getSorts();
+    abstract public List<Sort> getSorts();
+
+    /**
+     * 编码排序字段。
+     * 如果没有设置排序字段，
+     * 则返回空字符串。
+     *
+     * @return 排序信息
+     */
+    public abstract String encodeSorts();
 
     /**
      * 添加一个排序信息
@@ -111,4 +131,46 @@ public abstract class AbstractSearchFormBean extends AbstractFormBean {
      * @param currentPage 当前页码数
      */
     abstract public void setPageNumber(int currentPage);
+
+    /**
+     * 返回搜索条件过滤器列表
+     *
+     * @return 搜索条件过滤器对象列表
+     */
+    public abstract List<SearchTermsFilter> getFilters();
+
+    /**
+     * 返回搜索条件转换器列表
+     *
+     * @return 搜索条件转换器对象列表
+     */
+    public abstract List<SearchTermsTransform> getTransforms();
+
+    /**
+     * 返回查询字符串转换器列表
+     *
+     * @return 查询字符串转换器对象列表
+     */
+    public abstract Map<String, QueryStringEditor> getEditors();
+
+    /**
+     * 设置搜索条件过滤器列表
+     *
+     * @param filters 搜索条件过滤器对象列表
+     */
+    public abstract void setFilters(List<SearchTermsFilter> filters);
+
+    /**
+     * 设置搜索条件转换器列表
+     *
+     * @param transforms 搜索条件转换器对象列表
+     */
+    public abstract void setTransforms(List<SearchTermsTransform> transforms);
+
+    /**
+     * 设置查询字符串转换器列表
+     *
+     * @param editors 查询字符串转换器对象列表
+     */
+    public abstract void setEditors(Map<String, QueryStringEditor> editors);
 }

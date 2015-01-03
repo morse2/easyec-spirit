@@ -10,6 +10,8 @@ import org.zkoss.bind.annotation.Init;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Session;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.Serializable;
 import java.util.Map;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
@@ -34,7 +36,8 @@ import static org.zkoss.zk.ui.Executions.getCurrent;
  * @author JunJie
  */
 @AfterCompose(superclass = true)
-public abstract class BaseFormVM<T extends Component, M extends PersistentDomainModel> extends BaseVM<T> {
+public abstract class BaseFormVM<T extends Component, M extends GenericPersistentDomainModel<E>, E extends Serializable>
+    extends BaseVM<T> {
 
     /**
      * 表单参数对象的KEY
@@ -52,13 +55,15 @@ public abstract class BaseFormVM<T extends Component, M extends PersistentDomain
      * 标识是否匹配VM对象类型
      */
     public static final  String ARG_MATCH_VM     = "com.googlecode.easyec.zkoss.mvvm.MatchVM";
-    private static final long   serialVersionUID = 8575235562676085828L;
+    private static final long   serialVersionUID = -1513220462712781870L;
 
     /**
      * 域模型对象实例。此对象不能为空。
      */
     protected M          domainModel;
     protected FormAction action;
+
+    private String preQs;
 
     /**
      * 返回得到当前VM对象中定义的域模型对象
@@ -67,6 +72,19 @@ public abstract class BaseFormVM<T extends Component, M extends PersistentDomain
      */
     public M getDomainModel() {
         return domainModel;
+    }
+
+    /**
+     * 返回上一个页面传递过来的查询字符串
+     *
+     * @return query string
+     */
+    public String getPreQs() {
+        if (isBlank(preQs)) return "";
+        return new StringBuffer()
+            .append("?")
+            .append(preQs)
+            .toString();
     }
 
     /**
@@ -92,18 +110,29 @@ public abstract class BaseFormVM<T extends Component, M extends PersistentDomain
      */
     @Init(superclass = true)
     public void initBaseFormVM() {
+        preQs = ((HttpServletRequest) getCurrent().getNativeRequest()).getQueryString();
+
         resolveFormVariable();
     }
 
     @SuppressWarnings("unchecked")
     private void resolveFormVariable() {
-        Object var;
+        Object var = null;
         Boolean shouldCheck = true;
         Class matchesVM = null;
         Map<?, ?> arg = getCurrent().getArg();
+        // 1. 从Execution的Arg中获取请求的表单对象
         if (MapUtils.isNotEmpty(arg) && arg.containsKey(ARG_FORM_OBJECT)) {
             var = arg.get(ARG_FORM_OBJECT);
-        } else {
+        }
+
+        // 2. 如果Execution的Arg中没有表单对象，则试图从Request的Attribute中获取
+        if (null == var) {
+            var = getCurrent().getAttribute(ARG_FORM_OBJECT);
+        }
+
+        // 3. 如果Request的Attribute中还没有表单对象，则从Session中获取
+        if (null == var) {
             Session session = getCurrent().getSession();
             // 从session中获取表单对象
             var = session.getAttribute(ARG_FORM_OBJECT);
@@ -126,7 +155,7 @@ public abstract class BaseFormVM<T extends Component, M extends PersistentDomain
 
             if (!shouldCheck || null != ((GenericPersistentDomainModel) var).getUidPk()) {
                 boolean b = (null == matchesVM || matchesVM.isInstance(this));
-                Class cls = BeanUtils.getGenericType(this, 1);
+                Class cls = BeanUtils.findGenericType(this, BaseFormVM.class, 1);
 
                 if (null == cls) {
                     action = FormAction.UPDATE;
@@ -162,6 +191,22 @@ public abstract class BaseFormVM<T extends Component, M extends PersistentDomain
             case INSERT:
                 domainModel.setUidPk(null);
         }
+    }
+
+    /**
+     * 为给定的URL追加上一个页面的查询字符串
+     *
+     * @param original 原始url
+     * @return 可能追加了查询字符串的url
+     */
+    protected String appendPreQs(String original) {
+        if (isBlank(original)) return "";
+        if (isBlank(preQs)) return original;
+        return new StringBuffer()
+            .append(original)
+            .append("?")
+            .append(preQs)
+            .toString();
     }
 
     /**

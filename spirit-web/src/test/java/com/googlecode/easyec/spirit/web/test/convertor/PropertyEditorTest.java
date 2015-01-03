@@ -75,7 +75,8 @@ public class PropertyEditorTest {
         editors.put("d", new CustomNumberQsEditor(BigDecimal.class));
         editors.put("e", new CustomDateQsEditor());
 
-        SearchFormBean bean = new SearchFormBean(null, null, editors);
+        SearchFormBean bean = new SearchFormBean();
+        bean.setEditors(editors);
 
         bean.addSearchTerm("a", 123);
         bean.addSearchTerm("b", 100.02f);
@@ -97,7 +98,8 @@ public class PropertyEditorTest {
 
         map = WebUtils.decodeQueryString(s);
 
-        SearchFormBean bean1 = new SearchFormBean(null, null, editors);
+        SearchFormBean bean1 = new SearchFormBean();
+        bean1.setEditors(editors);
         bean1.setSearchTermsAsText(map);
         Map<String, Object> terms = bean1.getSearchTerms();
         Set<String> keys = terms.keySet();
