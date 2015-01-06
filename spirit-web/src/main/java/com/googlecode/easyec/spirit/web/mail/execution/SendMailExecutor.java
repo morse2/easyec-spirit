@@ -20,22 +20,23 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  *
  * @author JunJie
  */
-public class SendMailExecutor {
+public final class SendMailExecutor {
 
     private static final Logger logger = LoggerFactory.getLogger(SendMailExecutor.class);
-
     private static final Object lock = new Object();
 
-    private final BlockingQueue<MailObject> queue;
-    private final ScheduledExecutorService  exec;
+    private final BlockingQueue<SendMailObject> queue;
+    private final ScheduledExecutorService exec;
 
     private MailService mailService;
+    private int remainingSendCount;
 
-    protected SendMailExecutor(MailService mailService) {
+    protected SendMailExecutor(MailService mailService, int remainingSendCount) {
         Assert.notNull(mailService, "MailService object is null.");
+        this.remainingSendCount = remainingSendCount;
         this.mailService = mailService;
 
-        queue = new LinkedBlockingDeque<MailObject>();
+        queue = new LinkedBlockingDeque<SendMailObject>();
         exec = Executors.newScheduledThreadPool(10);
 
         // start monitor thread
@@ -50,31 +51,34 @@ public class SendMailExecutor {
     }
 
     public boolean prepare(MailObject bean) {
-        synchronized (lock) {
-            return null != bean && queue.add(bean);
-        }
+        return _prepare(_createSendMailObject(bean));
     }
 
-    private MailObject takeQueue() {
-        synchronized (lock) {
-            if (!queue.isEmpty()) {
-                try {
-                    return queue.take();
-                } catch (InterruptedException e) {
-                    logger.error(e.getMessage(), e);
-                }
+    private boolean _prepare(SendMailObject bean) {
+        return null != bean && queue.add(bean);
+    }
+
+    /* 创建发送邮件对象实例 */
+    private SendMailObject _createSendMailObject(MailObject mo) {
+        return mo == null ? null : new SendMailObject(remainingSendCount, mo);
+    }
+
+    private SendMailObject _takeQueue() {
+        if (!queue.isEmpty()) {
+            try {
+                return queue.take();
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage(), e);
             }
-
-            return null;
         }
+
+        return null;
     }
 
-
-    @SuppressWarnings("unchecked")
     private class DefaultQueueConsumeTask implements Runnable {
 
         public void run() {
-            MailObject bean = takeQueue();
+            SendMailObject bean = _takeQueue();
             if (null == bean) {
                 logger.trace("Queue is empty. So ignore logic else.");
 
@@ -82,14 +86,15 @@ public class SendMailExecutor {
             }
 
             try {
+                MailObject mo = bean.getMailObject();
                 // 打印邮件信息
-                _printMailInfo(bean);
+                _printMailInfo(mo);
                 // 执行发送邮件动作
-                mailService.send(bean);
+                mailService.send(mo);
             } catch (MailException e) {
                 logger.error(e.getMessage(), e);
 
-                prepare(bean);
+                if (bean.canResend()) _prepare(bean);
             }
         }
 

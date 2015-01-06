@@ -14,6 +14,7 @@ public class SendMailExecutorFactoryBean implements FactoryBean<SendMailExecutor
     private SendMailExecutor executor;
 
     private MailService mailService;
+    private int remainingSendCount;
 
     public SendMailExecutor getObject() throws Exception {
         return executor;
@@ -36,7 +37,14 @@ public class SendMailExecutorFactoryBean implements FactoryBean<SendMailExecutor
         this.mailService = mailService;
     }
 
+    /**
+     * 设置首次发送邮件失败后，重试的次数
+     */
+    public void setRemainingSendCount(int remainingSendCount) {
+        this.remainingSendCount = remainingSendCount;
+    }
+
     public void afterPropertiesSet() throws Exception {
-        this.executor = new SendMailExecutor(mailService);
+        this.executor = new SendMailExecutor(mailService, remainingSendCount);
     }
 }

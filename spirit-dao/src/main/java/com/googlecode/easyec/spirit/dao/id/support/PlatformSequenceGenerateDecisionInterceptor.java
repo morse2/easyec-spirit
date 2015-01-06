@@ -5,6 +5,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
@@ -26,7 +27,7 @@ public class PlatformSequenceGenerateDecisionInterceptor extends AbstractSequenc
     private PlatformTransactionManager transactionManager;
 
     // transactional isolation level
-    private int isolationLevel      = ISOLATION_READ_COMMITTED;
+    private int isolationLevel = ISOLATION_READ_COMMITTED;
     // transactional propagation behavior
     private int propagationBehavior = PROPAGATION_REQUIRES_NEW;
 
@@ -48,7 +49,8 @@ public class PlatformSequenceGenerateDecisionInterceptor extends AbstractSequenc
                 } catch (Exception e) {
                     logger.trace(e.getMessage(), e);
 
-                    status.setRollbackOnly();
+                    // 修改事务回滚方式，抛出事务系统异常，让框架帮助回滚事务
+                    throw new TransactionSystemException(e.getMessage(), e);
                 }
             }
         });
