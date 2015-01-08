@@ -25,9 +25,10 @@ import static org.springframework.transaction.support.TransactionSynchronization
  * @author JunJie
  */
 @Aspect
-public class ContextSourceTransactionAdivser implements ContextSourceTransactionAware, Ordered {
+public class ContextSourceTransactionAdviser implements ContextSourceTransactionAware, Ordered {
 
-    private static final Logger logger = LoggerFactory.getLogger(ContextSourceTransactionAdivser.class);
+    private static final Logger logger = LoggerFactory.getLogger(ContextSourceTransactionAdviser.class);
+    private static final long serialVersionUID = 3213459804560881496L;
     private final ContextSourceTransactionManagerDelegate transactionManagerDelegate = new ContextSourceTransactionManagerDelegate();
     private int order;
 

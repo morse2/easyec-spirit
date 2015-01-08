@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://easyec.googlecode.com/schema/ldap"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://easyec.googlecode.com/schema/ldap"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified">
+
+    <xsd:import namespace="http://www.springframework.org/schema/beans"/>
+
+    <xsd:element name="ldap-transaction-config">
+        <xsd:complexType>
+            <xsd:choice minOccurs="1" maxOccurs="1">
+                <xsd:element name="default-renaming-strategy">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The default (simplistic) TempEntryRenamingStrategy. Please note that this
+                            strategy will not work for more advanced scenarios. See reference documentation
+                            for details.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                    <xsd:complexType>
+                        <xsd:attribute name="temp-suffix" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    The default suffix that will be added to modified entries.
+                                    Default is &quot;_temp&quot;.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:attribute>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name="different-subtree-renaming-strategy">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            TempEntryRenamingStrategy that moves the entry to a different subtree than
+                            the original entry.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                    <xsd:complexType>
+                        <xsd:attribute name="subtree-node" type="xsd:string" use="required">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    The subtree base where changed entries should be moved.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:attribute>
+                    </xsd:complexType>
+                </xsd:element>
+            </xsd:choice>
+            <xsd:attributeGroup ref="ldap-transaction-config.attlist"/>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:attributeGroup name="ldap-transaction-config.attlist">
+        <xsd:attribute name="id" type="xsd:string">
+            <xsd:annotation>
+                <xsd:documentation>
+                    Id of this instance. Default is &quot;contextSourceTransactionAware&quot;.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="context-source-ref" type="xsd:token">
+            <xsd:annotation>
+                <xsd:documentation>
+                    Id of the ContextSource instance to use. &quot;contextSource&quot;.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="order" type="xsd:int">
+            <xsd:annotation>
+                <xsd:documentation>
+                    Sequence of this transaction configuration.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:attributeGroup>
+</xsd:schema>
