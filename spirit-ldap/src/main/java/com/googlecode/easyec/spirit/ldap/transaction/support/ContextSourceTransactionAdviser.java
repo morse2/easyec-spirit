@@ -25,10 +25,10 @@ import static org.springframework.transaction.support.TransactionSynchronization
  * @author JunJie
  */
 @Aspect
-public class ContextSourceTransactionAdviser implements ContextSourceTransactionAware, Ordered {
+public class ContextSourceTransactionAdviser extends ContextSourceTransactionAware implements Ordered {
 
     private static final Logger logger = LoggerFactory.getLogger(ContextSourceTransactionAdviser.class);
-    private static final long serialVersionUID = 3213459804560881496L;
+    private static final long serialVersionUID = -7019572039680961713L;
     private final ContextSourceTransactionManagerDelegate transactionManagerDelegate = new ContextSourceTransactionManagerDelegate();
     private int order;
 
@@ -104,24 +104,26 @@ public class ContextSourceTransactionAdviser implements ContextSourceTransaction
         throwing(status, e);
     }
 
-    public void commit(TransactionStatus status) throws TransactionException {
-        commit(((DefaultTransactionStatus) status));
-    }
-
-    public void rollback(TransactionStatus status) throws TransactionException {
-        rollback(((DefaultTransactionStatus) status));
-    }
-
     public void throwing(TransactionStatus status, TransactionException e) throws TransactionException {
         logger.debug(e.getMessage(), e);
 
         rollback(status);
     }
 
+    /**
+     * 设置LDAP条目的重命名策略
+     *
+     * @param renamingStrategy 重命名策略对象
+     */
     public void setRenamingStrategy(TempEntryRenamingStrategy renamingStrategy) {
         this.transactionManagerDelegate.setRenamingStrategy(renamingStrategy);
     }
 
+    /**
+     * 设置<code>ContextSource</code>对象
+     *
+     * @param contextSource LDAP数据源对象
+     */
     public void setContextSource(ContextSource contextSource) {
         this.transactionManagerDelegate.setContextSource(contextSource);
     }

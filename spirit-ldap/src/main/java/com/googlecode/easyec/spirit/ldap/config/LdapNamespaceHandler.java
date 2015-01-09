@@ -10,6 +10,6 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 public class LdapNamespaceHandler extends NamespaceHandlerSupport {
 
     public void init() {
-        registerBeanDefinitionParser("ldap-transaction-config", new TransactionAdviceParser());
+        registerBeanDefinitionParser("transaction-advice", new TransactionAdviceParser());
     }
 }
