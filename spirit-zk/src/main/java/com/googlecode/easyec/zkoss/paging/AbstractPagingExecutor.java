@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.WrongValueException;
 import org.zkoss.zk.ui.event.SortEvent;
 import org.zkoss.zul.Listheader;
 import org.zkoss.zul.Paging;
@@ -38,11 +39,11 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
     /**
      * ZK分页组件对象
      */
-    protected Paging    _paging;
+    protected Paging _paging;
     /**
      * ZK组件对象，用于呈现分页结果
      */
-    protected T         _comp;
+    protected T _comp;
     protected Set<Sort> sortList;
 
     /**
@@ -216,11 +217,22 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
      * @param page 分页结果对象
      */
     private void doRedraw(Page page) {
-        _paging.setPageSize(page.getPageSize());
-        _paging.setTotalSize(page.getTotalRecordsCount());
-        _paging.setActivePage(page.getCurrentPage() - 1);
+        try {
+            _paging.setPageSize(page.getPageSize());
+            _paging.setTotalSize(page.getTotalRecordsCount());
+            _paging.setActivePage(page.getCurrentPage() - 1);
 
-        redraw(page);
+            redraw(page);
+        } catch (WrongValueException e) {
+            logger.trace(e.getMessage(), e);
+
+            /* fix bug:修复如果当前页码大于_paging
+             * 对象的最大页码，会报错的问题
+             */
+            if (page.getPrevPageAvailable()) {
+                firePaging(page.getCurrentPage() - 1);
+            } else doClear(page);
+        }
     }
 
     /**
