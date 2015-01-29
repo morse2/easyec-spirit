@@ -25,7 +25,7 @@ import static org.zkoss.zk.ui.Executions.getCurrent;
  */
 public abstract class BaseSearchablePagingVM<T extends Component> extends BasePagingVM<T> {
 
-    private static final long serialVersionUID = 6496229113691506381L;
+    private static final long serialVersionUID = -3780197547107801155L;
     private String preQs;
 
     /**
@@ -135,7 +135,10 @@ public abstract class BaseSearchablePagingVM<T extends Component> extends BasePa
         super.beforePagingExecutorInit(exec);
 
         beforeSearchablePagingExecutorInit((SearchablePagingExecutor) exec);
-        setImmutableSearchTerms(WebUtils.decodeQueryString(preQs));
+        setImmutableSearchTerms(
+            (SearchablePagingExecutor) exec,
+            WebUtils.decodeQueryString(preQs)
+        );
     }
 
     /**
@@ -151,9 +154,10 @@ public abstract class BaseSearchablePagingVM<T extends Component> extends BasePa
     /**
      * 设置当前分页执行器对象的不可变的查询条件的方法
      *
+     * @param exec           SearchablePagingExecutor对象实例
      * @param queryStringMap 查询条件集合
      */
-    protected void setImmutableSearchTerms(Map<String, String> queryStringMap) {
+    protected void setImmutableSearchTerms(SearchablePagingExecutor exec, Map<String, String> queryStringMap) {
         logger.trace("Method 'setImmutableSearchTerms(Map)' done.");
     }
 }
