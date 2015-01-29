@@ -76,7 +76,7 @@ public class WebUtils {
 
             StringTokenizer tokenizer = new StringTokenizer(qs, "&");
             while (tokenizer.hasMoreTokens()) {
-                String[] parts = tokenizer.nextToken().split("=");
+                String[] parts = tokenizer.nextToken().split("=", 2);
                 if (logger.isDebugEnabled()) {
                     logger.debug("Parameter is: {}.", Arrays.toString(parts));
                 }
