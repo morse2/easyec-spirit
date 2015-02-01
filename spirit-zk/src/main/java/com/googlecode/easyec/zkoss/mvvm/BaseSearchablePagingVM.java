@@ -3,6 +3,7 @@ package com.googlecode.easyec.zkoss.mvvm;
 import com.googlecode.easyec.spirit.web.utils.WebUtils;
 import com.googlecode.easyec.zkoss.paging.PagingExecutor;
 import com.googlecode.easyec.zkoss.paging.SearchablePagingExecutor;
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.Init;
 import org.zkoss.zk.ui.Component;
@@ -23,6 +24,7 @@ import static org.zkoss.zk.ui.Executions.getCurrent;
  * @author JunJie
  * @see SearchablePagingExecutor
  */
+@AfterCompose(superclass = true)
 public abstract class BaseSearchablePagingVM<T extends Component> extends BasePagingVM<T> {
 
     private static final long serialVersionUID = -3780197547107801155L;

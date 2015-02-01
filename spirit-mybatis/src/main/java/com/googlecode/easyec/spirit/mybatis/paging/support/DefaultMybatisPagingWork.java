@@ -154,6 +154,18 @@ class DefaultMybatisPagingWork implements PagingInterceptor.PagingWork<MybatisPa
             ((PageWritable) page).setTotalRecordsCount(handler.getTotalRecordCount());
         }
 
+        /*
+         * 新增逻辑，如果计算总页数小于1，
+         * 则认为当前分页查询是没有任何结果
+         * 可以返回，因此余下的逻辑是没有必要
+         * 执行的。Since 0.6.0
+         */
+        if (page.getTotalRecordsCount() < 1) {
+            logger.info("The total record count is less than 1, so there is no need to execute logic else.");
+
+            return;
+        }
+
         String thisSql = boundSql.getSql();
         logger.debug("This sql: [{}]", thisSql);
 
