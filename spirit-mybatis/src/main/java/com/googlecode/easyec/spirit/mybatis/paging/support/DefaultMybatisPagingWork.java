@@ -1,6 +1,7 @@
 package com.googlecode.easyec.spirit.mybatis.paging.support;
 
 import com.googlecode.easyec.spirit.dao.dialect.PageDialect;
+import com.googlecode.easyec.spirit.dao.paging.PageComputable;
 import com.googlecode.easyec.spirit.dao.paging.PageWritable;
 import com.googlecode.easyec.spirit.dao.paging.PagingException;
 import com.googlecode.easyec.spirit.dao.paging.PagingInterceptor;
@@ -39,14 +40,14 @@ import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
  */
 class DefaultMybatisPagingWork implements PagingInterceptor.PagingWork<MybatisPage> {
 
-    private static final Logger logger                  = LoggerFactory.getLogger(DefaultMybatisPagingWork.class);
-    public static final  String SELECT_COUNT_KEY_SUFFIX = "!selectCountKey";
-    public static final  String RESULT_MAP_KEY_SUFFIX   = "!resultMapKey";
-    public static final  String SELECT_CLONE_KEY_SUFFIX = "!selectCloneKey";
+    private static final Logger logger = LoggerFactory.getLogger(DefaultMybatisPagingWork.class);
+    public static final String SELECT_COUNT_KEY_SUFFIX = "!selectCountKey";
+    public static final String RESULT_MAP_KEY_SUFFIX = "!resultMapKey";
+    public static final String SELECT_CLONE_KEY_SUFFIX = "!selectCloneKey";
 
     private MappedStatement mappedStatement;
-    private ResultHandler   resultHandler;
-    private Transaction     transaction;
+    private ResultHandler resultHandler;
+    private Transaction transaction;
 
     public DefaultMybatisPagingWork(MappedStatement mappedStatement, ResultHandler resultHandler) {
         this.mappedStatement = mappedStatement;
@@ -121,26 +122,26 @@ class DefaultMybatisPagingWork implements PagingInterceptor.PagingWork<MybatisPa
 
         List<ResultMap> resultMaps = new ArrayList<ResultMap>();
         resultMaps.add(new ResultMap.Builder(
-                config,
-                selectCountKey + RESULT_MAP_KEY_SUFFIX,
-                Integer.class,
-                new ArrayList<ResultMapping>(0)
+            config,
+            selectCountKey + RESULT_MAP_KEY_SUFFIX,
+            Integer.class,
+            new ArrayList<ResultMapping>(0)
         ).build());
 
         logger.debug("build count sql MappedStatement object. key: [" + selectCountKey + "].");
 
         MappedStatement selectCountMS = new MappedStatement.Builder(
-                config,
-                selectCountKey,
-                sqlSource,
-                SqlCommandType.SELECT)
-                .keyGenerator(mappedStatement.getKeyGenerator())
-                .cache(mappedStatement.getCache())
-                .useCache(mappedStatement.isUseCache())
-                .parameterMap(mappedStatement.getParameterMap())
-                .resultMaps(resultMaps)
-                .timeout(mappedStatement.getTimeout())
-                .build();
+            config,
+            selectCountKey,
+            sqlSource,
+            SqlCommandType.SELECT)
+            .keyGenerator(mappedStatement.getKeyGenerator())
+            .cache(mappedStatement.getCache())
+            .useCache(mappedStatement.isUseCache())
+            .parameterMap(mappedStatement.getParameterMap())
+            .resultMaps(resultMaps)
+            .timeout(mappedStatement.getTimeout())
+            .build();
 
         // set as current transaction
         Executor selectCountExecutor = config.newExecutor(transaction);
@@ -154,6 +155,11 @@ class DefaultMybatisPagingWork implements PagingInterceptor.PagingWork<MybatisPa
             ((PageWritable) page).setTotalRecordsCount(handler.getTotalRecordCount());
         }
 
+        // 固化分页结果
+        if (page instanceof PageComputable) {
+            ((PageComputable) page).compute();
+        }
+
         /*
          * 新增逻辑，如果计算总页数小于1，
          * 则认为当前分页查询是没有任何结果
@@ -161,7 +167,19 @@ class DefaultMybatisPagingWork implements PagingInterceptor.PagingWork<MybatisPa
          * 执行的。Since 0.6.0
          */
         if (page.getTotalRecordsCount() < 1) {
-            logger.info("The total record count is less than 1, so there is no need to execute logic else.");
+            logger.info("The total record count is less than 1, so there is no need to do logic else.");
+
+            return;
+        }
+
+        /*
+         * 新增逻辑，如果当前传递的页码大于
+         * 分页语句执行出来的总页码的时候，
+         * 则不执行余下的逻辑操作。
+         * Since 0.6.0
+         */
+        if (page.getCurrentPage() > page.getTotalSize()) {
+            logger.warn("The current page is greater than size of total pages, so there is no need to do logic else.");
 
             return;
         }
@@ -172,12 +190,12 @@ class DefaultMybatisPagingWork implements PagingInterceptor.PagingWork<MybatisPa
         List<Sort> sorts = page.getSorts();
         if (isNotEmpty(sorts)) {
             List<String> list = new ArrayList<String>(
-                    collect(sorts, new Transformer() {
+                collect(sorts, new Transformer() {
 
-                        public Object transform(Object input) {
-                            return ((Sort) input).getName() + " " + ((Sort) input).getType();
-                        }
-                    })
+                    public Object transform(Object input) {
+                        return ((Sort) input).getName() + " " + ((Sort) input).getType();
+                    }
+                })
             );
 
             thisSql = pageDialect.getSortedSql(thisSql, list);
@@ -199,11 +217,11 @@ class DefaultMybatisPagingWork implements PagingInterceptor.PagingWork<MybatisPa
                 logger.debug("Paged parameter, index [" + i + "], value [" + pagedParameters[i] + "].");
 
                 ParameterMapping mapping = new ParameterMapping.Builder(
-                        config,
-                        "pagedParameter" + i,
-                        Integer.class)
-                        .typeHandler(new IntegerTypeHandler())
-                        .jdbcType(JdbcType.INTEGER).build();
+                    config,
+                    "pagedParameter" + i,
+                    Integer.class)
+                    .typeHandler(new IntegerTypeHandler())
+                    .jdbcType(JdbcType.INTEGER).build();
 
                 parameterMappings.add(mapping);
                 parameterMap.put("pagedParameter" + i, pagedParameters[i]);
@@ -213,21 +231,21 @@ class DefaultMybatisPagingWork implements PagingInterceptor.PagingWork<MybatisPa
         String selectCloneKey = mappedStatement.getId() + SELECT_CLONE_KEY_SUFFIX;
         SqlSource pagedSqlSource = new PageDialectSqlSource(config, thisSql, mappedStatement.getSqlSource(), parameterMappings);
         MappedStatement pagedMappedStatement = new MappedStatement.Builder(
-                config,
-                selectCloneKey,
-                pagedSqlSource,
-                SqlCommandType.SELECT)
-                .keyGenerator(mappedStatement.getKeyGenerator())
-                .cache(mappedStatement.getCache())
-                .useCache(mappedStatement.isUseCache())
-                .parameterMap(new ParameterMap.Builder(config,
-                        mappedStatement.getParameterMap().getId(),
-                        mappedStatement.getParameterMap().getType(),
-                        parameterMappings).build())
-                .resultMaps(mappedStatement.getResultMaps())
-                .resultSetType(mappedStatement.getResultSetType())
-                .timeout(mappedStatement.getTimeout())
-                .build();
+            config,
+            selectCloneKey,
+            pagedSqlSource,
+            SqlCommandType.SELECT)
+            .keyGenerator(mappedStatement.getKeyGenerator())
+            .cache(mappedStatement.getCache())
+            .useCache(mappedStatement.isUseCache())
+            .parameterMap(new ParameterMap.Builder(config,
+                mappedStatement.getParameterMap().getId(),
+                mappedStatement.getParameterMap().getType(),
+                parameterMappings).build())
+            .resultMaps(mappedStatement.getResultMaps())
+            .resultSetType(mappedStatement.getResultSetType())
+            .timeout(mappedStatement.getTimeout())
+            .build();
 
         Executor pagedQueryExecutor = config.newExecutor(transaction);
         pagedQueryExecutor.query(pagedMappedStatement, parameterMap, RowBounds.DEFAULT, resultHandler);

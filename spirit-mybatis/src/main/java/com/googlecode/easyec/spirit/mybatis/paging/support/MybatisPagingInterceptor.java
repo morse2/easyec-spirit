@@ -1,6 +1,9 @@
 package com.googlecode.easyec.spirit.mybatis.paging.support;
 
-import com.googlecode.easyec.spirit.dao.paging.*;
+import com.googlecode.easyec.spirit.dao.paging.Page;
+import com.googlecode.easyec.spirit.dao.paging.PageWritable;
+import com.googlecode.easyec.spirit.dao.paging.PagingException;
+import com.googlecode.easyec.spirit.dao.paging.PagingInterceptor;
 import com.googlecode.easyec.spirit.mybatis.mapper.DelegateDao;
 import com.googlecode.easyec.spirit.mybatis.paging.MybatisPage;
 import com.googlecode.easyec.spirit.mybatis.paging.MybatisPageWritable;
@@ -122,10 +125,6 @@ public class MybatisPagingInterceptor implements PagingInterceptor, Ordered {
 
             if (mybatisPage instanceof PageWritable) {
                 ((PageWritable) mybatisPage).setRecords(resultHandler.getResultList());
-            }
-
-            if (mybatisPage instanceof PageComputable) {
-                ((PageComputable) mybatisPage).compute();
             }
 
             return mybatisPage;
