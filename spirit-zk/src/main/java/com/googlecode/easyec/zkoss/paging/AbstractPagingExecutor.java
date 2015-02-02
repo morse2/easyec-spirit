@@ -39,11 +39,11 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
     /**
      * ZK分页组件对象
      */
-    protected Paging    _paging;
+    protected Paging _paging;
     /**
      * ZK组件对象，用于呈现分页结果
      */
-    protected T         _comp;
+    protected T _comp;
     protected Set<Sort> sortList;
 
     /**
