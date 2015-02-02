@@ -45,7 +45,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
     implements SearchablePagingExecutor {
 
     public static final String AFTER_RENDER_LISTENER = "afterRenderListener";
-    private static final long serialVersionUID = -8714501738463399672L;
+    private static final long serialVersionUID = 4777119404351973562L;
 
     /**
      * 构造方法。
@@ -271,7 +271,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
                         logger.error(e.getMessage(), e);
                     }
                 } else {
-                    logger.warn("No any listener was set. so ignore.");
+                    logger.warn("No any listener was set on component combobox. so ignore.");
                 }
             } else ((Textbox) c).setRawValue(v);
         }
@@ -282,6 +282,28 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         // 设置日期框的值
         else if (c instanceof FormatInputElement) {
             ((FormatInputElement) c).setRawValue(v);
+        }
+        // 设置单选框、复选框的值
+        else if (c instanceof Checkbox) {
+            if (v != null && (v instanceof Boolean)) {
+                ((Checkbox) c).setChecked((Boolean) v);
+            }
+        }
+        // 设置单选框组件的选中
+        else if (c instanceof Radiogroup) {
+            Object o = c.getAttribute(AFTER_RENDER_LISTENER);
+            if (o != null) {
+                try {
+                    c.addEventListener(
+                        ON_AFTER_RENDER,
+                        (EventListener<? extends Event>) CommonFns.new_(o, v)
+                    );
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                }
+            } else {
+                logger.warn("No any listener was set on component radiogroup. so ignore.");
+            }
         }
     }
 
@@ -363,6 +385,19 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
                 }
             }
 
+            // 合并单选框、复选框的值
+            else if (c instanceof Checkbox) {
+                addOrRemoveSearchArg(c.getId(), ((Checkbox) c).isChecked(), bean);
+            }
+
+            // 单选框组件
+            else if (c instanceof Radiogroup) {
+                Radiogroup radiogroup = (Radiogroup) c;
+                if (radiogroup.getSelectedIndex() > -1) {
+                    addOrRemoveSearchArg(c.getId(), radiogroup.getSelectedItem(), bean);
+                }
+            }
+
             // 读取合并ZK控件中的属性值
             combineComponentAttributes(c, bean);
         }
@@ -424,6 +459,11 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
                 } else {
                     ((Timebox) c).setValue(null);
                 }
+            }
+
+            // 清除复选框的值
+            else if ((c instanceof Checkbox) && !(c instanceof Radio)) {
+                addOrRemoveSearchArg(c.getId(), ((Checkbox) c).isChecked(), bean);
             }
 
             // 读取合并ZK控件中的属性值
