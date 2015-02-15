@@ -43,37 +43,49 @@ public class ContextSourceTransactionAdviser extends ContextSourceTransactionAwa
 
     public void commit(DefaultTransactionStatus status) throws TransactionException {
         if (status.isNewTransaction() && hasResource(transactionManagerDelegate.getContextSource())) {
-            logger.debug("Prepare to commit LDAP transaction.");
-
-            transactionManagerDelegate.doCommit(
-                new DefaultTransactionStatus(
-                    transactionManagerDelegate.doGetTransaction(),
-                    status.isNewTransaction(),
-                    status.isNewSynchronization(),
-                    status.isReadOnly(),
-                    status.isDebug(),
-                    status.getSuspendedResources())
+            DefaultTransactionStatus defaultTransactionStatus = new DefaultTransactionStatus(
+                transactionManagerDelegate.doGetTransaction(),
+                status.isNewTransaction(),
+                status.isNewSynchronization(),
+                status.isReadOnly(),
+                status.isDebug(),
+                status.getSuspendedResources()
             );
 
-            logger.debug("commit LDAP transaction done.");
+            try {
+                logger.debug("Prepare to commit LDAP transaction.");
+                transactionManagerDelegate.doCommit(defaultTransactionStatus);
+                logger.debug("commit LDAP transaction done.");
+            } finally {
+                logger.debug("Method doCleanAfterCompletion() was invoked after commit.");
+                transactionManagerDelegate.doCleanupAfterCompletion(
+                    defaultTransactionStatus.getTransaction()
+                );
+            }
         }
     }
 
     public void rollback(DefaultTransactionStatus status) throws TransactionException {
         if (status.isNewTransaction() && hasResource(transactionManagerDelegate.getContextSource())) {
-            logger.debug("Prepare to rollback LDAP transaction.");
-
-            transactionManagerDelegate.doRollback(
-                new DefaultTransactionStatus(
-                    transactionManagerDelegate.doGetTransaction(),
-                    status.isNewTransaction(),
-                    status.isNewSynchronization(),
-                    status.isReadOnly(),
-                    status.isDebug(),
-                    status.getSuspendedResources())
+            DefaultTransactionStatus defaultTransactionStatus = new DefaultTransactionStatus(
+                transactionManagerDelegate.doGetTransaction(),
+                status.isNewTransaction(),
+                status.isNewSynchronization(),
+                status.isReadOnly(),
+                status.isDebug(),
+                status.getSuspendedResources()
             );
 
-            logger.debug("Rollback LDAP transaction done.");
+            try {
+                logger.debug("Prepare to rollback LDAP transaction.");
+                transactionManagerDelegate.doRollback(defaultTransactionStatus);
+                logger.debug("Rollback LDAP transaction done.");
+            } finally {
+                logger.debug("Method doCleanAfterCompletion() was invoked after rollback.");
+                transactionManagerDelegate.doCleanupAfterCompletion(
+                    defaultTransactionStatus.getTransaction()
+                );
+            }
         }
     }
 
