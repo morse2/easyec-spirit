@@ -7,6 +7,7 @@ import com.googlecode.easyec.spirit.web.webservice.Envelope;
  *
  * @author JunJie
  */
+@Deprecated
 public interface EnvelopeFactory {
 
     /**

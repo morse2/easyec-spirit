@@ -2,6 +2,7 @@ package com.googlecode.easyec.spirit.web.webservice.factory.impl;
 
 import com.googlecode.easyec.spirit.web.webservice.Envelope;
 import com.googlecode.easyec.spirit.web.webservice.factory.EnvelopeFactory;
+import com.googlecode.easyec.spirit.web.webservice.factory.XmlObjectFactory;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,7 @@ import static java.nio.charset.Charset.forName;
  *
  * @author JunJie
  */
-public class Jaxb2MarshallerEnvelopeFactory implements EnvelopeFactory {
+public class Jaxb2MarshallerEnvelopeFactory implements EnvelopeFactory, XmlObjectFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(JaxbContextEnvelopeFactory.class);
 
@@ -45,10 +46,26 @@ public class Jaxb2MarshallerEnvelopeFactory implements EnvelopeFactory {
     }
 
     public String asXml(Envelope envelope) {
+        return asXml((Object) envelope);
+    }
+
+    public Envelope asEnvelope(String xml) {
+        Object obj = asObject(xml);
+        if (obj != null) {
+            Assert.isInstanceOf(Envelope.class, obj);
+
+            return (Envelope) obj;
+        }
+
+        return null;
+    }
+
+    @Override
+    public String asXml(Object obj) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
         try {
-            jaxb2Marshaller.marshal(envelope, new StreamResult(bos));
+            jaxb2Marshaller.marshal(obj, new StreamResult(bos));
             return new String(bos.toByteArray(), charset);
         } catch (XmlMappingException e) {
             logger.error(e.getMessage(), e);
@@ -59,18 +76,12 @@ public class Jaxb2MarshallerEnvelopeFactory implements EnvelopeFactory {
         return null;
     }
 
-    public Envelope asEnvelope(String xml) {
+    @Override
+    public Object asObject(String xml) {
         InputStream bis = IOUtils.toInputStream(xml, charset);
 
         try {
-            Object o = jaxb2Marshaller.unmarshal(new StreamSource(bis));
-            if (null != o) {
-                Assert.isInstanceOf(Envelope.class, o);
-
-                return (Envelope) o;
-            }
-
-            logger.trace("Unmarshal object is null.");
+            return jaxb2Marshaller.unmarshal(new StreamSource(bis));
         } catch (XmlMappingException e) {
             logger.error(e.getMessage(), e);
         } finally {

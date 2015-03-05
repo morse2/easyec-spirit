@@ -2,6 +2,7 @@ package com.googlecode.easyec.spirit.web.webservice.factory.impl;
 
 import com.googlecode.easyec.spirit.web.webservice.Envelope;
 import com.googlecode.easyec.spirit.web.webservice.factory.EnvelopeFactory;
+import com.googlecode.easyec.spirit.web.webservice.factory.XmlObjectFactory;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +21,7 @@ import static java.nio.charset.Charset.forName;
  *
  * @author JunJie
  */
-public class JaxbContextEnvelopeFactory implements EnvelopeFactory {
+public class JaxbContextEnvelopeFactory implements EnvelopeFactory, XmlObjectFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(JaxbContextEnvelopeFactory.class);
 
@@ -47,36 +48,15 @@ public class JaxbContextEnvelopeFactory implements EnvelopeFactory {
     }
 
     public String asXml(Envelope envelope) {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
-        try {
-            getJAXBContext().createMarshaller().marshal(envelope, bos);
-            return new String(bos.toByteArray(), charset);
-        } catch (JAXBException e) {
-            logger.error(e.getMessage(), e);
-        } finally {
-            IOUtils.closeQuietly(bos);
-        }
-
-        return null;
+        return asXml((Object) envelope);
     }
 
     public Envelope asEnvelope(String xml) {
-        InputStream bis = IOUtils.toInputStream(xml, charset);
+        Object obj = asObject(xml);
+        if (obj != null) {
+            Assert.isInstanceOf(Envelope.class, obj);
 
-        try {
-            Object o = getJAXBContext().createUnmarshaller().unmarshal(bis);
-            if (null != o) {
-                Assert.isInstanceOf(Envelope.class, o);
-
-                return (Envelope) o;
-            }
-
-            logger.trace("Unmarshal object is null.");
-        } catch (JAXBException e) {
-            logger.error(e.getMessage(), e);
-        } finally {
-            IOUtils.closeQuietly(bis);
+            return (Envelope) obj;
         }
 
         return null;
@@ -89,5 +69,36 @@ public class JaxbContextEnvelopeFactory implements EnvelopeFactory {
      */
     protected JAXBContext getJAXBContext() {
         return jaxbContext;
+    }
+
+    @Override
+    public String asXml(Object obj) {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+        try {
+            getJAXBContext().createMarshaller().marshal(obj, bos);
+            return new String(bos.toByteArray(), charset);
+        } catch (JAXBException e) {
+            logger.error(e.getMessage(), e);
+        } finally {
+            IOUtils.closeQuietly(bos);
+        }
+
+        return null;
+    }
+
+    @Override
+    public Object asObject(String xml) {
+        InputStream bis = IOUtils.toInputStream(xml, charset);
+
+        try {
+            return getJAXBContext().createUnmarshaller().unmarshal(bis);
+        } catch (JAXBException e) {
+            logger.error(e.getMessage(), e);
+        } finally {
+            IOUtils.closeQuietly(bis);
+        }
+
+        return null;
     }
 }
