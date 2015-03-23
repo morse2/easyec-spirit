@@ -1,9 +1,7 @@
 package com.googlecode.easyec.zkoss.paging.impl;
 
-import com.googlecode.easyec.spirit.dao.paging.Page;
 import com.googlecode.easyec.zkoss.paging.AbstractSearchablePagingExecutor;
 import com.googlecode.easyec.zkoss.paging.sort.SortComparator;
-import org.springframework.util.CollectionUtils;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.ListModelList;
@@ -20,7 +18,7 @@ import java.util.List;
  */
 public abstract class ListboxSearchablePagingExecutor extends AbstractSearchablePagingExecutor<Listbox> {
 
-    private static final long serialVersionUID = 6781613163569772619L;
+    private static final long serialVersionUID = 6361109293049839555L;
 
     /**
      * 构造方法。
@@ -105,22 +103,19 @@ public abstract class ListboxSearchablePagingExecutor extends AbstractSearchable
         }
     }
 
-    public void redraw(Page page) {
-        List<?> list = page.getRecords();
-        if (CollectionUtils.isEmpty(list) && page.getPrevPageAvailable()) {
-            firePaging(page.getCurrentPage() - 1);
-        } else {
-            ListModelList<Object> model = new ListModelList<Object>(list);
-            model.setMultiple(isMultiple());
-
-            _comp.getItems().clear();
-            _comp.setModel(model);
-            _comp.setCheckmark(isCheckmark());
-        }
-    }
-
-    public void clear(Page page) {
+    @Override
+    protected void doClear() {
         _comp.getItems().clear();
         _comp.setEmptyMessage(getEmptyMessage());
+    }
+
+    @Override
+    protected void doRedraw(List<?> records) {
+        ListModelList<Object> model = new ListModelList<Object>(records);
+        model.setMultiple(isMultiple());
+
+        _comp.getItems().clear();
+        _comp.setModel(model);
+        _comp.setCheckmark(isCheckmark());
     }
 }

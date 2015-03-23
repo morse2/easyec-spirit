@@ -66,17 +66,13 @@ public interface PagingExecutor extends Serializable {
     Paging getPaging();
 
     /**
-     * 重画分页区域内容的方法。
+     * 通过给定的<code>Page</code>对象，
+     * 利用ZK组件，画出分页结果信息。
+     * 分页结果可以有数据，也可以没有数据，
+     * 实现类应该根据Page对象提供的信息来
+     * 判断应该怎样呈现结果。
      *
-     * @param page <code>Page</code>对象
+     * @param page <code>Page</code>
      */
-    void redraw(Page page);
-
-    /**
-     * 清空当前分页区内记录。
-     * 此方法适用于没有结果集的情况。
-     *
-     * @param page <code>Page</code>对象
-     */
-    void clear(Page page);
+    void draw(Page page);
 }

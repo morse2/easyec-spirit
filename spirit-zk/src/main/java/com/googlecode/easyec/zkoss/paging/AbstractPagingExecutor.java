@@ -20,9 +20,11 @@ import org.zkoss.zul.event.PagingEvent;
 
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static com.googlecode.easyec.spirit.web.controller.sorts.Sort.SortTypes.DESC;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
  * 抽象的分页操作执行器类。
@@ -32,7 +34,7 @@ import static com.googlecode.easyec.spirit.web.controller.sorts.Sort.SortTypes.D
  */
 public abstract class AbstractPagingExecutor<T extends Component> implements PagingExecutor {
 
-    private static final long serialVersionUID = -7813436908837592374L;
+    private static final long serialVersionUID = 1706154994570600762L;
     protected final Logger logger = LoggerFactory.getLogger(getClass());
     private boolean lazyLoad;
     private boolean visible = true;
@@ -86,6 +88,33 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
         return this._paging;
     }
 
+    @Override
+    public void draw(Page page) {
+        _paging.setTotalSize(page.getTotalRecordsCount());
+        _paging.setPageSize(page.getPageSize());
+
+        List<?> list = page.getRecords();
+        if (isEmpty(list)) {
+            if (page.getTotalSize() <= 0) doClear();
+            else firePaging(page.getCurrentPage() - 1);
+        } else {
+            try {
+                _paging.setActivePage(page.getCurrentPage() - 1);
+
+                doRedraw(page.getRecords());
+            } catch (WrongValueException e) {
+                logger.trace(e.getMessage(), e);
+
+                /* fix bug:修复如果当前页码大于_paging
+                 * 对象的最大页码，会报错的问题
+                 */
+                if (page.getPrevPageAvailable()) {
+                    firePaging(page.getCurrentPage() - 1);
+                } else doClear();
+            }
+        }
+    }
+
     /**
      * 初始化当前的分页执行类，
      * 并且给定初始化加载的页码。
@@ -137,8 +166,8 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
 
         // 如果页面为延迟加载，此时则应该显示组件
         if (lazyLoad) setComponentVisible(_comp, true);
-        if (page.getTotalSize() < 1) doClear(page);
-        else if (page.getTotalSize() > 0) doRedraw(page);
+        // 画出分页结果
+        draw(page);
     }
 
     /**
@@ -190,18 +219,6 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
     }
 
     /**
-     * 执行清除ZK控件内容的操作
-     *
-     * @param page 分页结果对象
-     */
-    protected void doClear(Page page) {
-        _paging.setTotalSize(page.getTotalRecordsCount());
-        _paging.setPageSize(page.getPageSize());
-
-        clear(page);
-    }
-
-    /**
      * 设置组件是否可见的方法
      *
      * @param comp    分页监控的组件对象
@@ -212,28 +229,16 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
     }
 
     /**
+     * 执行清除ZK控件内容的操作
+     */
+    abstract protected void doClear();
+
+    /**
      * 执行重画ZK控件内容的操作
      *
-     * @param page 分页结果对象
+     * @param records 分页结果列表对象
      */
-    private void doRedraw(Page page) {
-        try {
-            _paging.setPageSize(page.getPageSize());
-            _paging.setTotalSize(page.getTotalRecordsCount());
-            _paging.setActivePage(page.getCurrentPage() - 1);
-
-            redraw(page);
-        } catch (WrongValueException e) {
-            logger.trace(e.getMessage(), e);
-
-            /* fix bug:修复如果当前页码大于_paging
-             * 对象的最大页码，会报错的问题
-             */
-            if (page.getPrevPageAvailable()) {
-                firePaging(page.getCurrentPage() - 1);
-            } else doClear(page);
-        }
-    }
+    abstract protected void doRedraw(List<?> records);
 
     /**
      * 得到无结果的消息内容。

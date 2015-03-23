@@ -1,6 +1,5 @@
 package com.googlecode.easyec.zkoss.paging.impl;
 
-import com.googlecode.easyec.spirit.dao.paging.Page;
 import com.googlecode.easyec.zkoss.paging.AbstractSearchablePagingExecutor;
 import com.googlecode.easyec.zkoss.paging.sort.SortComparator;
 import org.zkoss.zk.ui.Component;
@@ -18,7 +17,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  */
 public abstract class GridSearchablePagingExecutor extends AbstractSearchablePagingExecutor<Grid> {
 
-    private static final long serialVersionUID = -2210515669764590849L;
+    private static final long serialVersionUID = -4038324977135177347L;
 
     /**
      * 构造方法。
@@ -54,19 +53,16 @@ public abstract class GridSearchablePagingExecutor extends AbstractSearchablePag
         }
     }
 
-    public void redraw(Page page) {
-        List<?> list = page.getRecords();
-        if (isEmpty(list) && page.getPrevPageAvailable()) {
-            firePaging(page.getCurrentPage() - 1);
-        } else {
-            removeRowsChild(_comp.getRows());
-            _comp.setModel(new ListModelList<Object>(list));
-        }
-    }
-
-    public void clear(Page page) {
+    @Override
+    protected void doClear() {
         removeRowsChild(_comp.getRows());
         _comp.setEmptyMessage(getEmptyMessage());
+    }
+
+    @Override
+    protected void doRedraw(List<?> records) {
+        removeRowsChild(_comp.getRows());
+        _comp.setModel(new ListModelList<Object>(records));
     }
 
     private void removeRowsChild(Rows rows) {
