@@ -45,7 +45,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
     implements SearchablePagingExecutor {
 
     public static final String AFTER_RENDER_LISTENER = "afterRenderListener";
-    private static final long serialVersionUID = 4777119404351973562L;
+    private static final long serialVersionUID = -500276429806974418L;
 
     /**
      * 构造方法。
@@ -57,7 +57,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         super(paging, comp);
     }
 
-    private static final String SELECTORS = "textbox,combobox,datebox,intbox,decimalbox,div";
+    private static final String SELECTORS = "textbox,combobox,datebox,intbox,decimalbox,checkbox,radiogroup,radio,div";
 
     /* 不可变的搜索条件集合 */
     private final Map<String, Object> immutableSearchTerms = new HashMap<String, Object>();
@@ -153,14 +153,20 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         }
 
         if (!isLazyLoad()) {
-            List<Combobox> list = find(getActualSearchScope(), "combobox", Combobox.class);
+            List<Component> list = find(getActualSearchScope(), "combobox,radiogroup");
             if (!list.isEmpty()) {
                 // 初始化统一延迟加载搜索控制事件监听对象
                 UniversalLazyLoadingEventListener lstnr
                     = new UniversalLazyLoadingEventListener(list.size(), currentPageNumber);
 
-                for (Combobox c : list) {
-                    if (c.getModel() != null) {
+                for (Component c : list) {
+                    boolean shouldAddEventListener
+                        = (c instanceof Combobox && ((Combobox) c).getModel() != null)
+                        || (c instanceof Radiogroup && ((Radiogroup) c).getModel() != null);
+                    logger.debug("Should component be added onAfterRender listener? ["
+                        + shouldAddEventListener + "], id: [" + c.getId() + "].");
+
+                    if (shouldAddEventListener) {
                         c.addEventListener(ON_AFTER_RENDER, lstnr);
 
                         // 设置当前搜索为延迟加载
@@ -387,14 +393,17 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
 
             // 合并单选框、复选框的值
             else if (c instanceof Checkbox) {
-                addOrRemoveSearchArg(c.getId(), ((Checkbox) c).isChecked(), bean);
+                Checkbox chk = (Checkbox) c;
+                if (chk.isChecked()) {
+                    addOrRemoveSearchArg(c.getId(), chk.getValue(), bean);
+                }
             }
 
             // 单选框组件
             else if (c instanceof Radiogroup) {
                 Radiogroup radiogroup = (Radiogroup) c;
                 if (radiogroup.getSelectedIndex() > -1) {
-                    addOrRemoveSearchArg(c.getId(), radiogroup.getSelectedItem(), bean);
+                    addOrRemoveSearchArg(c.getId(), radiogroup.getSelectedItem().getValue(), bean);
                 }
             }
 
