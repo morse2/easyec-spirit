@@ -4,7 +4,7 @@
 
     <groupId>com.googlecode.easyec</groupId>
     <artifactId>spirit</artifactId>
-    <version>0.6.1-SNAPSHOT</version>
+    <version>0.6.2-SNAPSHOT</version>
     <modules>
         <module>spirit-dao</module>
         <module>spirit-mybatis</module>
@@ -54,6 +54,24 @@
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>oss-snapshot-repo</id>
+            <snapshots>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
+
+        <repository>
+            <id>dm_2</id>
+            <releases>
+                <updatePolicy>daily</updatePolicy>
+            </releases>
+            <url>http://www.shoppingmango.com/nexus/content/groups/public/</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -129,8 +147,8 @@
 
         <dependency>
             <groupId>com.googlecode.easyec</groupId>
-            <artifactId>cache-spi</artifactId>
-            <version>0.5.1-SNAPSHOT</version>
+            <artifactId>caching-spi</artifactId>
+            <version>0.6.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

@@ -1,6 +1,6 @@
 package com.googlecode.easyec.spirit.web.controller.formbean.factory;
 
-import com.googlecode.easyec.cache.CacheService;
+import com.googlecode.easyec.caching.CacheService;
 import com.googlecode.easyec.spirit.web.controller.formbean.FormBean;
 import com.googlecode.easyec.spirit.web.controller.formbean.FormBeansFactory;
 import org.apache.commons.lang.StringUtils;
@@ -38,7 +38,7 @@ public class CacheFormBeansFactory implements FormBeansFactory, InitializingBean
 
         String uri = bean.getUri();
         logger.debug("FormBean's uri: [" + uri + "], bean's token: [" + bean.getToken() +
-                "], bean name: [" + bean.getId() + "].");
+            "], bean name: [" + bean.getId() + "].");
 
         if (StringUtils.isBlank(uri)) {
             logger.warn("Form bean's uri is null. Please check it.");
@@ -65,7 +65,7 @@ public class CacheFormBeansFactory implements FormBeansFactory, InitializingBean
             cacheService.put(cacheName, sessionId, o);
         } else if (!(o instanceof Map)) {
             logger.warn("There is not a Map object in cache. cache name: [" + cacheName +
-                    "], key: [" + sessionId + "].");
+                "], key: [" + sessionId + "].");
 
             o = new LinkedHashMap<String, FormBean>(20);
             cacheService.put(cacheName, sessionId, o);
@@ -75,7 +75,7 @@ public class CacheFormBeansFactory implements FormBeansFactory, InitializingBean
     }
 
     public boolean removeAll(String sessionId) {
-        return cacheService.removeCache(cacheName, sessionId);
+        return cacheService.removeValue(cacheName, sessionId);
     }
 
     public boolean removeFormBean(String sessionId, String path) {

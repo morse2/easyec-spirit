@@ -1,6 +1,6 @@
 package com.googlecode.easyec.spirit.mybatis.cache;
 
-import com.googlecode.easyec.cache.CacheService;
+import com.googlecode.easyec.caching.CacheService;
 import org.apache.ibatis.cache.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,15 +18,20 @@ import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.getBean;
  */
 public class CacheServiceCache implements Cache {
 
-    private static final Logger        logger        = LoggerFactory.getLogger(CacheServiceCache.class);
-    private final        ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    /**
+     * MyBatis缓存使用到的名字
+     */
+    public static final String MYBATIS_CACHE_NAME = "mybatisCache";
+
+    private static final Logger logger = LoggerFactory.getLogger(CacheServiceCache.class);
+    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private CacheService cacheService;
-    private boolean      initialized;
+    private boolean initialized;
 
     private String id;
 
     public CacheServiceCache(String id) {
-        Assert.notNull(id, "Cache id cannot be null.");
+        Assert.notNull(id, "Mybatis Cache id of prefix cannot be null.");
 
         this.id = id;
     }
@@ -37,44 +42,36 @@ public class CacheServiceCache implements Cache {
 
     public int getSize() {
         initialize();
-        return Long.valueOf(cacheService.getStatistics(this.id).getObjectCount()).intValue();
+        return Integer.MAX_VALUE;
     }
 
     public void putObject(Object key, Object value) {
         initialize();
-        String thisKey = toKey(key);
-
         if (null != value) {
-            boolean b = this.cacheService.put(this.id, thisKey, value);
+            boolean b = this.cacheService.put(MYBATIS_CACHE_NAME, key, value);
             logger.debug("Result of putting into cache. [{}]", b);
         }
     }
 
     public Object getObject(Object key) {
         initialize();
-        return this.cacheService.get(this.id, toKey(key));
+        return this.cacheService.get(MYBATIS_CACHE_NAME, key);
     }
 
     public Object removeObject(Object key) {
         Object o = getObject(key);
-        boolean b = this.cacheService.removeCache(this.id, String.valueOf(key.hashCode()));
+        boolean b = this.cacheService.removeValue(MYBATIS_CACHE_NAME, key);
         logger.debug("Result of removing from cache. [{}]", b);
         return o;
     }
 
     public void clear() {
         initialize();
-        this.cacheService.removeAll(this.id);
+        this.cacheService.removeAllValues(this.id);
     }
 
     public ReadWriteLock getReadWriteLock() {
         return this.readWriteLock;
-    }
-
-    private String toKey(Object k) {
-        StringBuffer key = new StringBuffer();
-        key.append(id).append("!").append(k);
-        return String.valueOf(key.toString().hashCode());
     }
 
     /**
@@ -83,20 +80,16 @@ public class CacheServiceCache implements Cache {
      * 会被调用并初始化缓存实例
      */
     protected synchronized void initialize() {
-        if (!initialized) {
+        if (!isInitialized()) {
             // 初始化缓存区
-            if (null == cacheService) {
+            if (null == getCacheService()) {
                 logger.debug("CacheService object is null, so find from Spring context.");
 
-                cacheService = getBean(CacheService.class);
+                setCacheService(getBean(CacheService.class));
                 Assert.notNull(cacheService, "CacheService object is still null. Is there no CacheService instance?");
             }
 
-            boolean b = cacheService.addCacheIfAbsent(this.id);
-            logger.debug("Result of adding cache. [{}]", b);
-
-            Assert.isTrue(b, "Initialize the cache fragment failed");
-            initialized = true;
+            setInitialized(true);
         }
     }
 
@@ -105,7 +98,7 @@ public class CacheServiceCache implements Cache {
      *
      * @return <code>CacheService</code>
      */
-    public CacheService getCacheService() {
+    public final CacheService getCacheService() {
         return cacheService;
     }
 
@@ -114,7 +107,7 @@ public class CacheServiceCache implements Cache {
      *
      * @param cacheService <code>CacheService</code>对象
      */
-    public void setCacheService(CacheService cacheService) {
+    public final void setCacheService(CacheService cacheService) {
         this.cacheService = cacheService;
     }
 
