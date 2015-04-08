@@ -55,6 +55,16 @@
         </repository>
     </distributionManagement>
 
+    <repositories>
+        <repository>
+            <id>oss-snapshot-repo</id>
+            <snapshots>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
