@@ -63,14 +63,6 @@
             </snapshots>
             <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
         </repository>
-
-        <repository>
-            <id>dm_2</id>
-            <releases>
-                <updatePolicy>daily</updatePolicy>
-            </releases>
-            <url>http://www.shoppingmango.com/nexus/content/groups/public/</url>
-        </repository>
     </repositories>
 
     <dependencies>

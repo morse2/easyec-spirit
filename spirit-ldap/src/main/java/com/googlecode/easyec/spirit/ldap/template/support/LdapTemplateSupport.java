@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static com.googlecode.easyec.spirit.ldap.template.support.LdapItemOperation.LdapItemOperationType.ADD_ITEM;
+import static com.googlecode.easyec.spirit.ldap.template.support.LdapItemOperation.LdapItemOperationType.REMOVE_ITEM;
 import static org.apache.commons.lang.ArrayUtils.isEmpty;
 import static org.apache.commons.lang.ArrayUtils.isEquals;
 import static org.apache.commons.lang.StringUtils.isBlank;
@@ -69,7 +70,7 @@ public abstract class LdapTemplateSupport {
     protected void createLdapItemOperation(Collection<LdapItemOperation> coll, String key, String oldVal, String newVal) {
         if (isBlank(oldVal) && isBlank(newVal)) return;
         if (isBlank(oldVal)) coll.add(new LdapItemOperation(key, newVal, ADD_ITEM));
-        else if (isBlank(newVal)) coll.add(new LdapItemOperation(key));
+        else if (isBlank(newVal)) coll.add(new LdapItemOperation(key, oldVal, REMOVE_ITEM));
         else if (!oldVal.equals(newVal)) coll.add(new LdapItemOperation(key, newVal));
     }
 
@@ -86,7 +87,7 @@ public abstract class LdapTemplateSupport {
     protected void createLdapItemOperation(Collection<LdapItemOperation> coll, String key, byte[] oldVal, byte[] newVal) {
         if (isEmpty(oldVal) && isEmpty(newVal)) return;
         if (isEmpty(oldVal)) coll.add(new LdapItemOperation(key, newVal, ADD_ITEM));
-        else if (isEmpty(newVal)) coll.add(new LdapItemOperation(key));
+        else if (isEmpty(newVal)) coll.add(new LdapItemOperation(key, oldVal, REMOVE_ITEM));
         else if (!isEquals(oldVal, newVal)) coll.add(new LdapItemOperation(key, newVal));
     }
 
@@ -103,7 +104,7 @@ public abstract class LdapTemplateSupport {
     protected void createLdapItemOperation(Collection<LdapItemOperation> coll, String key, Object oldVal, Object newVal) {
         if (oldVal == null && newVal == null) return;
         if (oldVal == null) coll.add(new LdapItemOperation(key, newVal, ADD_ITEM));
-        else if (newVal == null) coll.add(new LdapItemOperation(key));
+        else if (newVal == null) coll.add(new LdapItemOperation(key, oldVal, REMOVE_ITEM));
         else if (!oldVal.equals(newVal)) coll.add(new LdapItemOperation(key, newVal));
     }
 
