@@ -102,4 +102,12 @@ public interface SearchablePagingExecutor extends PagingExecutor {
      * @return 添加成功返回真，否则返回假
      */
     boolean addImmutableSearchTerm(String key, Object value);
+
+    /**
+     * 设置查找的搜索组件是否包含Page范围的
+     * 符合条件的组件对象
+     *
+     * @param includePage 布尔值
+     */
+    void setSearchSelectorsWithPage(boolean includePage);
 }

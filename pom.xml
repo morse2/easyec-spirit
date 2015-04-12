@@ -41,6 +41,17 @@
         </developer>
     </developers>
 
+    <repositories>
+        <repository>
+            <id>oss-snapshot-repo</id>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
+
     <distributionManagement>
         <snapshotRepository>
             <id>sonatype-nexus-snapshots</id>

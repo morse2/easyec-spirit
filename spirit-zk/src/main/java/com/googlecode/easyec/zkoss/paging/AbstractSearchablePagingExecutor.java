@@ -45,7 +45,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
     implements SearchablePagingExecutor {
 
     public static final String AFTER_RENDER_LISTENER = "afterRenderListener";
-    private static final long serialVersionUID = -8714501738463399672L;
+    private static final long serialVersionUID = 8129025584545160698L;
 
     /**
      * 构造方法。
@@ -67,11 +67,17 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
     /* 搜索条件的根组件，搜索条件应该放在此组件下 */
     private Component searchScope;
 
+    private boolean selectorsWithPage;
+
     /* URL查询参数 */
     private String qs;
 
     public void setSearchScope(Component searchScope) {
         this.searchScope = searchScope;
+    }
+
+    public void setSearchSelectorsWithPage(boolean includePage) {
+        this.selectorsWithPage = includePage;
     }
 
     /**
@@ -153,7 +159,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         }
 
         if (!isLazyLoad()) {
-            List<Combobox> list = find(getActualSearchScope(), "combobox", Combobox.class);
+            List<Combobox> list = find(getActualSearchScope(), "combobox", Combobox.class, isSearchSelectorsWithPage());
             if (!list.isEmpty()) {
                 // 初始化统一延迟加载搜索控制事件监听对象
                 UniversalLazyLoadingEventListener lstnr
@@ -241,6 +247,14 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         }
 
         return false;
+    }
+
+    /**
+     * 返回当前的执行器对象实例的搜索组件的范围
+     * 是否包含了ZK的Page对象范围
+     */
+    public boolean isSearchSelectorsWithPage() {
+        return selectorsWithPage;
     }
 
     /**
