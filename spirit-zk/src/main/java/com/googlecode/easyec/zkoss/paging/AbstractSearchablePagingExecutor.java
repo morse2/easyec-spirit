@@ -45,7 +45,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
     implements SearchablePagingExecutor {
 
     public static final String AFTER_RENDER_LISTENER = "afterRenderListener";
-    private static final long serialVersionUID = -500276429806974418L;
+    private static final long serialVersionUID = -3852863972879222491L;
 
     /**
      * 构造方法。
@@ -67,11 +67,18 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
     /* 搜索条件的根组件，搜索条件应该放在此组件下 */
     private Component searchScope;
 
+    private boolean searchSelectorsInPage;
+
     /* URL查询参数 */
     private String qs;
 
     public void setSearchScope(Component searchScope) {
         this.searchScope = searchScope;
+    }
+
+    @Override
+    public void setSearchSelectorsInPage(boolean searchSelectorsInPage) {
+        this.searchSelectorsInPage = searchSelectorsInPage;
     }
 
     /**
@@ -113,7 +120,9 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
      */
     public void addSearchSelectors(String searchSelectors) {
         if (isNotBlank(searchSelectors)) {
-            List<Component> list = find(getActualSearchScope(), searchSelectors);
+            List<Component> list = find(
+                getActualSearchScope(), searchSelectors, isSearchSelectorsInPage()
+            );
 
             // 默认为Input控件添加OnOK事件，提高搜索体验
             for (Component c : list) {
@@ -247,6 +256,13 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         }
 
         return false;
+    }
+
+    /**
+     * 返回当前搜索组件是否包含ZK的Page范围中
+     */
+    public boolean isSearchSelectorsInPage() {
+        return searchSelectorsInPage;
     }
 
     /**
