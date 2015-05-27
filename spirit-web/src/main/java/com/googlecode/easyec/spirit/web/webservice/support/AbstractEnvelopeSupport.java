@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
+import static org.apache.commons.lang.StringUtils.isBlank;
+
 /**
  * 支持{@link Envelope}处理的基类
  *
@@ -46,7 +48,7 @@ public abstract class AbstractEnvelopeSupport<T, E extends Envelope> {
      */
     @SuppressWarnings("unchecked")
     protected E asEnvelope(String xml) {
-        return (E) envelopeFactory.asEnvelope(xml);
+        return isBlank(xml) ? null : (E) envelopeFactory.asEnvelope(xml);
     }
 
     /**

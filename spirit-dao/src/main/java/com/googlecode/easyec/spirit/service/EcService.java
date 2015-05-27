@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.Assert;
 
 import java.util.Map;
@@ -34,7 +35,7 @@ public abstract class EcService implements InitializingBean {
     }
 
     @Autowired(required = false)
-    public void setPageDelegate(PageDelegate<Page> pageDelegate) {
+    public void setPageDelegate(@Qualifier("pageConfigurer") PageDelegate<Page> pageDelegate) {
         this.pageDelegate = pageDelegate;
     }
 
