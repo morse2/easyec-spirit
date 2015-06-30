@@ -124,11 +124,21 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
         // 1. 从Execution的Arg中获取请求的表单对象
         if (MapUtils.isNotEmpty(arg) && arg.containsKey(ARG_FORM_OBJECT)) {
             var = arg.get(ARG_FORM_OBJECT);
+            // 校验是否需要验证模型对象为空
+            Boolean b = (Boolean) arg.get(ARG_CHECK_UIDPK);
+            if (null != b) shouldCheck = b;
+            // 从session中获取此表单匹配VM参数
+            matchesVM = (Class) arg.get(ARG_MATCH_VM);
         }
 
         // 2. 如果Execution的Arg中没有表单对象，则试图从Request的Attribute中获取
         if (null == var) {
             var = getCurrent().getAttribute(ARG_FORM_OBJECT);
+            // 校验是否需要验证模型对象为空
+            Boolean b = (Boolean) getCurrent().getAttribute(ARG_CHECK_UIDPK);
+            if (null != b) shouldCheck = b;
+            // 从session中获取此表单匹配VM参数
+            matchesVM = (Class) getCurrent().getAttribute(ARG_MATCH_VM);
         }
 
         // 3. 如果Request的Attribute中还没有表单对象，则从Session中获取
