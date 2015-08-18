@@ -73,11 +73,11 @@ final class DelegateServiceInvocationHandler implements InvocationHandler, Deleg
     }
 
     public Page find(AbstractSearchFormBean formBean) {
-        return delegateDao.find(beanFactory.getBean(PageDelegate.class).createPage(formBean));
+        return delegateDao.find(beanFactory.getBean("pageConfigurer", PageDelegate.class).createPage(formBean));
     }
 
     public Page find(AbstractSearchFormBean formBean, int pageSize) {
-        return delegateDao.find(beanFactory.getBean(PageDelegate.class).createPage(formBean, pageSize));
+        return delegateDao.find(beanFactory.getBean("pageConfigurer", PageDelegate.class).createPage(formBean, pageSize));
     }
 
     public List search(AbstractSearchFormBean bean) {
