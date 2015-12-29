@@ -3,6 +3,8 @@ package com.googlecode.easyec.zkoss.mvvm;
 import com.googlecode.easyec.zkoss.utils.MessageboxUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zkoss.bind.BindComposer;
+import org.zkoss.bind.Binder;
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.ContextParam;
 import org.zkoss.bind.annotation.Init;
@@ -29,7 +31,7 @@ import static org.zkoss.bind.annotation.ContextType.COMPONENT;
  */
 public abstract class BaseVM<T extends Component> implements ComponentActivationListener, Serializable {
 
-    private static final long serialVersionUID = 8067492887166356066L;
+    private static final long serialVersionUID = 6175330378977715955L;
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     /* 标识是否做过激活操作 */
@@ -74,6 +76,19 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
             Arrays.<VariableResolver>asList(
                 new DelegatingVariableResolver(),
                 new ServletRequestResolver()
+            )
+        );
+    }
+
+    /**
+     * 获取当前已设置的
+     * <code>{@link Binder}</code>
+     * 对象实例
+     */
+    protected Binder getBinder() {
+        return (Binder) getSelf().getAttribute(
+            (String) getSelf().getAttribute(
+                BindComposer.BINDER_ID
             )
         );
     }

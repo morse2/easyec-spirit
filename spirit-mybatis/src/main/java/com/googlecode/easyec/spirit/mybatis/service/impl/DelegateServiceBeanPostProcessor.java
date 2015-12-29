@@ -2,7 +2,7 @@ package com.googlecode.easyec.spirit.mybatis.service.impl;
 
 import com.googlecode.easyec.spirit.mybatis.mapper.DelegateDao;
 import com.googlecode.easyec.spirit.mybatis.service.DelegateService;
-import com.googlecode.easyec.spirit.utils.BeanUtils;
+import com.googlecode.easyec.spirit.web.utils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;

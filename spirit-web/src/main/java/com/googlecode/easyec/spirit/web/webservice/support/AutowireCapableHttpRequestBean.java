@@ -12,7 +12,7 @@ import org.springframework.util.Assert;
 /**
  * HTTP请求实现类。<br/>
  * 该类可帮助HTTP请求调用的处理类
- * 自动植入<code>EnvelopeFactory</code>
+ * 自动植入<code>StreamObjectFactory</code>
  * 对象实例（前提该对象实例已配置到Spring上下文中）
  *
  * @author JunJie

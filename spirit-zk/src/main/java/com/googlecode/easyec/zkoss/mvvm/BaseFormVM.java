@@ -2,7 +2,7 @@ package com.googlecode.easyec.zkoss.mvvm;
 
 import com.googlecode.easyec.spirit.domain.GenericPersistentDomainModel;
 import com.googlecode.easyec.spirit.domain.PersistentDomainModel;
-import com.googlecode.easyec.spirit.utils.BeanUtils;
+import com.googlecode.easyec.spirit.web.utils.BeanUtils;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.util.Assert;
 import org.zkoss.bind.annotation.AfterCompose;

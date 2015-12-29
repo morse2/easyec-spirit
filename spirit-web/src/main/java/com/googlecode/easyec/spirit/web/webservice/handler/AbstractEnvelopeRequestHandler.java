@@ -4,7 +4,7 @@ import com.googlecode.easyec.spirit.web.httpcomponent.HttpRequestHandler;
 import com.googlecode.easyec.spirit.web.webservice.Body;
 import com.googlecode.easyec.spirit.web.webservice.Envelope;
 import com.googlecode.easyec.spirit.web.webservice.Header;
-import com.googlecode.easyec.spirit.web.webservice.factory.EnvelopeFactory;
+import com.googlecode.easyec.spirit.web.webservice.factory.StreamObjectFactory;
 import com.googlecode.easyec.spirit.web.webservice.support.AbstractEnvelopeSupport;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
@@ -24,8 +24,8 @@ public abstract class AbstractEnvelopeRequestHandler<T, E extends Envelope, H ex
     extends AbstractEnvelopeSupport<T, E>
     implements HttpRequestHandler<T> {
 
-    protected AbstractEnvelopeRequestHandler(EnvelopeFactory envelopeFactory) {
-        setEnvelopeFactory(envelopeFactory);
+    protected AbstractEnvelopeRequestHandler(StreamObjectFactory envelopeFactory) {
+        setObjectFactory(envelopeFactory);
     }
 
     protected AbstractEnvelopeRequestHandler() {

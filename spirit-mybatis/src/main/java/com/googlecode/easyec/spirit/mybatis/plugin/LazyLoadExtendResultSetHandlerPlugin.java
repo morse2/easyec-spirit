@@ -15,7 +15,7 @@ import org.apache.ibatis.session.RowBounds;
 
 import java.sql.Statement;
 
-import static com.googlecode.easyec.spirit.utils.BeanUtils.readField;
+import static com.googlecode.easyec.spirit.web.utils.BeanUtils.readField;
 
 /**
  * 结果集合处理器插件类。

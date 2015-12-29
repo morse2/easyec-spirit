@@ -1,4 +1,4 @@
-package com.googlecode.easyec.spirit.utils;
+package com.googlecode.easyec.spirit.web.utils;
 
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.reflect.FieldUtils;
@@ -28,6 +28,54 @@ public class BeanUtils {
     private static final Object object = new Object();
 
     private BeanUtils() { /* no op */ }
+
+    /**
+     * 解析泛型类型数据对象
+     *
+     * @param o     对象实例
+     * @param index 泛型类型的索引号
+     * @return 具体的实现类
+     */
+    public static Class findGenericType(Object o, int index) {
+        Type genType = o.getClass().getGenericSuperclass();
+
+        while (genType instanceof Class) {
+            if (null == ((Class) genType).getSuperclass()) {
+                String msg = "No superclass was found. [" + o.getClass().getName() + "].";
+                logger.error(msg);
+
+                throw new IllegalArgumentException(msg);
+            }
+
+            genType = ((Class) genType).getGenericSuperclass();
+        }
+
+        if (!(genType instanceof ParameterizedType)) {
+            String msg = o.getClass().getSimpleName() + "'s superclass isn't class ParameterizedType";
+            logger.error(msg);
+
+            throw new IllegalArgumentException(msg);
+        }
+
+        Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
+
+        if (index >= params.length || index < 0) {
+            String msg = "Index: " + index + ", Size of " + o.getClass().getSimpleName() +
+                "'s Parameterized Type: " + params.length;
+
+            logger.warn(msg);
+
+            return null;
+        }
+
+        Type param = params[index];
+
+        if (param instanceof Class) {
+            return (Class) param;
+        }
+
+        return param.getClass();
+    }
 
     /**
      * 解析基于给定的目标类型所描述的泛型类型的数据对象。

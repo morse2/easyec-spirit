@@ -1,6 +1,6 @@
 package com.googlecode.easyec.spirit.web.webservice.handler;
 
-import com.googlecode.easyec.spirit.web.webservice.factory.EnvelopeFactory;
+import com.googlecode.easyec.spirit.web.webservice.factory.StreamObjectFactory;
 import com.googlecode.easyec.spirit.web.webservice.soap.v11.Soap11;
 import com.googlecode.easyec.spirit.web.webservice.soap.v11.Soap11Body;
 import com.googlecode.easyec.spirit.web.webservice.soap.v11.Soap11Header;
@@ -19,7 +19,7 @@ import java.nio.charset.Charset;
 public abstract class AbstractSoap11RequestHandler<T>
     extends AbstractEnvelopeRequestHandler<T, Soap11, Soap11Header, Soap11Body> {
 
-    protected AbstractSoap11RequestHandler(EnvelopeFactory envelopeFactory) {
+    protected AbstractSoap11RequestHandler(StreamObjectFactory envelopeFactory) {
         super(envelopeFactory);
     }
 

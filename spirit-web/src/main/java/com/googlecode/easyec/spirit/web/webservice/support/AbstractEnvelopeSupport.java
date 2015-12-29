@@ -1,7 +1,8 @@
 package com.googlecode.easyec.spirit.web.webservice.support;
 
+import com.googlecode.easyec.spirit.web.utils.BeanUtils;
 import com.googlecode.easyec.spirit.web.webservice.Envelope;
-import com.googlecode.easyec.spirit.web.webservice.factory.EnvelopeFactory;
+import com.googlecode.easyec.spirit.web.webservice.factory.StreamObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -15,7 +16,7 @@ public abstract class AbstractEnvelopeSupport<T, E extends Envelope> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private EnvelopeFactory envelopeFactory;
+    private StreamObjectFactory objectFactory;
     private String charset = "UTF-8";
 
     protected AbstractEnvelopeSupport() {
@@ -23,37 +24,33 @@ public abstract class AbstractEnvelopeSupport<T, E extends Envelope> {
     }
 
     /**
-     * 返回当前使用的<code>EnvelopeFactory</code>实例
+     * 返回当前使用的<code>StreamObjectFactory</code>实例
      *
-     * @return <code>EnvelopeFactory</code>对象实例
+     * @return <code>StreamObjectFactory</code>对象实例
      */
-    public EnvelopeFactory getEnvelopeFactory() {
-        return envelopeFactory;
+    public StreamObjectFactory getObjectFactory() {
+        return objectFactory;
     }
 
     /**
      * 设置当前信封对象需要使用的解析工厂
      *
-     * @param envelopeFactory <code>EnvelopeFactory</code>对象实例
+     * @param objectFactory <code>StreamObjectFactory</code>对象实例
      */
-    public void setEnvelopeFactory(EnvelopeFactory envelopeFactory) {
-        Assert.notNull(envelopeFactory, "EnvelopeFactory object is null.");
-        this.envelopeFactory = envelopeFactory;
+    public void setObjectFactory(StreamObjectFactory objectFactory) {
+        Assert.notNull(objectFactory, "StreamObjectFactory object is null.");
+        this.objectFactory = objectFactory;
     }
 
-    /**
-     * @see EnvelopeFactory#asEnvelope(String)
-     */
     @SuppressWarnings("unchecked")
     protected E asEnvelope(String xml) {
-        return (E) envelopeFactory.asEnvelope(xml);
+        return (E) objectFactory.readValue(xml,
+            BeanUtils.findGenericType(this, 0)
+        );
     }
 
-    /**
-     * @see EnvelopeFactory#asXml(Envelope)
-     */
     protected String asXml(Envelope envelope) {
-        return envelopeFactory.asXml(envelope);
+        return objectFactory.writeValue(envelope);
     }
 
     /**
