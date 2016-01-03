@@ -26,9 +26,9 @@ public class DefaultJackson2ObjectFactory implements StreamObjectFactory {
     }
 
     @Override
-    public String writeValue(Object obj) {
+    public byte[] writeValue(Object obj) {
         try {
-            return objectMapper.writeValueAsString(obj);
+            return objectMapper.writeValueAsBytes(obj);
         } catch (JsonProcessingException e) {
             logger.error(e.getMessage(), e);
 
@@ -37,9 +37,9 @@ public class DefaultJackson2ObjectFactory implements StreamObjectFactory {
     }
 
     @Override
-    public <T> T readValue(String s, Class<T> classType) {
+    public <T> T readValue(byte[] bs, Class<T> classType) {
         try {
-            return objectMapper.readValue(s, classType);
+            return objectMapper.readValue(bs, classType);
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }

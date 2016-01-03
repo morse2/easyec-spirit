@@ -1,18 +1,12 @@
 package com.googlecode.easyec.spirit.web.webservice.handler;
 
-import com.googlecode.easyec.spirit.web.httpcomponent.HttpRequestHandler;
 import com.googlecode.easyec.spirit.web.webservice.Body;
 import com.googlecode.easyec.spirit.web.webservice.Envelope;
 import com.googlecode.easyec.spirit.web.webservice.Header;
 import com.googlecode.easyec.spirit.web.webservice.factory.StreamObjectFactory;
-import com.googlecode.easyec.spirit.web.webservice.support.AbstractEnvelopeSupport;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.*;
-
-import java.io.IOException;
-import java.io.InputStream;
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.ByteArrayEntity;
+import org.springframework.util.Assert;
 
 /**
  * 抽象类。<p/>
@@ -21,71 +15,25 @@ import java.io.InputStream;
  * @author JunJie
  */
 public abstract class AbstractEnvelopeRequestHandler<T, E extends Envelope, H extends Header, B extends Body>
-    extends AbstractEnvelopeSupport<T, E>
-    implements HttpRequestHandler<T> {
+    extends AbstractHttpPostRequestHandler<T, E> {
 
-    protected AbstractEnvelopeRequestHandler(StreamObjectFactory envelopeFactory) {
-        setObjectFactory(envelopeFactory);
+    public AbstractEnvelopeRequestHandler(StreamObjectFactory objectFactory, String baseUri, E bean) {
+        super(objectFactory, baseUri, bean);
     }
 
-    protected AbstractEnvelopeRequestHandler() {
-        // default constructor
+    @Override
+    protected HttpEntity createPostEntity() throws Exception {
+        E envelope = createEnvelope(
+            createRequestHeader(),
+            createRequestBody()
+        );
+
+        Assert.notNull(envelope, "Envelope object is null.");
+
+        return new ByteArrayEntity(
+            getObjectFactory().writeValue(envelope)
+        );
     }
-
-    @SuppressWarnings("unchecked")
-    public T process(HttpClient httpClient) throws Exception {
-        String xml = asXml(createEnvelope(createRequestHeader(), createRequestBody()));
-        logger.debug("Request content: [{}].", xml);
-
-        try {
-            HttpResponse response = httpClient.execute(createHttpUriRequest(xml));
-            int statusCode = response.getStatusLine().getStatusCode();
-            logger.debug("Response of status code: [{}].", statusCode);
-
-            if (200 == statusCode) {
-                InputStream in = response.getEntity().getContent();
-
-                try {
-                    byte[] bs = IOUtils.toByteArray(in);
-                    String ret = new String(bs, getCharset());
-                    logger.debug("Response's content: [{}].", ret);
-
-                    return doIn200(asEnvelope(ret));
-                } finally {
-                    IOUtils.closeQuietly(in);
-                }
-            } else {
-                InputStream in = response.getEntity().getContent();
-
-                try {
-                    byte[] bs = IOUtils.toByteArray(in);
-                    String ret = new String(bs, getCharset());
-
-                    doInOtherCode(statusCode, ret);
-                } finally {
-                    IOUtils.closeQuietly(in);
-                }
-            }
-
-            return null;
-        } catch (IOException e) {
-            doInCatch(e);
-
-            return null;
-        }
-    }
-
-    /**
-     * 创建一个HTTP URI的请求对象
-     *
-     * @param xml SOAP数据文本
-     * @return <code>HttpUriRequest</code>对象
-     * @see HttpGet
-     * @see HttpPost
-     * @see HttpPut
-     * @see HttpDelete
-     */
-    abstract protected HttpUriRequest createHttpUriRequest(String xml);
 
     /**
      * 创建SOAP请求的信封对象

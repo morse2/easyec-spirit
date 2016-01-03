@@ -5,6 +5,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -48,12 +49,12 @@ public abstract class AbstractXmlObjectFactory implements StreamObjectFactory {
     }
 
     @Override
-    public String writeValue(Object obj) {
+    public byte[] writeValue(Object obj) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
         try {
             doMarshal(obj, bos);
-            return new String(bos.toByteArray(), getCharset());
+            return bos.toByteArray();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         } finally {
@@ -64,8 +65,8 @@ public abstract class AbstractXmlObjectFactory implements StreamObjectFactory {
     }
 
     @Override
-    public <T> T readValue(String xml, Class<T> classType) {
-        InputStream bis = IOUtils.toInputStream(xml, getCharset());
+    public <T> T readValue(byte[] xml, Class<T> classType) {
+        InputStream bis = new ByteArrayInputStream(xml);
 
         try {
             return classType.cast(doUnmarshal(bis));
