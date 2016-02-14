@@ -1,1 +1,2 @@
 http\://easyec.googlecode.com/schema/dao/util/dao-1.0.xsd=com/googlecode/easyec/spirit/dao/config/dao-1.0.xsd
+http\://easyec.googlecode.com/schema/dao/util/jdbc-1.0.xsd=com/googlecode/easyec/spirit/dao/config/jdbc-1.0.xsd

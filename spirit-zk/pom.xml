@@ -3,7 +3,7 @@
     <parent>
         <artifactId>spirit</artifactId>
         <groupId>com.googlecode.easyec</groupId>
-        <version>0.6.4-SNAPSHOT</version>
+        <version>0.6.4.1-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -43,13 +43,13 @@
         <dependency>
             <groupId>org.zkoss.zk</groupId>
             <artifactId>zkmax</artifactId>
-            <version>8.0.0-Eval</version>
+            <version>7.0.2</version>
         </dependency>
 
         <dependency>
             <groupId>com.googlecode.easyec</groupId>
             <artifactId>spirit-dao</artifactId>
-            <version>0.6.4-SNAPSHOT</version>
+            <version>0.6.4.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>

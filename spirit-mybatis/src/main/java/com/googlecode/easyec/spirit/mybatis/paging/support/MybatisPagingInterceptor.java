@@ -36,7 +36,7 @@ public class MybatisPagingInterceptor implements PagingInterceptor, Ordered {
     private static final Logger logger = LoggerFactory.getLogger(MybatisPagingInterceptor.class);
 
     private SqlSessionFactory sqlSessionFactory;
-    private int               order;
+    private int order;
 
     /**
      * set方法注入一个{@link SqlSessionFactory}的实例。
@@ -58,6 +58,15 @@ public class MybatisPagingInterceptor implements PagingInterceptor, Ordered {
 
     @Around("execution(* com.*..*.dao.*Dao.*(..)) && args(page)")
     public Object intercept(ProceedingJoinPoint joinPoint, Page page) throws Throwable {
+        // Since 0.6.4.1
+        if (!(page instanceof MybatisPage)) {
+            logger.debug("The Page object isn't instanceof MybatisPage, so ignore.");
+
+            return joinPoint.proceed(
+                joinPoint.getArgs()
+            );
+        }
+
         // must be created a new proxy every time.
         MybatisPage mybatisPage = MybatisPageProxy.newProxy(
             page.getPageDialect(),
@@ -65,7 +74,7 @@ public class MybatisPagingInterceptor implements PagingInterceptor, Ordered {
             page.getPageSize()
         );
 
-        if (page instanceof MybatisPage && mybatisPage instanceof MybatisPageWritable) {
+        if (mybatisPage instanceof MybatisPageWritable) {
             ((MybatisPageWritable) mybatisPage).setParameterObject(((MybatisPage) page).getParameterObject());
             ((MybatisPageWritable) mybatisPage).setSorts(((MybatisPage) page).getSorts());
         }

@@ -22,7 +22,7 @@ public abstract class JdbcPageDialect extends JdbcSqlDialect implements PageDial
     /* group by pattern */
     protected static final Pattern select_Pattern_g = compile("\\s*group\\s*by[\\s\\S\\w\\W]*", CASE_INSENSITIVE);
     /* union pattern */
-    protected static final Pattern select_Pattern_u = compile("\\s*union\\s*", CASE_INSENSITIVE);
+    protected static final Pattern select_Pattern_u = compile("\\s+union\\s+", CASE_INSENSITIVE);
 
     public String getCountSql(String jdbcSql) {
         if (StringUtils.isBlank(jdbcSql)) {

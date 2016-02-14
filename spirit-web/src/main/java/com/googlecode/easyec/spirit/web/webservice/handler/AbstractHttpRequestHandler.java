@@ -244,7 +244,9 @@ public abstract class AbstractHttpRequestHandler<T, B> implements HttpRequestHan
             try {
                 checkResponseStatus(response);
 
-                doIn200(resolveHttpResponseContent(response));
+                return doIn200(
+                    resolveHttpResponseContent(response)
+                );
             } catch (HttpResponseException e) {
                 logger.warn(e.getMessage(), e);
 

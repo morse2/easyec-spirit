@@ -8,9 +8,9 @@ import com.googlecode.easyec.spirit.web.controller.formbean.impl.AbstractSearchF
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
+import javax.annotation.Resource;
 import java.util.Map;
 
 /**
@@ -33,7 +33,7 @@ public abstract class EcService implements InitializingBean {
         // no op
     }
 
-    @Autowired(required = false)
+    @Resource(name = "pageConfigurer")
     public void setPageDelegate(PageDelegate<Page> pageDelegate) {
         this.pageDelegate = pageDelegate;
     }

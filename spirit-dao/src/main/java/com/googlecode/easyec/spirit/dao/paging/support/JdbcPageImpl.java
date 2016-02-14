@@ -1,7 +1,7 @@
-package com.googlecode.easyec.spirit.mybatis.paging.support;
+package com.googlecode.easyec.spirit.dao.paging.support;
 
 import com.googlecode.easyec.spirit.dao.dialect.PageDialect;
-import com.googlecode.easyec.spirit.mybatis.paging.AbstractMybatisPage;
+import com.googlecode.easyec.spirit.dao.paging.AbstractJdbcPage;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.List;
@@ -9,23 +9,23 @@ import java.util.List;
 import static java.util.Collections.emptyList;
 
 /**
- * MyBatis分页对象的实现类。
+ * JDBC分页的实现类
  *
  * @author JunJie
  */
-class MybatisPageImpl extends AbstractMybatisPage {
+class JdbcPageImpl extends AbstractJdbcPage {
 
     private List records;
 
-    public MybatisPageImpl(PageDialect pageDialect) {
+    public JdbcPageImpl(PageDialect pageDialect) {
         super(pageDialect);
     }
 
-    public MybatisPageImpl(PageDialect pageDialect, int currentPage, int pageSize) {
+    public JdbcPageImpl(PageDialect pageDialect, int currentPage, int pageSize) {
         super(pageDialect, currentPage, pageSize);
     }
 
-    protected MybatisPageImpl(PageDialect pageDialect, int currentPage, int pageSize, int totalRecordsCount) {
+    protected JdbcPageImpl(PageDialect pageDialect, int currentPage, int pageSize, int totalRecordsCount) {
         super(pageDialect, currentPage, pageSize, totalRecordsCount);
     }
 
