@@ -10,7 +10,7 @@ import java.util.Map;
  *
  * @author JunJie
  */
-public interface JdbcPageWritable {
+public interface JdbcPageWritable extends PageWritable {
 
     /**
      * 设置表单查询参数集合
