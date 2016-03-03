@@ -29,9 +29,9 @@
     </licenses>
 
     <scm>
-        <developerConnection>scm:git:https://github.com/superego/easyec.git</developerConnection>
-        <connection>scm:git:https://github.com/superego/easyec.git</connection>
-        <url>https://github.com/superego/easyec.git</url>
+        <developerConnection>scm:git:https://github.com/superego/easyec-spirit.git</developerConnection>
+        <connection>scm:git:https://github.com/superego/easyec-spirit.git</connection>
+        <url>scm:git:https://github.com/superego/easyec-spirit.git</url>
     </scm>
 
     <developers>
@@ -251,6 +251,7 @@
                         <mavenExecutorId>forked-path</mavenExecutorId>
                         <useReleaseProfile>false</useReleaseProfile>
                         <arguments>-Psonatype-oss-release</arguments>
+                        <tagBase>https://github.com/superego/easyec-spirit</tagBase>
                     </configuration>
                 </plugin>
             </plugins>
@@ -283,10 +284,12 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <plugin>
+                    <!--<plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <version>2.7</version>
+                        <configuration>
+                        </configuration>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
@@ -295,7 +298,7 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin>
+                    </plugin>-->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>

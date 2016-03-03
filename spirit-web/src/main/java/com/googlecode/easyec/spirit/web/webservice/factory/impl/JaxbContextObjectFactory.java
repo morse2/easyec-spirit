@@ -12,6 +12,7 @@ import java.io.OutputStream;
  *
  * @author JunJie
  */
+@Deprecated
 public class JaxbContextObjectFactory extends AbstractXmlObjectFactory {
 
     private JAXBContext jaxbContext;
