@@ -1,15 +1,17 @@
 package com.googlecode.easyec.spirit.mybatis.executor.template;
 
-import org.apache.ibatis.executor.BatchResult;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.InvalidDataAccessResourceUsageException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
 
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
+import static org.apache.ibatis.executor.BatchExecutor.BATCH_UPDATE_RETURN_VALUE;
 import static org.apache.ibatis.session.ExecutorType.BATCH;
 
 /**
@@ -29,56 +31,38 @@ public class BatchSqlSessionTemplate extends SqlSessionTemplate {
     public int insert(String statement, Object parameter) {
         if (null == parameter) return insert(statement);
 
-        return doBatch(statement, convertToCollection(parameter));
+        return _doBatchUpdate(statement, _convertToCollection(parameter));
     }
 
     @Override
     public int update(String statement, Object parameter) {
         if (null == parameter) return update(statement);
 
-        return doBatch(statement, convertToCollection(parameter));
+        return _doBatchUpdate(statement, _convertToCollection(parameter));
     }
 
     @Override
     public int delete(String statement, Object parameter) {
         if (null == parameter) return delete(statement);
 
-        return doBatch(statement, convertToCollection(parameter));
+        return _doBatchUpdate(statement, _convertToCollection(parameter));
     }
 
-    private int doBatch(String statement, Collection items) {
-        int value = 0;
-
+    /* 执行批处理更新的方法 */
+    private int _doBatchUpdate(String statement, Collection items) {
         if (isNotEmpty(items)) {
             for (Object o : items) {
+                logger.debug("Prepare to update with batch mode. Statement: [{}].", statement);
+
                 super.update(statement, o);
-            }
-
-            List<BatchResult> results = flushStatements();
-
-            if (results.isEmpty()) {
-                throw new InvalidDataAccessResourceUsageException("Batch execution returned invalid results. " +
-                        "BatchResult objects return one row at least.");
-            }
-
-            int size = results.size();
-            logger.debug("Current batch size is: [" + size + "].");
-
-            int[] updateCounts = results.get(size - 1).getUpdateCounts();
-
-            for (int i = 0; i < updateCounts.length; i++) {
-                if (updateCounts[i] == 0) {
-                    logger.warn("Row line: [" + (i + 1) + "] has no effect. update count: [" + updateCounts[i] + "].");
-                }
-
-                value += updateCounts[i];
             }
         }
 
-        return value;
+        return BATCH_UPDATE_RETURN_VALUE;
     }
 
-    private Collection convertToCollection(Object o) {
+    /* 将参数对象转换为必要的集合类型对象 */
+    private Collection _convertToCollection(Object o) {
         if (o instanceof Collection) {
             return (Collection) o;
         }
