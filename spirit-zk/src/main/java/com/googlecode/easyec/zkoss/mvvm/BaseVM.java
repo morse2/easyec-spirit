@@ -1,6 +1,5 @@
 package com.googlecode.easyec.zkoss.mvvm;
 
-import com.googlecode.easyec.zkoss.utils.MessageboxUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zkoss.bind.BindComposer;
@@ -11,8 +10,6 @@ import org.zkoss.bind.annotation.Init;
 import org.zkoss.web.util.resource.ServletRequestResolver;
 import org.zkoss.xel.VariableResolver;
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zk.ui.event.SerializableEventListener;
 import org.zkoss.zk.ui.select.Selectors;
 import org.zkoss.zk.ui.util.ComponentActivationListener;
 import org.zkoss.zkplus.spring.DelegatingVariableResolver;
@@ -20,6 +17,7 @@ import org.zkoss.zul.Messagebox;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.zkoss.bind.annotation.ContextType.COMPONENT;
 
@@ -31,7 +29,7 @@ import static org.zkoss.bind.annotation.ContextType.COMPONENT;
  */
 public abstract class BaseVM<T extends Component> implements ComponentActivationListener, Serializable {
 
-    private static final long serialVersionUID = 6175330378977715955L;
+    private static final long serialVersionUID = 3833452443643290153L;
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     /* 标识是否做过激活操作 */
@@ -53,7 +51,7 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
     public void initVM(@ContextParam(COMPONENT) T comp) {
         this.self = comp;
         // 注入全局变量
-        wireVariables(comp);
+        wireVariables(comp, false);
 
         logger.trace("initVM() done!");
     }
@@ -61,7 +59,9 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
     @AfterCompose
     public void afterInit() {
         // 注入组件对象
-        Selectors.wireComponents(self, this, false);
+        wireComponents(self, false);
+        // 注入组件对象的事件
+        wireEventListener(self);
 
         logger.trace("afterInit() done!");
     }
@@ -69,21 +69,62 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
     /**
      * 为给定的ZK组件注入变量的方法
      *
+     * @param comp   ZK组件对象
+     * @param rewire 表示是否执行重新注入的方法
+     */
+    protected void wireVariables(Component comp, boolean rewire) {
+        if (rewire) {
+            Selectors.rewireVariablesOnActivate(
+                comp, this, createVariableResolvers()
+            );
+        } else {
+            Selectors.wireVariables(
+                comp, this, createVariableResolvers()
+            );
+        }
+    }
+
+    /**
+     * 为给定的ZK组件注入相应组件的方法
+     *
+     * @param comp   ZK组件对象
+     * @param rewire 表示是否执行重新注入的方法
+     */
+    protected void wireComponents(Component comp, boolean rewire) {
+        if (rewire) {
+            Selectors.rewireComponentsOnActivate(comp, this);
+        } else {
+            Selectors.wireComponents(comp, this, false);
+        }
+    }
+
+    /**
+     * 为给定的ZK组件注入相应组件事件的方法
+     *
      * @param comp ZK组件对象
      */
-    protected void wireVariables(Component comp) {
-        Selectors.wireVariables(comp, this,
-            Arrays.<VariableResolver>asList(
-                new DelegatingVariableResolver(),
-                new ServletRequestResolver()
-            )
-        );
+    protected void wireEventListener(Component comp) {
+        Selectors.wireEventListeners(comp, this);
+    }
+
+    public void didActivate(Component comp) {
+        if (!_activated && self.equals(comp)) {
+            wireVariables(comp, true);
+            wireComponents(comp, true);
+            _activated = true;
+        }
+    }
+
+    public void willPassivate(Component comp) {
+        _activated = false;
     }
 
     /**
      * 获取当前已设置的
      * <code>{@link Binder}</code>
      * 对象实例
+     *
+     * @return <code>Binder</code>对象的实现
      */
     protected Binder getBinder() {
         return (Binder) getSelf().getAttribute(
@@ -93,98 +134,15 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
         );
     }
 
-    public void didActivate(Component comp) {
-        if (!_activated && self.equals(comp)) {
-            wireVariables(comp);
-            _activated = true;
-        }
-    }
-
-    public void willPassivate(Component comp) {
-        /* no op */
-    }
-
     /**
-     * 显示一个提示信息框。
+     * 创建一组<code>VariableResolver</code>对象列表
      *
-     * @param msg   消息内容
-     * @param title 消息标题
+     * @return ZK变量解析对象列表
      */
-    public void showInfo(String msg, String title) {
-        MessageboxUtils.showInfo(msg, title);
-    }
-
-    /**
-     * 显示一个带监听器的提示信息框。
-     *
-     * @param msg      消息内容
-     * @param title    消息标题
-     * @param listener 消息监听器类对象
-     */
-    public void showInfo(String msg, String title, SerializableEventListener<Event> listener) {
-        MessageboxUtils.showInfo(msg, title, listener);
-    }
-
-    /**
-     * 显示一个确认消息框。
-     *
-     * @param msg   消息内容
-     * @param title 消息标题
-     */
-    public void showConfirm(String msg, String title) {
-        MessageboxUtils.showConfirm(msg, title);
-    }
-
-    /**
-     * 显示一个带消息监听器的确认消息框。
-     *
-     * @param msg      消息内容
-     * @param title    消息标题
-     * @param listener 消息监听器类对象
-     */
-    public void showConfirm(String msg, String title, SerializableEventListener<Event> listener) {
-        MessageboxUtils.showConfirm(msg, title, listener);
-    }
-
-    /**
-     * 显示一个警告框。
-     *
-     * @param msg   消息内容
-     * @param title 消息标题
-     */
-    public void showWarning(String msg, String title) {
-        MessageboxUtils.showWarning(msg, title);
-    }
-
-    /**
-     * 显示一个带监听器的警告框。
-     *
-     * @param msg      消息内容
-     * @param title    消息标题
-     * @param listener 消息监听器类对象
-     */
-    public void showWarning(String msg, String title, SerializableEventListener<Event> listener) {
-        MessageboxUtils.showWarning(msg, title, listener);
-    }
-
-    /**
-     * 显示一个错误消息框。
-     *
-     * @param msg   消息内容
-     * @param title 消息标题
-     */
-    public void showError(String msg, String title) {
-        MessageboxUtils.showError(msg, title);
-    }
-
-    /**
-     * 显示一个带监听器的错误消息框。
-     *
-     * @param msg      消息内容
-     * @param title    消息标题
-     * @param listener 消息监听器类对象
-     */
-    public void showError(String msg, String title, SerializableEventListener<Event> listener) {
-        MessageboxUtils.showError(msg, title, listener);
+    protected List<VariableResolver> createVariableResolvers() {
+        return Arrays.<VariableResolver>asList(
+            new DelegatingVariableResolver(),
+            new ServletRequestResolver()
+        );
     }
 }
