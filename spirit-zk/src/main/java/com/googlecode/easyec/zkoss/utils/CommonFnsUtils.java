@@ -20,8 +20,8 @@ import static org.apache.commons.lang.StringUtils.isBlank;
  */
 public class CommonFnsUtils {
 
-    private static final Pattern P_UNICODE    = Pattern.compile("\\\\u[0-9A-Za-z]{4}");
-    private static final String  DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
+    private static final Pattern P_UNICODE = Pattern.compile("\\\\u[0-9A-Za-z]{4}");
+    private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     /**
      * 获取国际化标签的值。
@@ -51,7 +51,7 @@ public class CommonFnsUtils {
      * @param frag 国际化标签的键的片段值
      * @return 国际化标签键对应的值
      */
-    public static String getLabel(String key, Object frag) {
+    public static String getLabelWithFrag(String key, Object frag) {
         return parseUnicode(CommonFns.getLabel(key + frag), key + frag);
     }
 
@@ -63,8 +63,83 @@ public class CommonFnsUtils {
      * @param args 格式化的参数值
      * @return 国际化标签键对应的值
      */
-    public static String getLabel(String key, Object frag, Object[] args) {
+    public static String getLabelWithFrag(String key, Object frag, Object[] args) {
         return parseUnicode(formatLabel(CommonFns.getLabel(key + frag), args), key + frag);
+    }
+
+    /**
+     * 获取带参数的国际化标签的值。
+     *
+     * @param key  国际化标签的键
+     * @param frag 国际化标签的键的片段值
+     * @param arg1 参数
+     * @return 国际化标签键对应的值
+     */
+    public static String getLabelWithFrag(String key, Object frag, Object arg1) {
+        return getLabelWithFrag(key, frag, new Object[] { arg1 });
+    }
+
+    /**
+     * 获取带参数的国际化标签的值。
+     *
+     * @param key  国际化标签的键
+     * @param frag 国际化标签的键的片段值
+     * @param arg1 参数1
+     * @param arg2 参数2
+     * @return 国际化标签键对应的值
+     */
+    public static String getLabelWithFrag(String key, Object frag, Object arg1, Object arg2) {
+        return getLabelWithFrag(key, frag, new Object[] { arg1, arg2 });
+    }
+
+    /**
+     * 获取带参数的国际化标签的值。
+     *
+     * @param key  国际化标签的键
+     * @param frag 国际化标签的键的片段值
+     * @param arg1 参数1
+     * @param arg2 参数2
+     * @param arg3 参数3
+     * @return 国际化标签键对应的值
+     */
+    public static String getLabelWithFrag(String key, Object frag, Object arg1, Object arg2, Object arg3) {
+        return getLabelWithFrag(key, frag, new Object[] { arg1, arg2, arg3 });
+    }
+
+    /**
+     * 获取带参数的国际化标签的值。
+     *
+     * @param key  国际化标签的键
+     * @param arg1 参数
+     * @return 国际化标签键对应的值
+     */
+    public static String getLabel(String key, Object arg1) {
+        return getLabel(key, new Object[] { arg1 });
+    }
+
+    /**
+     * 获取带参数的国际化标签的值。
+     *
+     * @param key  国际化标签的键
+     * @param arg1 参数1
+     * @param arg2 参数2
+     * @return 国际化标签键对应的值
+     */
+    public static String getLabel(String key, Object arg1, Object arg2) {
+        return getLabel(key, new Object[] { arg1, arg2 });
+    }
+
+    /**
+     * 获取带参数的国际化标签的值。
+     *
+     * @param key  国际化标签的键
+     * @param arg1 参数1
+     * @param arg2 参数2
+     * @param arg3 参数3
+     * @return 国际化标签键对应的值
+     */
+    public static String getLabel(String key, Object arg1, Object arg2, Object arg3) {
+        return getLabel(key, new Object[] { arg1, arg2, arg3 });
     }
 
     /**

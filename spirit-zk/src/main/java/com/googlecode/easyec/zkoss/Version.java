@@ -9,5 +9,5 @@ package com.googlecode.easyec.zkoss;
  */
 public class Version {
 
-    public static final String UID = "0.6.3";
+    public static final String UID = "0.6.4";
 }

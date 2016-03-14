@@ -15,27 +15,56 @@
     </function>
 
     <function>
-        <name>l2</name>
-        <function-class>com.googlecode.easyec.zkoss.utils.CommonFnsUtils</function-class>
-        <function-signature>java.lang.String getLabel(java.lang.String,java.lang.Object[])</function-signature>
-    </function>
-
-    <function>
-        <name>l3</name>
+        <name>l1</name>
         <function-class>com.googlecode.easyec.zkoss.utils.CommonFnsUtils</function-class>
         <function-signature>java.lang.String getLabel(java.lang.String,java.lang.Object)</function-signature>
     </function>
 
     <function>
-        <name>l4</name>
+        <name>l2</name>
         <function-class>com.googlecode.easyec.zkoss.utils.CommonFnsUtils</function-class>
-        <function-signature>
-            java.lang.String getLabel(java.lang.String,java.lang.Object,java.lang.Object[])
+        <function-signature>java.lang.String getLabel(java.lang.String,java.lang.Object,java.lang.Object)</function-signature>
+    </function>
+
+    <function>
+        <name>l3</name>
+        <function-class>com.googlecode.easyec.zkoss.utils.CommonFnsUtils</function-class>
+        <function-signature>java.lang.String getLabel(java.lang.String,java.lang.Object,java.lang.Object,java.lang.Object)
         </function-signature>
     </function>
 
     <function>
-        <name>fmtDate</name>
+        <name>lf</name>
+        <function-class>com.googlecode.easyec.zkoss.utils.CommonFnsUtils</function-class>
+        <function-signature>java.lang.String getLabelWithFrag(java.lang.String,java.lang.Object)</function-signature>
+    </function>
+
+    <function>
+        <name>lf1</name>
+        <function-class>com.googlecode.easyec.zkoss.utils.CommonFnsUtils</function-class>
+        <function-signature>
+            java.lang.String getLabelWithFrag(java.lang.String,java.lang.Object,java.lang.Object)
+        </function-signature>
+    </function>
+
+    <function>
+        <name>lf2</name>
+        <function-class>com.googlecode.easyec.zkoss.utils.CommonFnsUtils</function-class>
+        <function-signature>
+            java.lang.String getLabelWithFrag(java.lang.String,java.lang.Object,java.lang.Object,java.lang.Object)
+        </function-signature>
+    </function>
+
+    <function>
+        <name>lf3</name>
+        <function-class>com.googlecode.easyec.zkoss.utils.CommonFnsUtils</function-class>
+        <function-signature>
+            java.lang.String getLabelWithFrag(java.lang.String,java.lang.Object,java.lang.Object,java.lang.Object,java.lang.Object)
+        </function-signature>
+    </function>
+
+    <function>
+        <name>formatDate</name>
         <function-class>com.googlecode.easyec.zkoss.utils.CommonFnsUtils</function-class>
         <function-signature>java.lang.String formatDate(java.util.Date,java.lang.String)</function-signature>
     </function>
