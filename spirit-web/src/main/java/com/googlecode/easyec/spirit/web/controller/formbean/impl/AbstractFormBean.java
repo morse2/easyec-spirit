@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractFormBean implements FormBean {
 
-    private static final long serialVersionUID = 4655186881729512625L;
+    private static final long serialVersionUID = -904351318780979597L;
     protected final Logger logger = LoggerFactory.getLogger(getClass());
     private String id;
     private String uri;

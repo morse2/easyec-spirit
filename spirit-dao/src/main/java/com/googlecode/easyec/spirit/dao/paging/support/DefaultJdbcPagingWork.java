@@ -2,7 +2,7 @@ package com.googlecode.easyec.spirit.dao.paging.support;
 
 import com.googlecode.easyec.spirit.dao.paging.*;
 import com.googlecode.easyec.spirit.web.controller.sorts.Sort;
-import org.apache.commons.collections.Transformer;
+import org.apache.commons.collections4.Transformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.commons.collections.CollectionUtils.collect;
-import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
-import static org.springframework.jdbc.core.simple.ParameterizedBeanPropertyRowMapper.newInstance;
+import static org.apache.commons.collections4.CollectionUtils.collect;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+import static org.springframework.jdbc.core.BeanPropertyRowMapper.newInstance;
 
 /**
  * 默认的JDBC分页工作类

@@ -1,6 +1,6 @@
 package com.googlecode.easyec.spirit.web.utils;
 
-import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang.reflect.FieldUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.apache.commons.collections.CollectionUtils.select;
+import static org.apache.commons.collections4.CollectionUtils.select;
 import static org.apache.commons.lang.ArrayUtils.isEmpty;
 
 /**

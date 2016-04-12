@@ -8,7 +8,7 @@ import com.googlecode.easyec.spirit.dao.paging.PagingInterceptor;
 import com.googlecode.easyec.spirit.mybatis.executor.result.NumberResultHandler;
 import com.googlecode.easyec.spirit.mybatis.paging.MybatisPage;
 import com.googlecode.easyec.spirit.web.controller.sorts.Sort;
-import org.apache.commons.collections.Transformer;
+import org.apache.commons.collections4.Transformer;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.*;
 import org.apache.ibatis.session.Configuration;
@@ -30,8 +30,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.commons.collections.CollectionUtils.collect;
-import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
+import static org.apache.commons.collections4.CollectionUtils.collect;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 /**
  * 默认的MyBatis分页工作类。

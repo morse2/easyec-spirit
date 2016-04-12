@@ -2,7 +2,7 @@ package com.googlecode.easyec.spirit.mybatis.paging.support;
 
 import com.googlecode.easyec.spirit.dao.dialect.PageDialect;
 import com.googlecode.easyec.spirit.mybatis.paging.AbstractMybatisPage;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
 

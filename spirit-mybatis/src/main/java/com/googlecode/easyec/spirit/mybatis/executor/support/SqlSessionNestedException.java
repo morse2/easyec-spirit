@@ -5,8 +5,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static java.util.Collections.unmodifiableList;
-import static org.apache.commons.collections.CollectionUtils.*;
-import static org.apache.commons.collections.functors.InstanceofPredicate.getInstance;
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
+import static org.apache.commons.collections4.CollectionUtils.select;
+import static org.apache.commons.collections4.IterableUtils.matchesAny;
+import static org.apache.commons.collections4.functors.InstanceofPredicate.instanceOfPredicate;
 
 /**
  * <code>SqlSession</code>执行异常类。
@@ -17,7 +19,6 @@ import static org.apache.commons.collections.functors.InstanceofPredicate.getIns
 public class SqlSessionNestedException extends RuntimeException {
 
     private static final long serialVersionUID = 2388255546427969442L;
-
     private List<Exception> linkedExceptions
         = new LinkedList<Exception>();
 
@@ -39,7 +40,7 @@ public class SqlSessionNestedException extends RuntimeException {
     @SuppressWarnings("unchecked")
     public List<Exception> getLinkedException(Class<? extends Exception> type) {
         return new ArrayList<Exception>(
-            select(linkedExceptions, getInstance(type))
+            select(linkedExceptions, instanceOfPredicate(type))
         );
     }
 
@@ -79,9 +80,9 @@ public class SqlSessionNestedException extends RuntimeException {
      * @return 存在则返回真，否则返回假
      */
     public boolean hasException(Class<? extends Exception> exceptionType) {
-        return hasExceptions() && exists(
+        return hasExceptions() && matchesAny(
             linkedExceptions,
-            getInstance(exceptionType)
+            instanceOfPredicate(exceptionType)
         );
     }
 

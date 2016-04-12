@@ -5,8 +5,8 @@ import com.googlecode.easyec.spirit.web.controller.formbean.terms.SearchTermsFil
 import com.googlecode.easyec.spirit.web.controller.formbean.terms.SearchTermsTransform;
 import com.googlecode.easyec.spirit.web.controller.sorts.Sort;
 import com.googlecode.easyec.spirit.web.qseditors.QueryStringEditor;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.ArrayUtils;
 
 import java.net.URLDecoder;
@@ -15,8 +15,8 @@ import java.util.*;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableList;
-import static org.apache.commons.collections.MapUtils.isNotEmpty;
-import static org.apache.commons.collections.MapUtils.unmodifiableMap;
+import static org.apache.commons.collections4.MapUtils.isNotEmpty;
+import static org.apache.commons.collections4.MapUtils.unmodifiableMap;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 /**

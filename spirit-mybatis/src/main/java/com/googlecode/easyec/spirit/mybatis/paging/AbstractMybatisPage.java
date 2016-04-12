@@ -7,7 +7,7 @@ import com.googlecode.easyec.spirit.web.controller.sorts.Sort;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 /**
  * 抽象的MyBatis分页对象类。

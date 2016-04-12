@@ -1,6 +1,6 @@
 package com.googlecode.easyec.zkoss.builder.paratemters;
 
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.util.Assert;
 import org.zkoss.zk.ui.Component;
 

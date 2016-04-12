@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
-import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.ibatis.executor.BatchExecutor.BATCH_UPDATE_RETURN_VALUE;
 import static org.apache.ibatis.session.ExecutorType.BATCH;
 

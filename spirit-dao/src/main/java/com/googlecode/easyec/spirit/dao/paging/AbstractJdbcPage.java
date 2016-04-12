@@ -2,8 +2,8 @@ package com.googlecode.easyec.spirit.dao.paging;
 
 import com.googlecode.easyec.spirit.dao.dialect.PageDialect;
 import com.googlecode.easyec.spirit.web.controller.sorts.Sort;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
