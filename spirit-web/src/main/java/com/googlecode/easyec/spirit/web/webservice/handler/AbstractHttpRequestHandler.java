@@ -42,10 +42,13 @@ public abstract class AbstractHttpRequestHandler<T, B> implements HttpRequestHan
 
     private String encoding = "UTF-8";
 
+    public AbstractHttpRequestHandler(StreamObjectFactory objectFactory, String baseUri) {
+        this(objectFactory, baseUri, null);
+    }
+
     public AbstractHttpRequestHandler(StreamObjectFactory objectFactory, String baseUri, B bean) {
         Assert.notNull(objectFactory, "StreamObjectFactory is null.");
         Assert.notNull(baseUri, "Base URI is null.");
-        Assert.notNull(bean, "Bean object is null.");
 
         this.objectFactory = objectFactory;
         this.baseUri = baseUri;
