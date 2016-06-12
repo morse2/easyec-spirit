@@ -74,13 +74,12 @@ public abstract class DomainModelSequenceGenerator implements SequenceGenerator,
                 continue;
             }
 
-            if (Number.class.isAssignableFrom(type)) {
-                Number uidPk = (Number) bw.getPropertyValue("uidPk");
-                if (null != uidPk && uidPk.longValue() > 0) {
-                    logger.warn("GenericPersistentDomainModel has primary key value, so ignore. Original uid: [{}].", uidPk);
+            // 判断主键当的值是否为null
+            Object curIdVal = bw.getPropertyValue(pd.getName());
+            if (curIdVal != null) {
+                logger.warn("GenericPersistentDomainModel has primary key value, so ignore. Original uid: [{}].", curIdVal);
 
-                    continue;
-                }
+                continue;
             }
 
             logger.debug("Do processDomainModel method.");

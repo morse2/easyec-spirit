@@ -7,6 +7,8 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
+import java.util.List;
+
 import static org.springframework.beans.factory.support.BeanDefinitionBuilder.rootBeanDefinition;
 
 class IdentifierGeneratorBeanDefinitionParser extends AbstractSimpleBeanDefinitionParser {
@@ -26,11 +28,12 @@ class IdentifierGeneratorBeanDefinitionParser extends AbstractSimpleBeanDefiniti
         // do parse child element named 'sequence-generator-chain'
         parseSequenceGenerator(
             DomUtils.getChildElementByTagName(element, "sequence-generator-chain"),
+            parserContext,
             builder
         );
     }
 
-    private void parseSequenceGenerator(Element element, BeanDefinitionBuilder builder) {
+    private void parseSequenceGenerator(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
         BeanDefinitionBuilder beanDefinition = rootBeanDefinition(SequenceGeneratorChainFactoryBean.class);
 
         if (null != element) {
@@ -40,6 +43,19 @@ class IdentifierGeneratorBeanDefinitionParser extends AbstractSimpleBeanDefiniti
             beanDefinition.addPropertyValue("maxLoVal", element.getAttribute("hilo-maxLoVal"));
             // inject attribute 'converter'
             beanDefinition.addPropertyValue("converter", element.getAttribute("converter"));
+            // inject attribute 'use-default'
+            beanDefinition.addPropertyValue("useDefault", element.getAttribute("use-default"));
+
+            // do parse child element 'custom-sequence-generator'
+            Element childEle = DomUtils.getChildElementByTagName(element, "custom-identifier-generator");
+            if (null != childEle) {
+                List list = parserContext.getDelegate().parseListElement(
+                    DomUtils.getChildElementByTagName(childEle, "list"),
+                    builder.getRawBeanDefinition()
+                );
+
+                beanDefinition.addPropertyValue("customIdentifierGenerators", list);
+            }
         }
 
         // inject property value 'sequenceGenerator'
