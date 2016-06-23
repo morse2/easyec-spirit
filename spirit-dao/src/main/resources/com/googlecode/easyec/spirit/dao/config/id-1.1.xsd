@@ -29,7 +29,7 @@
         <xsd:complexType>
             <xsd:sequence>
                 <xsd:element ref="beans:description" minOccurs="0"/>
-                <xsd:element ref="custom-identifier-generator"/>
+                <xsd:element ref="custom-identifier-generator" minOccurs="0" maxOccurs="1"/>
             </xsd:sequence>
             <xsd:attribute name="data-source" type="xsd:string" use="required"/>
             <xsd:attribute name="use-default" type="xsd:boolean" default="true"/>

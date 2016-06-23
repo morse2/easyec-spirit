@@ -70,18 +70,20 @@ class DefaultMybatisPagingWork implements PagingInterceptor.PagingWork<MybatisPa
 
     @SuppressWarnings("unchecked")
     private void mergeParameterObject(Map<String, Object> parameterMap, Object parameterObject) {
-        if (parameterObject instanceof Map) {
-            parameterMap.putAll((Map) parameterObject);
-        } else {
-            BeanWrapperImpl bw = new BeanWrapperImpl(parameterObject);
-            PropertyDescriptor[] propertyDescriptors = bw.getPropertyDescriptors();
-            for (PropertyDescriptor pd : propertyDescriptors) {
-                String name = pd.getName();
+        if (parameterObject != null) {
+            if (parameterObject instanceof Map) {
+                parameterMap.putAll((Map) parameterObject);
+            } else {
+                BeanWrapperImpl bw = new BeanWrapperImpl(parameterObject);
+                PropertyDescriptor[] propertyDescriptors = bw.getPropertyDescriptors();
+                for (PropertyDescriptor pd : propertyDescriptors) {
+                    String name = pd.getName();
 
-                if (bw.isReadableProperty(name)) {
-                    Object v = bw.getPropertyValue(name);
-                    if (v != null) {
-                        parameterMap.put(name, v);
+                    if (bw.isReadableProperty(name)) {
+                        Object v = bw.getPropertyValue(name);
+                        if (v != null) {
+                            parameterMap.put(name, v);
+                        }
                     }
                 }
             }
