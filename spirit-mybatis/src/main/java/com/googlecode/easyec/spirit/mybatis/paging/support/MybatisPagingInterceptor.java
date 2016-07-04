@@ -7,7 +7,7 @@ import com.googlecode.easyec.spirit.dao.paging.PagingInterceptor;
 import com.googlecode.easyec.spirit.mybatis.mapper.DelegateDao;
 import com.googlecode.easyec.spirit.mybatis.paging.MybatisPage;
 import com.googlecode.easyec.spirit.mybatis.paging.MybatisPageWritable;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.ibatis.executor.result.DefaultResultHandler;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.session.Configuration;

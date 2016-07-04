@@ -3,7 +3,7 @@ package com.googlecode.easyec.spirit.web.controller.formbean.factory;
 import com.googlecode.easyec.caching.CacheService;
 import com.googlecode.easyec.spirit.web.controller.formbean.FormBean;
 import com.googlecode.easyec.spirit.web.controller.formbean.FormBeansFactory;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;

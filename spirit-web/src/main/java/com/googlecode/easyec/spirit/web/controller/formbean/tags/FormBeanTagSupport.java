@@ -2,7 +2,7 @@ package com.googlecode.easyec.spirit.web.controller.formbean.tags;
 
 import com.googlecode.easyec.spirit.web.controller.formbean.FormBean;
 import com.googlecode.easyec.spirit.web.controller.formbean.FormBeanParam;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanWrapperImpl;
 
 import javax.servlet.jsp.JspException;

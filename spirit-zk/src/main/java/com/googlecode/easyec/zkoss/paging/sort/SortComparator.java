@@ -1,6 +1,6 @@
 package com.googlecode.easyec.zkoss.paging.sort;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
 import java.util.Comparator;

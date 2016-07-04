@@ -1,6 +1,5 @@
 package com.googlecode.easyec.spirit.mybatis.handlers;
 
-import org.apache.commons.lang.enums.EnumUtils;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedJdbcTypes;
@@ -12,8 +11,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.*;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.math.NumberUtils.*;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.math.NumberUtils.*;
 
 /**
  * 序列化对象类型映射处理类。
@@ -53,22 +52,22 @@ public class SerializableTypeHandler extends BaseTypeHandler<Serializable> {
             switch (jdbcType) {
                 case NUMERIC:
                 case BIGINT:
-                    ps.setLong(i, castIfNecessary(parameter, Long.class));
+                    ps.setLong(i, castIfNecessary(parameter, Long.class, 0L));
                     break;
                 case INTEGER:
-                    ps.setInt(i, castIfNecessary(parameter, Integer.class));
+                    ps.setInt(i, castIfNecessary(parameter, Integer.class, 0));
                     break;
                 case DECIMAL:
-                    ps.setBigDecimal(i, castIfNecessary(parameter, BigDecimal.class));
+                    ps.setBigDecimal(i, castIfNecessary(parameter, BigDecimal.class, null));
                     break;
                 case DOUBLE:
-                    ps.setDouble(i, castIfNecessary(parameter, Double.class));
+                    ps.setDouble(i, castIfNecessary(parameter, Double.class, 0.));
                     break;
                 case FLOAT:
-                    ps.setFloat(i, castIfNecessary(parameter, Float.class));
+                    ps.setFloat(i, castIfNecessary(parameter, Float.class, 0.f));
                     break;
                 case VARCHAR:
-                    ps.setString(i, castIfNecessary(parameter, String.class));
+                    ps.setString(i, castIfNecessary(parameter, String.class, null));
             }
         } catch (SQLException e) {
             logger.error("Some errors occurred when setting parameter." +
@@ -91,6 +90,8 @@ public class SerializableTypeHandler extends BaseTypeHandler<Serializable> {
 
             if (columnName.equalsIgnoreCase(label)) {
                 switch (JdbcType.forCode(md.getColumnType(i))) {
+                    case VARCHAR:
+                        return rs.getString(columnName);
                     case NUMERIC:
                     case BIGINT:
                         return rs.getLong(columnName);
@@ -102,8 +103,6 @@ public class SerializableTypeHandler extends BaseTypeHandler<Serializable> {
                         return rs.getDouble(columnName);
                     case FLOAT:
                         return rs.getFloat(columnName);
-                    case VARCHAR:
-                        return rs.getString(columnName);
                 }
             }
         }
@@ -117,8 +116,8 @@ public class SerializableTypeHandler extends BaseTypeHandler<Serializable> {
         logger.debug("JDBC type of column index, [{}].", jdbcType);
 
         switch (jdbcType) {
-            case NUMERIC:
             case BIGINT:
+            case NUMERIC:
                 return rs.getLong(columnIndex);
             case INTEGER:
                 return rs.getInt(columnIndex);
@@ -159,7 +158,8 @@ public class SerializableTypeHandler extends BaseTypeHandler<Serializable> {
         return null;
     }
 
-    private <T> T castIfNecessary(Serializable ser, Class<T> type) {
+    private <T> T castIfNecessary(Serializable ser, Class<T> type, T defaultValue) {
+        if (ser == null) return defaultValue;
         if (type.isInstance(ser)) return type.cast(ser);
 
         String s = String.valueOf(ser);

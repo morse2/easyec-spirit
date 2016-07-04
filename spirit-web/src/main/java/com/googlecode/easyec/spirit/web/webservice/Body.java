@@ -7,7 +7,7 @@ import java.util.List;
 
 import static java.util.Collections.addAll;
 import static java.util.Collections.unmodifiableList;
-import static org.apache.commons.lang.ArrayUtils.isEmpty;
+import static org.apache.commons.lang3.ArrayUtils.isEmpty;
 
 /**
  * 信封的消息体类。

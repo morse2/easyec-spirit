@@ -1,6 +1,6 @@
 package com.googlecode.easyec.zkoss.utils;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.util.Assert;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.Treecell;

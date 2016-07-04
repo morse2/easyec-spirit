@@ -2,7 +2,7 @@ package com.googlecode.easyec.spirit.web.controller.formbean.tags;
 
 import com.googlecode.easyec.spirit.web.controller.formbean.enums.SearchTermType;
 import com.googlecode.easyec.spirit.web.controller.formbean.impl.AbstractSearchFormBean;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;

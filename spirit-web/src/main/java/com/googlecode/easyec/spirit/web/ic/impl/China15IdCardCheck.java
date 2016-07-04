@@ -2,7 +2,7 @@ package com.googlecode.easyec.spirit.web.ic.impl;
 
 import com.googlecode.easyec.spirit.web.ic.InvalidIdException;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * 该类实现了中华人民共和国15位身份证的校验算法

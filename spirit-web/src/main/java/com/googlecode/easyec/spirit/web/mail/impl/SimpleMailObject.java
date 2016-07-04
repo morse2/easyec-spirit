@@ -5,7 +5,7 @@ import com.googlecode.easyec.spirit.web.mail.MailObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * 简单邮件内容对象

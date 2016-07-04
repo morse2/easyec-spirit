@@ -1,7 +1,7 @@
 package com.googlecode.easyec.spirit.mybatis.executor.support;
 
 import com.googlecode.easyec.spirit.mybatis.mapper.DelegateDao;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.ibatis.binding.MapperMethod;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;

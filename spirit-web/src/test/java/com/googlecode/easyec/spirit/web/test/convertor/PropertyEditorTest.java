@@ -8,9 +8,9 @@ import com.googlecode.easyec.spirit.web.qseditors.QueryStringEditor;
 import com.googlecode.easyec.spirit.web.test.httpcomponent.soap.User;
 import com.googlecode.easyec.spirit.web.utils.WebUtils;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.time.DateFormatUtils;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Test;
 import org.springframework.beans.propertyeditors.ClassEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
@@ -21,7 +21,7 @@ import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.*;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * Created by 俊杰 on 2014/5/2.

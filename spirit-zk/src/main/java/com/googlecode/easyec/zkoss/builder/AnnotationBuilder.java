@@ -1,7 +1,7 @@
 package com.googlecode.easyec.zkoss.builder;
 
 import com.googlecode.easyec.zkoss.builder.paratemters.AnnotationParameter;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.zkoss.bind.Binder;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.sys.ComponentCtrl;

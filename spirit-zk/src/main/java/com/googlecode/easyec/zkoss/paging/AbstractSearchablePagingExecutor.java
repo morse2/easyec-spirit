@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.googlecode.easyec.zkoss.utils.SelectorUtils.find;
 import static org.apache.commons.collections4.MapUtils.isNotEmpty;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.zkoss.zk.ui.event.Events.ON_OK;
 import static org.zkoss.zul.event.ZulEvents.ON_AFTER_RENDER;
 

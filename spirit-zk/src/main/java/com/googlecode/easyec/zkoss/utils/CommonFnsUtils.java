@@ -1,6 +1,6 @@
 package com.googlecode.easyec.zkoss.utils;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.zkoss.xel.fn.CommonFns;
 
 import java.text.SimpleDateFormat;
@@ -10,8 +10,8 @@ import java.util.regex.Pattern;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
-import static org.apache.commons.lang.ArrayUtils.isEmpty;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.ArrayUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * ZK通用功能类的扩展类。

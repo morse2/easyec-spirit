@@ -3,7 +3,7 @@ package com.googlecode.easyec.spirit.web.controller;
 import com.googlecode.easyec.spirit.web.controller.formbean.FormBeansFactory;
 import com.googlecode.easyec.spirit.web.controller.formbean.impl.AbstractSearchFormBean;
 import com.googlecode.easyec.spirit.web.message.MessageUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

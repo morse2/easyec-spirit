@@ -1,7 +1,7 @@
 package com.googlecode.easyec.spirit.dao.dialect.namedparam;
 
 import com.googlecode.easyec.spirit.dao.dialect.impl.PostgreSqlJdbcPageDialect;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 参数名称化的JDBC支持PostgreSQL数据库的分页方言实现类

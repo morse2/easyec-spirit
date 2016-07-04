@@ -7,7 +7,7 @@ import com.googlecode.easyec.spirit.web.controller.formbean.enums.SearchTermType
 import com.googlecode.easyec.spirit.web.controller.formbean.impl.AbstractSearchFormBean;
 import com.googlecode.easyec.spirit.web.controller.formbean.tags.SearchTermTag;
 import com.googlecode.easyec.spirit.web.controller.interceptors.RequestUriReusingInterceptor;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;

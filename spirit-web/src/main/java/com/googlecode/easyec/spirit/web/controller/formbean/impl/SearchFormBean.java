@@ -7,7 +7,7 @@ import com.googlecode.easyec.spirit.web.controller.sorts.Sort;
 import com.googlecode.easyec.spirit.web.qseditors.QueryStringEditor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -17,7 +17,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableList;
 import static org.apache.commons.collections4.MapUtils.isNotEmpty;
 import static org.apache.commons.collections4.MapUtils.unmodifiableMap;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * 表单搜索的Bean类。

@@ -1,7 +1,7 @@
 package com.googlecode.easyec.spirit.dao.dialect.impl;
 
 import com.googlecode.easyec.spirit.dao.dialect.JdbcPageDialect;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 

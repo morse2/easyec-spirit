@@ -3,7 +3,7 @@ package com.googlecode.easyec.spirit.web.controller.formbean.terms.impl;
 import com.googlecode.easyec.spirit.web.controller.formbean.annotations.SearchTermType;
 import com.googlecode.easyec.spirit.web.controller.formbean.terms.SearchTermsTransform;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * 模糊匹配条件的转换实现类。

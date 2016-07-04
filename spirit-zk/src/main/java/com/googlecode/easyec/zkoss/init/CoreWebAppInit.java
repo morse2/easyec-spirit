@@ -1,7 +1,7 @@
 package com.googlecode.easyec.zkoss.init;
 
 import com.googlecode.easyec.zkoss.DelegatingVariableResolver;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.zkoss.lang.Library;
 import org.zkoss.zk.ui.WebApp;
 

@@ -13,9 +13,9 @@ import java.util.List;
 
 import static com.googlecode.easyec.spirit.ldap.template.support.LdapItemOperation.LdapItemOperationType.ADD_ITEM;
 import static com.googlecode.easyec.spirit.ldap.template.support.LdapItemOperation.LdapItemOperationType.REMOVE_ITEM;
-import static org.apache.commons.lang.ArrayUtils.isEmpty;
-import static org.apache.commons.lang.ArrayUtils.isEquals;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.ArrayUtils.isEmpty;
+import static org.apache.commons.lang3.ArrayUtils.isEquals;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * LDAP模板操作的支持类

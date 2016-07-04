@@ -2,7 +2,7 @@ package com.googlecode.easyec.zkoss.paging.terms;
 
 import com.googlecode.easyec.spirit.web.controller.formbean.terms.SearchTermsFilter;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * 过滤空的字符串的过滤器类

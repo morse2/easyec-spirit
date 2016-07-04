@@ -1,7 +1,7 @@
 package com.googlecode.easyec.spirit.web.webservice.factory.impl;
 
 import com.googlecode.easyec.spirit.web.webservice.factory.StreamObjectFactory;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.Charset;
 

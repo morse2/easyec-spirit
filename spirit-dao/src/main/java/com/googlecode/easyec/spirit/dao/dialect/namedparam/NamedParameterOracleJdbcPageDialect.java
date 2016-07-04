@@ -1,7 +1,7 @@
 package com.googlecode.easyec.spirit.dao.dialect.namedparam;
 
 import com.googlecode.easyec.spirit.dao.dialect.impl.OracleJdbcPageDialect;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 参数名称化的JDBC支持ORACLE的分页的方言实现类

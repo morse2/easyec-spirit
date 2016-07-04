@@ -2,7 +2,7 @@ package com.googlecode.easyec.spirit.dao.id.impl;
 
 import com.googlecode.easyec.spirit.dao.id.IdentifierNameConverter;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * 类对象主键名字转换实现类

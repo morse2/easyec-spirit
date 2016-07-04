@@ -1,7 +1,7 @@
 package com.googlecode.easyec.spirit.web.utils;
 
 import org.apache.commons.collections4.Predicate;
-import org.apache.commons.lang.reflect.FieldUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.apache.commons.collections4.CollectionUtils.select;
-import static org.apache.commons.lang.ArrayUtils.isEmpty;
+import static org.apache.commons.lang3.ArrayUtils.isEmpty;
 
 /**
  * 针对于Bean代理的工具类

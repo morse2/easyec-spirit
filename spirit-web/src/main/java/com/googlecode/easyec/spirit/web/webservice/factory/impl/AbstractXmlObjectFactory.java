@@ -12,7 +12,7 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 
 import static java.nio.charset.Charset.forName;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * 基于XML数据流格式的对象工厂的抽象类

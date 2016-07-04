@@ -1,7 +1,7 @@
 package com.googlecode.easyec.spirit.web.controller.sorts.tags;
 
 import com.googlecode.easyec.spirit.web.message.MessageUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

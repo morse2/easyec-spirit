@@ -7,7 +7,7 @@ import org.zkoss.zk.ui.Executions;
 
 import javax.servlet.ServletRequest;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * ZK组件支持Spring上下文的工具类。

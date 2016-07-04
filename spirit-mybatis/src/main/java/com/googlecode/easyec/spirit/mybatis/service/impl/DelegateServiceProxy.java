@@ -26,7 +26,7 @@ final class DelegateServiceProxy {
             cls = getTargetClass(targetBean);
         }
 
-        Set<Class> interfaces = ClassUtils.getAllInterfacesForClassAsSet(cls);
+        Set<Class<?>> interfaces = ClassUtils.getAllInterfacesForClassAsSet(cls);
         interfaces.add(DelegateService.class);
 
         return (DelegateService) Proxy.newProxyInstance(
