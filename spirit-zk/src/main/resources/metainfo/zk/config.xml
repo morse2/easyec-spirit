@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <config-name>spirit-zk</config-name><!-- used to resolve dependency -->
+    <depends>zul</depends>
+
+    <version>
+        <version-class>com.googlecode.easyec.zkoss.Version</version-class>
+        <version-uid>0.6.4</version-uid>
+    </version>
+
+    <listener>
+        <listener-class>com.googlecode.easyec.zkoss.init.CoreWebAppInit</listener-class>
+    </listener>
+</config>

@@ -21,17 +21,32 @@
 
     <xsd:group name="sequenceGroup">
         <xsd:sequence>
-            <xsd:choice minOccurs="1" maxOccurs="1">
-                <xsd:element name="sequence-generator-chain">
-                    <xsd:complexType>
-                        <xsd:attribute name="data-source" type="xsd:string" use="required"/>
-                        <xsd:attribute name="converter" type="named-converter" use="required"/>
-                        <xsd:attribute name="hilo-maxLoVal" type="xsd:positiveInteger" default="10"/>
-                    </xsd:complexType>
-                </xsd:element>
-            </xsd:choice>
+            <xsd:element ref="sequence-generator-chain"/>
         </xsd:sequence>
     </xsd:group>
+
+    <xsd:element name="sequence-generator-chain">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="beans:description" minOccurs="0"/>
+                <xsd:element ref="custom-identifier-generator" minOccurs="0" maxOccurs="1"/>
+            </xsd:sequence>
+            <xsd:attribute name="data-source" type="xsd:string" use="required"/>
+            <xsd:attribute name="use-default" type="xsd:boolean" default="true"/>
+            <xsd:attribute name="converter" type="named-converter" use="required"/>
+            <xsd:attribute name="hilo-maxLoVal" type="xsd:positiveInteger" default="10"/>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="custom-identifier-generator">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:choice minOccurs="1" maxOccurs="1">
+                    <xsd:element ref="beans:list"/>
+                </xsd:choice>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
 
     <xsd:attributeGroup name="identifierAttributes">
         <xsd:attribute name="order" type="xsd:nonNegativeInteger" use="required"/>

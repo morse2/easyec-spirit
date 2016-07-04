@@ -1,10 +1,14 @@
 package com.googlecode.easyec.spirit.dao.config;
 
+import com.googlecode.easyec.spirit.dao.id.IdentifierGenerator;
 import com.googlecode.easyec.spirit.dao.id.SequenceGenerator;
 import com.googlecode.easyec.spirit.dao.id.impl.*;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 import javax.sql.DataSource;
+import java.util.List;
+
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
  * 序列生成器链对象工厂类
@@ -15,11 +19,18 @@ public class SequenceGeneratorChainFactoryBean extends AbstractFactoryBean<Domai
 
     // ----- local variables definition here
     private DataSource dataSource;
-    private String     converter;
-    private int        maxLoVal;
+    private boolean useDefault;
+    private String converter;
+    private int maxLoVal;
+
+    private List<IdentifierGenerator> customIdentifierGenerators;
 
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
+    }
+
+    public void setUseDefault(boolean useDefault) {
+        this.useDefault = useDefault;
     }
 
     public void setConverter(String converter) {
@@ -28,6 +39,10 @@ public class SequenceGeneratorChainFactoryBean extends AbstractFactoryBean<Domai
 
     public void setMaxLoVal(int maxLoVal) {
         this.maxLoVal = maxLoVal;
+    }
+
+    public void setCustomIdentifierGenerators(List<IdentifierGenerator> sequenceGenerators) {
+        this.customIdentifierGenerators = sequenceGenerators;
     }
 
     @Override
@@ -45,10 +60,22 @@ public class SequenceGeneratorChainFactoryBean extends AbstractFactoryBean<Domai
             chain.setIdentifierNameConverter(new AnnotatedIdentifierNameConverter());
         }
 
-        // 初始化默认的IdentifierGenerator对象实例
-        chain.addIdentifierGenerator(new LongValueHiloIdentifierGenerator(maxLoVal));
-        chain.addIdentifierGenerator(new ShortValueHiloIdentifierGenerator(maxLoVal));
-        chain.addIdentifierGenerator(new IntegerValueHiloIdentifierGenerator(maxLoVal));
+        if (useDefault) {
+            // 初始化默认的IdentifierGenerator对象实例
+            chain.addIdentifierGenerator(new LongValueHiloIdentifierGenerator(maxLoVal));
+            chain.addIdentifierGenerator(new ShortValueHiloIdentifierGenerator(maxLoVal));
+            chain.addIdentifierGenerator(new IntegerValueHiloIdentifierGenerator(maxLoVal));
+        }
+
+        if (!isEmpty(customIdentifierGenerators)) {
+            for (IdentifierGenerator ig : customIdentifierGenerators) {
+                chain.addIdentifierGenerator(ig);
+            }
+        }
+
+        if (isEmpty(chain.getIdentifierGenerators())) {
+            throw new IllegalArgumentException("There is no any 'IdentifierGenerator' set.");
+        }
 
         return chain;
     }

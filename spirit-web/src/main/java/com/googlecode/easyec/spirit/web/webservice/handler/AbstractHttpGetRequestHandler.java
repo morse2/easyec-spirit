@@ -16,6 +16,10 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
  */
 public abstract class AbstractHttpGetRequestHandler<T, B> extends AbstractHttpRequestHandler<T, B> {
 
+    public AbstractHttpGetRequestHandler(StreamObjectFactory objectFactory, String baseUri) {
+        super(objectFactory, baseUri);
+    }
+
     public AbstractHttpGetRequestHandler(StreamObjectFactory objectFactory, String baseUri, B bean) {
         super(objectFactory, baseUri, bean);
     }

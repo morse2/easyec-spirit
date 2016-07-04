@@ -13,6 +13,10 @@ import org.springframework.util.Assert;
  */
 public abstract class AbstractHttpPostRequestHandler<T, B> extends AbstractHttpGetRequestHandler<T, B> {
 
+    public AbstractHttpPostRequestHandler(StreamObjectFactory objectFactory, String baseUri) {
+        super(objectFactory, baseUri);
+    }
+
     public AbstractHttpPostRequestHandler(StreamObjectFactory objectFactory, String baseUri, B bean) {
         super(objectFactory, baseUri, bean);
     }
