@@ -55,7 +55,7 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
      * 标识是否匹配VM对象类型
      */
     public static final  String ARG_MATCH_VM     = "com.googlecode.easyec.zkoss.mvvm.MatchVM";
-    private static final long   serialVersionUID = -1513220462712781870L;
+    private static final long serialVersionUID = -442612663187726417L;
 
     /**
      * 域模型对象实例。此对象不能为空。
@@ -116,7 +116,7 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
     }
 
     @SuppressWarnings("unchecked")
-    private void resolveFormVariable() {
+    protected void resolveFormVariable() {
         Object var = null;
         Boolean shouldCheck = true;
         Class matchesVM = null;
