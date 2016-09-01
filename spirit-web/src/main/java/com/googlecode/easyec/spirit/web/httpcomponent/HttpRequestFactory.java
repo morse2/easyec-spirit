@@ -10,6 +10,7 @@ import org.springframework.util.Assert;
  *
  * @author JunJie
  */
+@Deprecated
 public class HttpRequestFactory implements FactoryBean<HttpRequest>, InitializingBean {
 
     private HttpRequest httpRequest;

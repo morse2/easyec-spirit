@@ -13,6 +13,7 @@ import org.springframework.util.Assert;
  *
  * @author JunJie
  */
+@Deprecated
 public class DefaultSchemeRegistryFactory implements FactoryBean<SchemeRegistry>, InitializingBean {
 
     private PlainSocketFactory plainSocketFactory = PlainSocketFactory.getSocketFactory();

@@ -11,6 +11,7 @@ import org.springframework.util.Assert;
  *
  * @author JunJie
  */
+@Deprecated
 final class DefaultHttpRequest implements HttpRequest {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultHttpRequest.class);
