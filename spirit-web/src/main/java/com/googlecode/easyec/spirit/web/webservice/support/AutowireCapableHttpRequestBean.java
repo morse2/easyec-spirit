@@ -18,6 +18,7 @@ import org.springframework.util.Assert;
  * @author JunJie
  * @see HttpRequestFactory
  */
+@Deprecated
 public class AutowireCapableHttpRequestBean implements HttpRequest, FactoryBean<HttpRequest>, InitializingBean {
 
     private HttpRequest httpRequest;

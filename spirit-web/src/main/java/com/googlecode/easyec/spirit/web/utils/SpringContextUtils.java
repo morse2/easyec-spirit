@@ -13,6 +13,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 
 import static org.springframework.beans.factory.config.AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE;
 
@@ -30,7 +31,19 @@ public final class SpringContextUtils implements ApplicationContextAware, BeanFa
 
     /* local variables here */
     private ApplicationContext applicationContext;
-    private BeanFactory        beanFactory;
+    private BeanFactory beanFactory;
+
+    /**
+     * 判断该工具类是否已经被Spring实例化
+     *
+     * @return bool值
+     */
+    public static boolean isInitialized() {
+        synchronized (instance) {
+            return instance.applicationContext != null
+                && instance.beanFactory != null;
+        }
+    }
 
     /**
      * 从Spring上下文中获取给定类的实例对象。
@@ -62,11 +75,37 @@ public final class SpringContextUtils implements ApplicationContextAware, BeanFa
     /**
      * 从当前HTTP请求中获取Spring上下文里的实例对象。
      *
+     * @param req  当前HTTP请求
+     * @param type 类对象类型
+     * @param <T>  泛型类型
+     * @return 存在于Spring上下文中的对象实例
+     */
+    public static <T> T getBean(HttpServletRequest req, Class<T> type) {
+        return RequestContextUtils.findWebApplicationContext(req).getBean(type);
+    }
+
+    /**
+     * 从当前HTTP请求中获取Spring上下文里的实例对象。
+     *
+     * @param req  当前HTTP请求
+     * @param name Spring定义的Bean名字
+     * @param type 类对象类型
+     * @param <T>  泛型类型
+     * @return 存在于Spring上下文中的对象实例
+     */
+    public static <T> T getBean(HttpServletRequest req, String name, Class<T> type) {
+        return RequestContextUtils.findWebApplicationContext(req).getBean(name, type);
+    }
+
+    /**
+     * 从当前HTTP请求中获取Spring上下文里的实例对象。
+     *
      * @param sr   当前HTTP请求
      * @param type 类对象类型
      * @param <T>  泛型类型
      * @return 存在于Spring上下文中的对象实例
      */
+    @Deprecated
     public static <T> T getBean(ServletRequest sr, Class<T> type) {
         return RequestContextUtils.getWebApplicationContext(sr).getBean(type);
     }
@@ -80,6 +119,7 @@ public final class SpringContextUtils implements ApplicationContextAware, BeanFa
      * @param <T>  泛型类型
      * @return 存在于Spring上下文中的对象实例
      */
+    @Deprecated
     public static <T> T getBean(ServletRequest sr, String name, Class<T> type) {
         return RequestContextUtils.getWebApplicationContext(sr).getBean(name, type);
     }

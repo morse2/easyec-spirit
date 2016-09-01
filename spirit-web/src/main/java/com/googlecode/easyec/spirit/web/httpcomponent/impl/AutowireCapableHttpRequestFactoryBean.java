@@ -1,24 +1,25 @@
 package com.googlecode.easyec.spirit.web.httpcomponent.impl;
 
 import com.googlecode.easyec.spirit.web.httpcomponent.HttpRequest;
-import com.googlecode.easyec.spirit.web.httpcomponent.HttpRequestFactory;
-import org.apache.http.client.HttpClient;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.SmartFactoryBean;
 import org.springframework.util.Assert;
 
 /**
- * HTTP请求工厂类。此类用于初始化一个默认的HTTP请求对象。
+ * HTTP请求实现类。<br/>
+ * 该类可帮助HTTP请求调用的处理类
+ * 自动植入<code>HttpRequestHandler</code>
+ * 对象实例中的任何Spring bean
+ * （前提该对象实例已配置到Spring上下文中）
  *
  * @author JunJie
- * @see HttpRequestFactory
  */
-public class HttpRequestFactoryBean implements SmartFactoryBean<HttpRequest>, InitializingBean {
+public class AutowireCapableHttpRequestFactoryBean implements SmartFactoryBean<HttpRequest>, InitializingBean {
 
-    private HttpClient httpClient;
+    private HttpRequest httpRequest;
 
-    public void setHttpClient(HttpClient httpClient) {
-        this.httpClient = httpClient;
+    public void setHttpRequest(HttpRequest httpRequest) {
+        this.httpRequest = httpRequest;
     }
 
     @Override
@@ -33,7 +34,7 @@ public class HttpRequestFactoryBean implements SmartFactoryBean<HttpRequest>, In
 
     @Override
     public HttpRequest getObject() throws Exception {
-        return new InternalHttpRequestImpl(httpClient);
+        return new InternalAutowireCapableHttpRequestImpl(httpRequest);
     }
 
     @Override
@@ -48,6 +49,6 @@ public class HttpRequestFactoryBean implements SmartFactoryBean<HttpRequest>, In
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(httpClient);
+        Assert.notNull(httpRequest);
     }
 }
