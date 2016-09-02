@@ -3,17 +3,14 @@ package com.googlecode.easyec.zkoss.mvvm;
 import com.googlecode.easyec.spirit.domain.GenericPersistentDomainModel;
 import com.googlecode.easyec.spirit.domain.PersistentDomainModel;
 import com.googlecode.easyec.spirit.web.utils.BeanUtils;
-import org.apache.commons.collections4.MapUtils;
-import org.springframework.util.Assert;
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Init;
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zk.ui.Session;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
-import java.util.Map;
 
+import static com.googlecode.easyec.zkoss.mvvm.BaseVM.FindScope.All;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.zkoss.zk.ui.Executions.getCurrent;
 
@@ -36,26 +33,21 @@ import static org.zkoss.zk.ui.Executions.getCurrent;
  * @author JunJie
  */
 @AfterCompose(superclass = true)
-public abstract class BaseFormVM<T extends Component, M extends GenericPersistentDomainModel<E>, E extends Serializable>
-    extends BaseVM<T> {
+public abstract class BaseFormVM<T extends Component, M extends GenericPersistentDomainModel<E>, E extends Serializable> extends BaseVM<T> {
 
     /**
      * 表单参数对象的KEY
      */
-    public static final  String ARG_FORM_OBJECT  = "com.googlecode.easyec.zkoss.mvvm.FormObject";
-    /**
-     * 表单参数指向的URI的KEY
-     */
-    public static final  String ARG_REQUEST_URI  = "com.googlecode.easyec.zkoss.mvvm.ZKRequestURI";
+    public static final String ARG_FORM_OBJECT = "com.googlecode.easyec.zkoss.mvvm.FormObject";
     /**
      * 标识是否校验表单对象的主键为空
      */
-    public static final  String ARG_CHECK_UIDPK  = "com.googlecode.easyec.zkoss.mvvm.CheckUidPK";
+    public static final String ARG_CHECK_UIDPK = "com.googlecode.easyec.zkoss.mvvm.CheckUidPK";
     /**
      * 标识是否匹配VM对象类型
      */
-    public static final  String ARG_MATCH_VM     = "com.googlecode.easyec.zkoss.mvvm.MatchVM";
-    private static final long serialVersionUID = -442612663187726417L;
+    public static final String ARG_MATCH_VM = "com.googlecode.easyec.zkoss.mvvm.MatchVM";
+    private static final long serialVersionUID = -8030091277630808636L;
 
     /**
      * 域模型对象实例。此对象不能为空。
@@ -117,44 +109,20 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
 
     @SuppressWarnings("unchecked")
     protected void resolveFormVariable() {
-        Object var = null;
-        Boolean shouldCheck = true;
-        Class matchesVM = null;
-        Map<?, ?> arg = getCurrent().getArg();
-        // 1. 从Execution的Arg中获取请求的表单对象
-        if (MapUtils.isNotEmpty(arg) && arg.containsKey(ARG_FORM_OBJECT)) {
-            var = arg.get(ARG_FORM_OBJECT);
-        }
-
-        // 2. 如果Execution的Arg中没有表单对象，则试图从Request的Attribute中获取
-        if (null == var) {
-            var = getCurrent().getAttribute(ARG_FORM_OBJECT);
-        }
-
-        // 3. 如果Request的Attribute中还没有表单对象，则从Session中获取
-        if (null == var) {
-            Session session = getCurrent().getSession();
-            // 从session中获取表单对象
-            var = session.getAttribute(ARG_FORM_OBJECT);
-            // 校验是否需要验证模型对象为空
-            Boolean b = (Boolean) session.getAttribute(ARG_CHECK_UIDPK);
-            if (null != b) shouldCheck = b;
-            // 从session中获取此表单请求的URI
-            String uri = (String) session.getAttribute(ARG_REQUEST_URI);
-            // 从session中获取此表单匹配VM参数
-            matchesVM = (Class) session.getAttribute(ARG_MATCH_VM);
-            // 如果URI参数为空，认为这是ajax提交的请求，则将表单对象remove掉
-            if (isBlank(uri)) {
-                session.removeAttribute(ARG_FORM_OBJECT);
-                session.removeAttribute(ARG_CHECK_UIDPK);
-            }
-        }
+        Object var = findParameter(ARG_FORM_OBJECT, All, GenericPersistentDomainModel.class);
 
         if (null != var) {
-            Assert.isInstanceOf(GenericPersistentDomainModel.class, var);
+            // ARG_FORM_OBJECT参数不为空，执行下面的逻辑
+            /*
+             * 获取是否要校验表单对象主键的参数，
+             * 如果用户没给定该参数值，
+             * 那么默认则认为需要做表单对象的校验
+             */
+            Boolean shouldCheck = findParameter(ARG_CHECK_UIDPK, All, Boolean.class);
+            if (null == shouldCheck) shouldCheck = true;
 
+            // 执行校验是否应该进入的逻辑
             if (!shouldCheck || null != ((GenericPersistentDomainModel) var).getUidPk()) {
-                boolean b = (null == matchesVM || matchesVM.isInstance(this));
                 Class cls = BeanUtils.findGenericType(this, BaseFormVM.class, 1);
 
                 if (null == cls) {
@@ -164,7 +132,15 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
                     return;
                 }
 
-                if (cls.isInstance(var) && b) {
+                /*
+                 * 获取匹配的VM类型的参数值，
+                 * 该参数用来表示获取到的表单对象
+                 * 是否用于给定的VM类
+                 */
+                Class matchesVM = findParameter(ARG_MATCH_VM, All, Class.class);
+                boolean b = (null == matchesVM || matchesVM.isInstance(this));
+
+                if (b && cls.isInstance(var)) {
                     action = FormAction.UPDATE;
                     domainModel = loadModel((M) var);
 
@@ -178,6 +154,10 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
             }
         }
 
+        /*
+         * 进入不了loadModel方法，
+         * 那么默认进入createIfNull方法
+         */
         action = FormAction.INSERT;
         domainModel = createIfNull();
     }
