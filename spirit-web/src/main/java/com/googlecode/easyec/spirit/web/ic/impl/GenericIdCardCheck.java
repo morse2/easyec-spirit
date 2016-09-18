@@ -19,6 +19,9 @@ public abstract class GenericIdCardCheck {
 
     /**
      * 返回中华人民共和国15位身份证标准校验对象
+     *
+     * @deprecated 请使用China18算法进行校验
      */
+    @Deprecated
     public static IdCard China15 = new China15IdCardCheck();
 }
