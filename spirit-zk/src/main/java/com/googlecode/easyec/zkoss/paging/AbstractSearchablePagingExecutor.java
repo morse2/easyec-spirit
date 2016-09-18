@@ -108,7 +108,13 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
     public void setSearchSelectors(String searchSelectors) {
         if (isNotBlank(searchSelectors)) {
             this.searchComponents.clear();
-            this.searchComponents.addAll(find(getActualSearchScope(), searchSelectors));
+            this.searchComponents.addAll(
+                find(
+                    getActualSearchScope(),
+                    searchSelectors,
+                    isSearchSelectorsInPage()
+                )
+            );
         }
     }
 
@@ -121,7 +127,9 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
     public void addSearchSelectors(String searchSelectors) {
         if (isNotBlank(searchSelectors)) {
             List<Component> list = find(
-                getActualSearchScope(), searchSelectors, isSearchSelectorsInPage()
+                getActualSearchScope(),
+                searchSelectors,
+                isSearchSelectorsInPage()
             );
 
             // 默认为Input控件添加OnOK事件，提高搜索体验
@@ -162,7 +170,12 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         }
 
         if (!isLazyLoad()) {
-            List<Component> list = find(getActualSearchScope(), "combobox,radiogroup");
+            List<Component> list = find(
+                getActualSearchScope(),
+                "combobox,radiogroup",
+                isSearchSelectorsInPage()
+            );
+
             if (!list.isEmpty()) {
                 // 初始化统一延迟加载搜索控制事件监听对象
                 UniversalLazyLoadingEventListener lstnr
