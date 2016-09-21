@@ -219,7 +219,7 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
     /**
      * 标识查询参数值范围的枚举类
      */
-    enum FindScope {
+    public enum FindScope {
 
         /**
          * All scopes
