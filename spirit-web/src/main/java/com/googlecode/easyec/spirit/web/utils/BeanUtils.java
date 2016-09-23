@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.util.ClassUtils;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -225,5 +226,24 @@ public class BeanUtils {
 
             return cls.cast(o);
         }
+    }
+
+    /**
+     * 查找目标对象中的字段，并且用给定的值进行替换操作的方法。
+     *
+     * @param target    目标对象实例
+     * @param fieldName 字段名称
+     * @param value     新值
+     * @throws IllegalAccessException 异常信息
+     */
+    public static void writeField(Object target, String fieldName, Object value) throws IllegalAccessException {
+        Field field = FieldUtils.getField(target.getClass(), fieldName, true);
+        if (field == null) {
+            logger.warn("No field was found. Field name: [{}].", fieldName);
+
+            return;
+        }
+
+        FieldUtils.writeField(field, target, value);
     }
 }
