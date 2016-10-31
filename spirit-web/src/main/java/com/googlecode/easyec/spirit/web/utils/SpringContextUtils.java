@@ -10,10 +10,6 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.Assert;
-import org.springframework.web.servlet.support.RequestContextUtils;
-
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
 
 import static org.springframework.beans.factory.config.AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE;
 
@@ -59,6 +55,45 @@ public final class SpringContextUtils implements ApplicationContextAware, BeanFa
     }
 
     /**
+     * 从Spring上下文中获取给定类的实例对象
+     *
+     * @param type 类对象类型
+     * @param args 创建此Bean需要显式给定的参数值
+     * @param <T>  泛型类型
+     * @return 存在于Spring上下文中的对象实例
+     */
+    public static <T> T getBean(Class<T> type, Object... args) {
+        synchronized (instance) {
+            return instance.applicationContext.getBean(type, args);
+        }
+    }
+
+    /**
+     * 从Spring上下文中获取给定类的实例对象
+     *
+     * @param beanName Bean的名字
+     * @return 存在于Spring上下文中的对象实例
+     */
+    public static Object getBean(String beanName) {
+        synchronized (instance) {
+            return instance.applicationContext.getBean(beanName);
+        }
+    }
+
+    /**
+     * 从Spring上下文中获取给定类的实例对象
+     *
+     * @param beanName Bean的名字
+     * @param args     创建此Bean需要显式给定的参数值
+     * @return 存在于Spring上下文中的对象实例
+     */
+    public static Object getBean(String beanName, Object... args) {
+        synchronized (instance) {
+            return instance.applicationContext.getBean(beanName, args);
+        }
+    }
+
+    /**
      * 从Spring上下文中获取给定名称的实例对象。
      *
      * @param name Spring定义的Bean名字
@@ -70,58 +105,6 @@ public final class SpringContextUtils implements ApplicationContextAware, BeanFa
         synchronized (instance) {
             return instance.applicationContext.getBean(name, type);
         }
-    }
-
-    /**
-     * 从当前HTTP请求中获取Spring上下文里的实例对象。
-     *
-     * @param req  当前HTTP请求
-     * @param type 类对象类型
-     * @param <T>  泛型类型
-     * @return 存在于Spring上下文中的对象实例
-     */
-    public static <T> T getBean(HttpServletRequest req, Class<T> type) {
-        return RequestContextUtils.findWebApplicationContext(req).getBean(type);
-    }
-
-    /**
-     * 从当前HTTP请求中获取Spring上下文里的实例对象。
-     *
-     * @param req  当前HTTP请求
-     * @param name Spring定义的Bean名字
-     * @param type 类对象类型
-     * @param <T>  泛型类型
-     * @return 存在于Spring上下文中的对象实例
-     */
-    public static <T> T getBean(HttpServletRequest req, String name, Class<T> type) {
-        return RequestContextUtils.findWebApplicationContext(req).getBean(name, type);
-    }
-
-    /**
-     * 从当前HTTP请求中获取Spring上下文里的实例对象。
-     *
-     * @param sr   当前HTTP请求
-     * @param type 类对象类型
-     * @param <T>  泛型类型
-     * @return 存在于Spring上下文中的对象实例
-     */
-    @Deprecated
-    public static <T> T getBean(ServletRequest sr, Class<T> type) {
-        return RequestContextUtils.getWebApplicationContext(sr).getBean(type);
-    }
-
-    /**
-     * 从当前HTTP请求中获取Spring上下文里的实例对象。
-     *
-     * @param sr   当前HTTP请求
-     * @param name Spring定义的Bean名字
-     * @param type 类对象类型
-     * @param <T>  泛型类型
-     * @return 存在于Spring上下文中的对象实例
-     */
-    @Deprecated
-    public static <T> T getBean(ServletRequest sr, String name, Class<T> type) {
-        return RequestContextUtils.getWebApplicationContext(sr).getBean(name, type);
     }
 
     /**
