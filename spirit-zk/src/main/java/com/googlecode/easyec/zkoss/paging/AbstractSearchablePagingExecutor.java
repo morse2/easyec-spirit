@@ -194,6 +194,9 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
                         // 设置当前搜索为延迟加载
                         if (!isLazyLoad()) setLazyLoad(true);
                     }
+                    // 修复问题：如果Combobox火Radiogroup没有使用model
+                    // 来呈现参数，那么延迟加载的数量就减一
+                    else lstnr.ai.decrementAndGet();
                 }
             }
         }
