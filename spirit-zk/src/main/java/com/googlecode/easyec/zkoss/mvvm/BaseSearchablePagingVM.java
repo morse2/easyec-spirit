@@ -27,7 +27,7 @@ import static org.zkoss.zk.ui.Executions.getCurrent;
 @AfterCompose(superclass = true)
 public abstract class BaseSearchablePagingVM<T extends Component> extends BasePagingVM<T> {
 
-    private static final long serialVersionUID = -3780197547107801155L;
+    private static final long serialVersionUID = -2273776542203842688L;
     private String preQs;
 
     /**
@@ -108,7 +108,7 @@ public abstract class BaseSearchablePagingVM<T extends Component> extends BasePa
     /**
      * 执行搜索命令的方法
      */
-    @Command("search")
+    @Command
     public void search() {
         getPagingExecutor().firePaging(1);
     }
@@ -116,9 +116,19 @@ public abstract class BaseSearchablePagingVM<T extends Component> extends BasePa
     /**
      * 执行重置命令的方法
      */
-    @Command("reset")
+    @Command
     public void reset() {
         getPagingExecutor().firePaging(1, false);
+    }
+
+    /**
+     * 刷新当前页面数据
+     */
+    @Command
+    public void refresh() {
+        getPagingExecutor().firePaging(
+            getPagingExecutor().getPaging().getActivePage() + 1
+        );
     }
 
     /**
