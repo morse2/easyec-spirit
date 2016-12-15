@@ -62,8 +62,20 @@ public abstract class BaseFormValidator extends AbstractValidator {
      * @param ctx 验证上下文对象
      * @return 属性集合对象
      */
+    @Deprecated
     protected Map<String, Property> getFormProperties(ValidationContext ctx) {
         return ctx.getProperties(getDomainModel(ctx));
+    }
+
+    /**
+     * 得到当前表单注入的对象的属性集合
+     *
+     * @param ctx     验证上下文对象
+     * @param formObj 表单对象
+     * @return 对象属性集合
+     */
+    protected Map<String, Property> getFormProperties(ValidationContext ctx, Object formObj) {
+        return ctx.getProperties(formObj);
     }
 
     /**

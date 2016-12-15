@@ -17,14 +17,17 @@ import org.zkoss.zk.ui.util.ComponentActivationListener;
 import org.zkoss.zkplus.spring.DelegatingVariableResolver;
 import org.zkoss.zul.Messagebox;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static com.googlecode.easyec.spirit.web.controller.interceptors.RequestUriReusingInterceptor.PREV_REQUEST_URI;
 import static com.googlecode.easyec.zkoss.mvvm.BaseVM.FindScope.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.zkoss.bind.annotation.ContextType.COMPONENT;
+import static org.zkoss.zk.ui.Executions.getCurrent;
 
 /**
  * 模型视图-视图模型的基础类。
@@ -34,7 +37,6 @@ import static org.zkoss.bind.annotation.ContextType.COMPONENT;
  */
 public abstract class BaseVM<T extends Component> implements ComponentActivationListener, Serializable {
 
-    private static final long serialVersionUID = 2105741726120513491L;
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     /* 标识是否做过激活操作 */
@@ -59,6 +61,8 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
         wireVariables(comp, false);
 
         logger.trace("initVM() done!");
+
+        doInit();
     }
 
     @AfterCompose
@@ -69,6 +73,8 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
         wireEventListener(self);
 
         logger.trace("afterInit() done!");
+
+        doAfterCompose();
     }
 
     /**
@@ -140,12 +146,54 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
     }
 
     /**
+     * 执行初始化操作的方法
+     *
+     * @see Init
+     */
+    protected void doInit() {
+        // no op
+    }
+
+    /**
+     * 执行初始化后置操作的方法
+     *
+     * @see AfterCompose
+     */
+    protected void doAfterCompose() {
+        // no op
+    }
+
+    /**
+     * 获取进入当前uri的之前引用的uri
+     *
+     * @return Previous URI
+     */
+    protected String getPrevUri() {
+        Object request = getNativeRequest();
+        if (request instanceof HttpServletRequest) {
+            return (String) ((HttpServletRequest) request).getAttribute(PREV_REQUEST_URI);
+        }
+
+        return null;
+    }
+
+    /**
+     * 获取当前Native类型的Request对象实现
+     *
+     * @return Native Request
+     */
+    protected Object getNativeRequest() {
+        return getCurrent().getNativeRequest();
+    }
+
+    /**
      * 创建一组<code>VariableResolver</code>对象列表
      *
      * @return ZK变量解析对象列表
      */
     protected List<VariableResolver> createVariableResolvers() {
         return Arrays.<VariableResolver>asList(
+            new com.googlecode.easyec.zkoss.DelegatingVariableResolver(),
             new DelegatingVariableResolver(),
             new ServletRequestResolver()
         );

@@ -12,7 +12,6 @@ import java.io.Serializable;
 
 import static com.googlecode.easyec.zkoss.mvvm.BaseVM.FindScope.All;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.zkoss.zk.ui.Executions.getCurrent;
 
 /**
  * 基于表单的模型视图-视图模型基本类。
@@ -102,7 +101,10 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
      */
     @Init(superclass = true)
     public void initBaseFormVM() {
-        preQs = ((HttpServletRequest) getCurrent().getNativeRequest()).getQueryString();
+        Object request = getNativeRequest();
+        if (request instanceof HttpServletRequest) {
+            preQs = ((HttpServletRequest) request).getQueryString();
+        }
 
         resolveFormVariable();
     }

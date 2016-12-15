@@ -8,6 +8,7 @@ import org.zkoss.zk.ui.Executions;
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 
+import static com.googlecode.easyec.spirit.web.controller.interceptors.RequestUriReusingInterceptor.PREV_REQUEST_URI;
 import static com.googlecode.easyec.spirit.web.controller.interceptors.RequestUriReusingInterceptor.THIS_REQUEST_URI;
 
 /**
@@ -27,6 +28,10 @@ public class CoreVariableResolver implements VariableResolver, Serializable {
 
         if ("thisUri".equals(name)) {
             return _getNativeRequest().getAttribute(THIS_REQUEST_URI);
+        }
+
+        if ("prevUri".equals(name)) {
+            return _getNativeRequest().getAttribute(PREV_REQUEST_URI);
         }
 
         if ("base".equals(name)) {
