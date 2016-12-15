@@ -37,6 +37,7 @@ import static org.zkoss.zk.ui.Executions.getCurrent;
  */
 public abstract class BaseVM<T extends Component> implements ComponentActivationListener, Serializable {
 
+    private static final long serialVersionUID = -7631380852061453018L;
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     /* 标识是否做过激活操作 */
@@ -44,6 +45,9 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
 
     /* 当前ZK组件对象 */
     private T self;
+
+    /* 最近引用的uri路径 */
+    private String prevUri;
 
     /**
      * 返回当前组件的引用对象
@@ -151,7 +155,10 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
      * @see Init
      */
     protected void doInit() {
-        // no op
+        Object request = getNativeRequest();
+        if (request instanceof HttpServletRequest) {
+            this.prevUri = (String) ((HttpServletRequest) request).getAttribute(PREV_REQUEST_URI);
+        }
     }
 
     /**
@@ -169,12 +176,7 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
      * @return Previous URI
      */
     protected String getPrevUri() {
-        Object request = getNativeRequest();
-        if (request instanceof HttpServletRequest) {
-            return (String) ((HttpServletRequest) request).getAttribute(PREV_REQUEST_URI);
-        }
-
-        return null;
+        return prevUri;
     }
 
     /**
