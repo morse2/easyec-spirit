@@ -41,11 +41,11 @@ import static org.zkoss.zul.event.ZulEvents.ON_AFTER_RENDER;
  *
  * @author JunJie
  */
-public abstract class AbstractSearchablePagingExecutor<T extends Component> extends AbstractPagingExecutor<T>
-    implements SearchablePagingExecutor {
+public abstract class AbstractSearchablePagingExecutor<T extends Component> extends AbstractPagingExecutor<T> implements SearchablePagingExecutor {
 
     public static final String AFTER_RENDER_LISTENER = "afterRenderListener";
-    private static final long serialVersionUID = -3852863972879222491L;
+    public static final String DEFAULT_VALUE_KEY = "defaultValue";
+    private static final long serialVersionUID = 5847223614909255933L;
 
     /**
      * 构造方法。
@@ -462,43 +462,48 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
 
         // 清除动态的搜索条件
         for (Component c : searchComponents) {
+            // 获取已设置的默认值
+            Object defaultValue = c.getAttribute(DEFAULT_VALUE_KEY);
+            // 将默认值添加至搜索条件中
+            addOrRemoveSearchArg(c.getId(), defaultValue, bean);
+
             // 清除文本框的值
             if (c instanceof Textbox) {
                 if (c instanceof Combobox) {
                     int i = ((Combobox) c).getSelectedIndex();
                     if (i > -1) {
-                        ((Combobox) c).setValue(null);
+                        ((Combobox) c).setValue((String) defaultValue);
                     }
                 } else if (c instanceof Bandbox) {
-                    ((Bandbox) c).setValue(null);
+                    ((Bandbox) c).setValue((String) defaultValue);
                 } else {
-                    ((Textbox) c).setValue(null);
+                    ((Textbox) c).setValue((String) defaultValue);
                 }
             }
 
             // 清除数字框的值
             else if (c instanceof NumberInputElement) {
                 if (c instanceof Intbox) {
-                    ((Intbox) c).setValue(null);
+                    ((Intbox) c).setValue((Integer) defaultValue);
                 } else if (c instanceof Longbox) {
-                    ((Longbox) c).setValue(null);
+                    ((Longbox) c).setValue((Long) defaultValue);
                 } else if (c instanceof Decimalbox) {
-                    ((Decimalbox) c).setValue((BigDecimal) null);
+                    ((Decimalbox) c).setValue((BigDecimal) defaultValue);
                 } else if (c instanceof Doublebox) {
-                    ((Doublebox) c).setValue(null);
+                    ((Doublebox) c).setValue((Double) defaultValue);
                 } else if (c instanceof Spinner) {
-                    ((Spinner) c).setValue(null);
+                    ((Spinner) c).setValue((Integer) defaultValue);
                 } else {
-                    ((Doublespinner) c).setValue(null);
+                    ((Doublespinner) c).setValue((Double) defaultValue);
                 }
             }
 
             // 清除日期框的值
             else if (c instanceof FormatInputElement) {
                 if (c instanceof Datebox) {
-                    ((Datebox) c).setValue(null);
+                    ((Datebox) c).setValue((Date) defaultValue);
                 } else {
-                    ((Timebox) c).setValue(null);
+                    ((Timebox) c).setValue((Date) defaultValue);
                 }
             }
 
@@ -630,7 +635,9 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         if (isNotEmpty(attributes)) {
             Set<String> keySet = attributes.keySet();
             for (String key : keySet) {
-                addOrRemoveSearchArg(key, attributes.get(key), bean);
+                if (!DEFAULT_VALUE_KEY.equals(key)) {
+                    addOrRemoveSearchArg(key, attributes.get(key), bean);
+                }
             }
         }
     }
