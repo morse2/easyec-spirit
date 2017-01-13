@@ -80,7 +80,7 @@ public final class SendMailExecutor {
         public void run() {
             SendMailObject bean = _takeQueue();
             if (null == bean) {
-                logger.trace("Queue is empty. So ignore logic else.");
+                logger.trace("The bean from queue is empty. So ignore logic else.");
 
                 return;
             }
@@ -91,10 +91,12 @@ public final class SendMailExecutor {
                 _printMailInfo(mo);
                 // 执行发送邮件动作
                 mailService.send(mo);
-            } catch (MailException e) {
+            } catch (Exception e) {
                 logger.error(e.getMessage(), e);
 
-                if (bean.canResend()) _prepare(bean);
+                if (e instanceof MailException) {
+                    if (bean.canResend()) _prepare(bean);
+                }
             }
         }
 

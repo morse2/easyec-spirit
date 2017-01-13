@@ -1,23 +1,24 @@
 package com.googlecode.easyec.spirit.web.mail.impl;
 
+import com.googlecode.easyec.spirit.web.mail.MailCallbackService;
 import com.googlecode.easyec.spirit.web.mail.MailObject;
 import com.googlecode.easyec.spirit.web.mail.MailService;
 import com.googlecode.easyec.spirit.web.mail.internet.MimeMailObject;
 import com.googlecode.easyec.spirit.web.mail.mock.JavaMailMockSender;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSendException;
-import org.springframework.mail.MailSender;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
+import java.nio.charset.Charset;
 import java.util.*;
 
 /**
@@ -27,17 +28,21 @@ import java.util.*;
  */
 public class MailServiceImpl implements MailService, InitializingBean {
 
-    private static final Logger logger = LoggerFactory.getLogger(MailServiceImpl.class);
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
+    protected static final Charset UTF_8 = Charset.forName("UTF-8");
 
-    private MailSender mailSender;
-    private String     defaultFrom;
+    protected JavaMailSender mailSender;
+    protected String defaultFrom;
+
+    // 回调接口类
+    private MailCallbackService callbackService;
 
     /**
      * 设置邮件发送对象
      *
      * @param mailSender 邮件发送对象实例
      */
-    public void setMailSender(MailSender mailSender) {
+    public void setMailSender(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
 
@@ -50,101 +55,115 @@ public class MailServiceImpl implements MailService, InitializingBean {
         this.defaultFrom = defaultFrom;
     }
 
+    /**
+     * 设置邮件回调的业务接口类
+     *
+     * @param callbackService <code>MailCallbackService</code>
+     */
+    public void setCallbackService(MailCallbackService callbackService) {
+        this.callbackService = callbackService;
+    }
+
     public void send(MailObject mo) throws MailException {
         send(new MailObject[] { mo });
     }
 
     public void send(MailObject[] mos) throws MailException {
-        if (mailSender instanceof JavaMailSender) {
-            doSendMimeMessage(mos);
-        } else {
-            doSendSimpleMessage(mos);
-        }
+        _doSend(mos);
     }
 
-    private void doSendSimpleMessage(MailObject[] mos) throws MailException {
-        for (MailObject mo : mos) {
-            SimpleMailMessage mm = new SimpleMailMessage();
-            mm.setSubject(mo.getSubject());
-            mm.setText(mo.getContent());
+    /**
+     * 执行发送邮件的方法
+     *
+     * @param list 邮件对象内容的列表
+     * @throws MailException 发送时发生异常的信息类
+     */
+    private void _doSend(MailObject[] list) throws MailException {
+        if (ArrayUtils.isEmpty(list)) {
+            logger.warn("No any MailObject was present.");
 
-            if (StringUtils.hasText(mo.getFrom())) {
-                mm.setFrom(mo.getFrom());
-            } else {
-                mm.setFrom(defaultFrom);
-            }
-
-            List<String> recipients = mo.getRecipients();
-            mm.setTo(recipients.toArray(new String[recipients.size()]));
-
-            List<String> ccs = mo.getCc();
-            mm.setCc(ccs.toArray(new String[ccs.size()]));
-
-            List<String> bccs = mo.getBcc();
-            mm.setBcc(bccs.toArray(new String[bccs.size()]));
-
-            mm.setSentDate(new Date());
-
-            // 发送邮件
-            mailSender.send(mm);
+            return;
         }
-    }
 
-    private void doSendMimeMessage(MailObject[] mos) throws MailException {
         Map<Object, Exception> failMessages = new HashMap<Object, Exception>();
 
-        for (MailObject mo : mos) {
-            MimeMessage message = ((JavaMailSender) mailSender).createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, "utf-8");
-
+        for (MailObject mo : list) {
             try {
-                helper.setSubject(mo.getSubject());
+                mailSender.send(
+                    _createMessageHelper(mo).getMimeMessage()
+                );
 
-                if (StringUtils.hasText(mo.getFrom())) {
-                    helper.setFrom(mo.getFrom());
-                } else {
-                    helper.setFrom(defaultFrom);
+                if (callbackService != null) {
+                    callbackService.afterSent(mo);
                 }
-
-                List<String> recipients = mo.getRecipients();
-                logger.debug("Recipients, {}", Arrays.toString(recipients.toArray()));
-                helper.setTo(recipients.toArray(new String[recipients.size()]));
-
-                List<String> ccs = mo.getCc();
-                logger.debug("CCs, {}", Arrays.toString(ccs.toArray()));
-                helper.setCc(ccs.toArray(new String[ccs.size()]));
-
-                List<String> bccs = mo.getBcc();
-                logger.debug("BCCs, {}", Arrays.toString(bccs.toArray()));
-                helper.setBcc(bccs.toArray(new String[bccs.size()]));
-
-                // add attachments and text
-                if (mo instanceof MimeMailObject) {
-                    Set<String> names = ((MimeMailObject) mo).getAttachmentNames();
-                    for (String key : names) {
-                        byte[] bs = ((MimeMailObject) mo).getAttachment(key);
-
-                        helper.addAttachment(key, new ByteArrayResource(bs));
-                    }
-
-                    helper.setText(mo.getContent(), ((MimeMailObject) mo).isHtml());
-                } else {
-                    helper.setText(mo.getContent());
-                }
-
-                helper.setSentDate(new Date(System.currentTimeMillis()));
-
-                ((JavaMailSender) mailSender).send(helper.getMimeMessage());
-            } catch (MessagingException e) {
+            } catch (Exception e) {
                 logger.error(e.getMessage(), e);
 
                 failMessages.put(mo, e);
+
+                if (callbackService != null) {
+                    callbackService.afterThrowing(mo);
+                }
             }
         }
 
         if (!failMessages.isEmpty()) {
             throw new MailSendException(failMessages);
         }
+    }
+
+    private MimeMessageHelper _createMessageHelper(MailObject mo) throws Exception {
+        List<String> recipients = mo.getRecipients();
+        Assert.isTrue(
+            CollectionUtils.isNotEmpty(recipients),
+            "No any recipients was present."
+        );
+
+        MimeMessageHelper helper = new MimeMessageHelper(
+            mailSender.createMimeMessage(), UTF_8.name()
+        );
+
+        helper.setSubject(mo.getSubject());
+        helper.setFrom(
+            StringUtils.hasText(mo.getFrom())
+                ? mo.getFrom()
+                : defaultFrom
+        );
+
+        if (CollectionUtils.isNotEmpty(recipients)) {
+            logger.debug("Recipients: [{}]", Arrays.toString(recipients.toArray()));
+            helper.setTo(recipients.toArray(new String[recipients.size()]));
+        }
+
+        List<String> ccs = mo.getCc();
+        if (CollectionUtils.isNotEmpty(ccs)) {
+            logger.debug("CCs: [{}]", Arrays.toString(ccs.toArray()));
+            helper.setCc(ccs.toArray(new String[ccs.size()]));
+        }
+
+        List<String> bccs = mo.getBcc();
+        if (CollectionUtils.isNotEmpty(bccs)) {
+            logger.debug("BCCs: [{}]", Arrays.toString(bccs.toArray()));
+            helper.setBcc(bccs.toArray(new String[bccs.size()]));
+        }
+
+        helper.setText(mo.getContent(),
+            (mo instanceof MimeMailObject)
+                && ((MimeMailObject) mo).isHtml()
+        );
+
+        helper.setSentDate(new Date());
+
+        // 添加MIME类型邮件的附件信息
+        if (mo instanceof MimeMailObject) {
+            Set<String> names = ((MimeMailObject) mo).getAttachmentNames();
+            for (String key : names) {
+                byte[] bs = ((MimeMailObject) mo).getAttachment(key);
+                helper.addAttachment(key, new ByteArrayResource(bs));
+            }
+        }
+
+        return helper;
     }
 
     public void afterPropertiesSet() throws Exception {
