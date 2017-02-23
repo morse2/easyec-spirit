@@ -45,6 +45,6 @@ public class LocaleChangeSupportInterceptor extends HandlerInterceptorAdapter im
 
     /* 判断是否需要替换当前本地化语言的方法 */
     private boolean _needReplace(Locale newLocale, Locale curLocale) {
-        return curLocale == null || !curLocale.getLanguage().equals(newLocale.getLanguage());
+        return curLocale == null || curLocale.equals(newLocale);
     }
 }
