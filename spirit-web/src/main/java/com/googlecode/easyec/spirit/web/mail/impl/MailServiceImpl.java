@@ -120,7 +120,9 @@ public class MailServiceImpl implements MailService, InitializingBean {
         );
 
         MimeMessageHelper helper = new MimeMessageHelper(
-            mailSender.createMimeMessage(), UTF_8.name()
+            mailSender.createMimeMessage(),
+            mo instanceof MimeMailObject,
+            UTF_8.name()
         );
 
         helper.setSubject(mo.getSubject());
