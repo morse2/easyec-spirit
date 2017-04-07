@@ -43,25 +43,27 @@
 
     <repositories>
         <repository>
-            <id>oss-snapshot-repo</id>
+            <id>public</id>
+            <releases>
+                <updatePolicy>always</updatePolicy>
+            </releases>
             <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
+                <updatePolicy>always</updatePolicy>
             </snapshots>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <url>http://www.shoppingmango.com/nexus3/repository/maven-public/</url>
         </repository>
     </repositories>
 
     <distributionManagement>
         <snapshotRepository>
-            <id>sonatype-nexus-snapshots</id>
-            <name>Sonatype Nexus Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <id>dm_3</id>
+            <name>Maven Snapshot Repository for Tuogo</name>
+            <url>http://www.shoppingmango.com/nexus3/repository/maven-snapshots/</url>
         </snapshotRepository>
         <repository>
-            <id>sonatype-nexus-staging</id>
-            <name>Nexus Release Repository</name>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <id>dm_3</id>
+            <name>Maven Release Repository for Tuogo</name>
+            <url>http://www.shoppingmango.com/nexus3/repository/maven-releases/</url>
         </repository>
     </distributionManagement>
 
@@ -242,14 +244,14 @@
 
     <profiles>
         <profile>
-            <id>sonatype-oss-release</id>
+            <id>spirit-release</id>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-compiler-plugin</artifactId>
                     </plugin>
-                    <plugin>
+                    <!--<plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
                         <version>2.1.2</version>
@@ -261,7 +263,7 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin>
+                    </plugin>-->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>

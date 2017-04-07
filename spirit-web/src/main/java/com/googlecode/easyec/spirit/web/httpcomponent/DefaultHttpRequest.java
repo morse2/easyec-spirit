@@ -1,5 +1,6 @@
 package com.googlecode.easyec.spirit.web.httpcomponent;
 
+import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.slf4j.Logger;
@@ -14,7 +15,7 @@ import org.springframework.util.Assert;
 final class DefaultHttpRequest implements HttpRequest {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultHttpRequest.class);
-    private ClientConnectionManager clientConnectionManager;
+    private HttpClient httpClient;
 
     /**
      * 通过{@link ClientConnectionManager}实例，构造此对象实例。
@@ -22,14 +23,14 @@ final class DefaultHttpRequest implements HttpRequest {
      * @param clientConnectionManager {@link ClientConnectionManager}实例对象
      */
     DefaultHttpRequest(ClientConnectionManager clientConnectionManager) {
-        this.clientConnectionManager = clientConnectionManager;
+        this.httpClient = new DefaultHttpClient(clientConnectionManager);
     }
 
     public <T> T request(HttpRequestHandler<T> handler) throws Exception {
         Assert.notNull(handler, "HttpRequestHandler is null.");
 
         try {
-            return handler.process(new DefaultHttpClient(clientConnectionManager));
+            return handler.process(httpClient);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
 
