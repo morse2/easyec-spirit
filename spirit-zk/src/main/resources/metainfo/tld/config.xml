@@ -3,7 +3,7 @@
     <config-name>spirit-zk</config-name>
     <version>
         <version-class>com.googlecode.easyec.zkoss.Version</version-class>
-        <version-uid>0.6.4</version-uid>
+        <version-uid>0.7.2</version-uid>
     </version>
     <taglib>
         <taglib-uri>http://easyec.googlecode.com/dsp/web/util</taglib-uri>
