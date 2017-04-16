@@ -91,6 +91,24 @@ public abstract class BaseFormValidator extends AbstractValidator {
     }
 
     /**
+     * 得到当前表单对象实例。
+     * 该表单对象实例可以是一个表单代理类，
+     * 也可以是非代理对象。但实际上返回的对象
+     * 类型应该与{@link #getDomainModel(ValidationContext)}
+     * 方法返回的类型一致
+     *
+     * @param formProperties 表单属性对象
+     * @return 表单对象实例
+     */
+    protected Object getFormObject(Map<String, Property> formProperties) {
+        if (formProperties != null && formProperties.containsKey(".")) {
+            return formProperties.get(".").getValue();
+        }
+
+        return null;
+    }
+
+    /**
      * 标记当前表单为无效
      *
      * @param ctx 验证上下文对象
