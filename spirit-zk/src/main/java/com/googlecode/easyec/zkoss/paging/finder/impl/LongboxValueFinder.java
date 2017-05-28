@@ -22,7 +22,7 @@ public class LongboxValueFinder extends AbstractValueFinder<Longbox> {
             if (defaultValue instanceof Long) {
                 comp.setValue(((Long) defaultValue));
             } else comp.setRawValue(defaultValue);
-        }
+        } else comp.setValue(null);
 
         return getValue(comp);
     }

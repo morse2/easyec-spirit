@@ -22,7 +22,7 @@ public class IntboxValueFinder extends AbstractValueFinder<Intbox> {
             if (defaultValue instanceof Integer) {
                 comp.setValue((Integer) defaultValue);
             } else comp.setRawValue(defaultValue);
-        }
+        } else comp.setValue(null);
 
         return getValue(comp);
     }

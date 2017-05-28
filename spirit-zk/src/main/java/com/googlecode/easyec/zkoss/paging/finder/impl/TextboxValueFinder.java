@@ -22,7 +22,7 @@ public class TextboxValueFinder extends AbstractValueFinder<Textbox> {
             if (defaultValue instanceof String) {
                 comp.setValue(((String) defaultValue));
             } else comp.setRawValue(defaultValue);
-        }
+        } else comp.setValue(null);
 
         return comp.getValue();
     }

@@ -20,7 +20,7 @@ public class SpinnerValueFinder extends AbstractValueFinder<Spinner> {
             if (defaultValue instanceof Integer) {
                 comp.setValue(((Integer) defaultValue));
             } else comp.setRawValue(defaultValue);
-        }
+        } else comp.setValue(null);
 
         return getValue(comp);
     }

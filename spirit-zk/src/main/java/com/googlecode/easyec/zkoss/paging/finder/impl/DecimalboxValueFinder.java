@@ -26,7 +26,7 @@ public class DecimalboxValueFinder extends AbstractValueFinder<Decimalbox> {
             } else if (defaultValue instanceof String) {
                 comp.setValue((String) defaultValue);
             }
-        }
+        } else comp.setValue(((BigDecimal) null));
 
         return getValue(comp);
     }

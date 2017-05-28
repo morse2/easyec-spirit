@@ -22,7 +22,7 @@ public class DoubleboxValueFinder extends AbstractValueFinder<Doublebox> {
             if (defaultValue instanceof Double) {
                 comp.setValue((Double) defaultValue);
             } else comp.setRawValue(defaultValue);
-        }
+        } else comp.setValue(null);
 
         return getValue(comp);
     }

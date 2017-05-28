@@ -24,7 +24,7 @@ public class TimeboxValueFinder extends AbstractValueFinder<Timebox> {
             if (defaultValue instanceof Date) {
                 comp.setValue(((Date) defaultValue));
             } else comp.setRawValue(defaultValue);
-        }
+        } else comp.setValue(null);
 
         return getValue(comp);
     }
