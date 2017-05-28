@@ -284,10 +284,10 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
                 sortList.clear();
                 sortList.add(new DefaultSort(sc.getFullSortField(), DESC));
             } else if ("descending".equals(direction)) {
-                Comparator ascending = listheader.getSortAscending();
-                Assert.notNull(ascending, "There was not set ascending sort comparator.");
+                Comparator descending = listheader.getSortDescending();
+                Assert.notNull(descending, "There was not set descending sort comparator.");
 
-                SortComparator sc = (SortComparator) ascending;
+                SortComparator sc = (SortComparator) descending;
                 sortList.clear();
                 sortList.add(new DefaultSort(sc.getFullSortField()));
             } else {

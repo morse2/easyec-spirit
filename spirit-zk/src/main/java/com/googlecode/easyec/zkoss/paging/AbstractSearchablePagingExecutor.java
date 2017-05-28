@@ -10,9 +10,12 @@ import com.googlecode.easyec.spirit.web.qseditors.CustomNumberQsEditor;
 import com.googlecode.easyec.spirit.web.qseditors.CustomStringQsEditor;
 import com.googlecode.easyec.spirit.web.qseditors.QueryStringEditor;
 import com.googlecode.easyec.spirit.web.utils.WebUtils;
+import com.googlecode.easyec.zkoss.paging.finder.ValueFinder;
+import com.googlecode.easyec.zkoss.paging.finder.impl.*;
 import com.googlecode.easyec.zkoss.paging.terms.AfterRenderListenerSearchTermFilter;
 import com.googlecode.easyec.zkoss.paging.terms.BindComposerSearchTermFilter;
 import com.googlecode.easyec.zkoss.paging.terms.BlankStringSearchTermFilter;
+import org.apache.commons.collections4.Predicate;
 import org.springframework.util.Assert;
 import org.zkoss.xel.fn.CommonFns;
 import org.zkoss.zk.ui.Component;
@@ -30,6 +33,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.googlecode.easyec.zkoss.utils.SelectorUtils.find;
+import static org.apache.commons.collections4.IterableUtils.matchesAny;
 import static org.apache.commons.collections4.MapUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.zkoss.zk.ui.event.Events.ON_OK;
@@ -44,8 +48,9 @@ import static org.zkoss.zul.event.ZulEvents.ON_AFTER_RENDER;
 public abstract class AbstractSearchablePagingExecutor<T extends Component> extends AbstractPagingExecutor<T> implements SearchablePagingExecutor {
 
     public static final String AFTER_RENDER_LISTENER = "afterRenderListener";
-    public static final String DEFAULT_VALUE_KEY = "defaultValue";
-    private static final long serialVersionUID = 5847223614909255933L;
+    public static final String COMPONENT_VALUE_FINDER = "valueFinder";
+    public static final String COMP_VALUE_FINDER_ID = "$valueFinder$";
+    private static final long serialVersionUID = -9001080708477883494L;
 
     /**
      * 构造方法。
@@ -57,7 +62,8 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         super(paging, comp);
     }
 
-    private static final String SELECTORS = "textbox,combobox,datebox,intbox,decimalbox,checkbox,radiogroup,radio,div";
+    private static final String SELECTORS
+        = "bandbox,checkbox,combobox,datebox,decimalbox,doublebox,doublespinner,intbox,longbox,radiogroup,radio,spinner,textbox,timebox";
 
     /* 不可变的搜索条件集合 */
     private final Map<String, Object> immutableSearchTerms = new HashMap<String, Object>();
@@ -134,6 +140,26 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
 
             // 默认为Input控件添加OnOK事件，提高搜索体验
             for (Component c : list) {
+                boolean matches = matchesAny(
+                    getSearchComponents(),
+                    new ComponentUuidPredicate(c.getUuid())
+                );
+                logger.debug("Is this component [{}] in search scope? [{}]",
+                    c.getUuid(), matches);
+
+                if (matches) continue;
+
+                ValueFinder<Component> finder = createValueFinder(c);
+                if (finder == null) {
+                    logger.warn("Component. ID: [{}], class: [{}] has no any ValueFinder. So it will be ignore to search.",
+                        c.getId(), c.getClass().getName());
+
+                    continue;
+                }
+
+                // 设置ValueFinder实例
+                c.setAttribute(COMP_VALUE_FINDER_ID, finder);
+
                 if (c instanceof InputElement) {
                     c.addEventListener(ON_OK, new KeyPressOKEventListener());
                 }
@@ -295,39 +321,23 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
      * @param v 查询参数值
      */
     protected void restoreQsParameter(Component c, Object v) {
-        // 设置文本框的值
-        if (c instanceof Textbox) {
-            if (c instanceof Combobox) {
-                Object o = c.getAttribute(AFTER_RENDER_LISTENER);
-                if (o != null) {
-                    try {
-                        c.addEventListener(
-                            ON_AFTER_RENDER,
-                            (EventListener<? extends Event>) CommonFns.new_(o, v)
-                        );
-                    } catch (Exception e) {
-                        logger.error(e.getMessage(), e);
-                    }
-                } else {
-                    logger.warn("No any listener was set on component combobox. so ignore.");
+        // 下拉框
+        if (c instanceof Combobox) {
+            Object o = c.getAttribute(AFTER_RENDER_LISTENER);
+            if (o != null) {
+                try {
+                    c.addEventListener(
+                        ON_AFTER_RENDER,
+                        (EventListener<? extends Event>) CommonFns.new_(o, v)
+                    );
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
                 }
-            } else ((Textbox) c).setRawValue(v);
-        }
-        // 设置数字框的值
-        else if (c instanceof NumberInputElement) {
-            ((NumberInputElement) c).setRawValue(v);
-        }
-        // 设置日期框的值
-        else if (c instanceof FormatInputElement) {
-            ((FormatInputElement) c).setRawValue(v);
-        }
-        // 设置单选框、复选框的值
-        else if (c instanceof Checkbox) {
-            if (v != null && (v instanceof Boolean)) {
-                ((Checkbox) c).setChecked((Boolean) v);
+            } else {
+                logger.warn("No any listener was set on component combobox. so ignore.");
             }
         }
-        // 设置单选框组件的选中
+        // 单选框
         else if (c instanceof Radiogroup) {
             Object o = c.getAttribute(AFTER_RENDER_LISTENER);
             if (o != null) {
@@ -343,6 +353,52 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
                 logger.warn("No any listener was set on component radiogroup. so ignore.");
             }
         }
+        // 其他组件
+        else {
+            extractSearchValue(c, true);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <C extends Component> ValueFinder<C> createValueFinder(C c) {
+        Object finder = c.getAttribute(COMPONENT_VALUE_FINDER);
+        if (finder != null) {
+            if (finder instanceof ValueFinder) {
+                c.setAttribute(COMP_VALUE_FINDER_ID, finder);
+            } else {
+                Object finderObj;
+
+                try {
+                    finderObj = CommonFns.new_(finder);
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+
+                    throw new IllegalArgumentException(e);
+                }
+
+                if (!(finderObj instanceof ValueFinder)) {
+                    throw new IllegalArgumentException("The object must be instance of ValueFinder.");
+                }
+
+                return (ValueFinder<C>) finderObj;
+            }
+        }
+
+        return _createValueFinder(c);
+    }
+
+    /**
+     * 根据给定的组件实例，创建自定义的
+     * <code>ValueFinder</code>对象。
+     * 如果该方法返回null，则该组件将被忽略，
+     * 不会有PagingExecutor维护搜索的功能。
+     *
+     * @param c   ZK组件对象实例
+     * @param <C> 范型类型
+     * @return <code>ValueFinder</code>对象
+     */
+    protected <C extends Component> ValueFinder<C> createCustomValueFinder(C c) {
+        return null;
     }
 
     /**
@@ -372,75 +428,21 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         }
 
         // 添加动态的搜索条件
-        for (int j = 0; j < searchComponents.size(); j++) {
-            Component c = searchComponents.get(j);
+        for (int i = 0; i < searchComponents.size(); i++) {
+            Component c = searchComponents.get(i);
 
             // 判断此控件是否还有效，如果该控件失效的话，则移除此控件
             if (c.getPage() == null) {
-                searchComponents.remove(j--);
+                searchComponents.remove(i--);
 
                 continue;
             }
 
-            // 合并文本框的值
-            if (c instanceof Textbox) {
-                if (c instanceof Combobox) {
-                    int i = ((Combobox) c).getSelectedIndex();
-                    if (i > -1) {
-                        Comboitem item = ((Combobox) c).getSelectedItem();
-                        addOrRemoveSearchArg(c.getId(), item.getValue(), bean);
-                    }
-                } else if (c instanceof Bandbox) {
-                    addOrRemoveSearchArg(c.getId(), ((Bandbox) c).getValue(), bean);
-                } else {
-                    addOrRemoveSearchArg(c.getId(), ((Textbox) c).getValue(), bean);
-                }
-            }
-
-            // 合并数字框的值
-            else if (c instanceof NumberInputElement) {
-                if (c instanceof Intbox) {
-                    addOrRemoveSearchArg(c.getId(), ((Intbox) c).getValue(), bean);
-                } else if (c instanceof Longbox) {
-                    addOrRemoveSearchArg(c.getId(), ((Longbox) c).getValue(), bean);
-                } else if (c instanceof Decimalbox) {
-                    addOrRemoveSearchArg(c.getId(), ((Decimalbox) c).getValue(), bean);
-                } else if (c instanceof Doublebox) {
-                    addOrRemoveSearchArg(c.getId(), ((Doublebox) c).getValue(), bean);
-                } else if (c instanceof Spinner) {
-                    addOrRemoveSearchArg(c.getId(), ((Spinner) c).getValue(), bean);
-                } else {
-                    addOrRemoveSearchArg(c.getId(), ((Doublespinner) c).getValue(), bean);
-                }
-            }
-
-            // 合并日期框的值
-            else if (c instanceof FormatInputElement) {
-                if (c instanceof Datebox) {
-                    addOrRemoveSearchArg(c.getId(), ((Datebox) c).getValue(), bean);
-                } else {
-                    addOrRemoveSearchArg(c.getId(), ((Timebox) c).getValue(), bean);
-                }
-            }
-
-            // 合并单选框、复选框的值
-            else if (c instanceof Checkbox) {
-                Checkbox chk = (Checkbox) c;
-                if (chk.isChecked()) {
-                    addOrRemoveSearchArg(c.getId(), chk.getValue(), bean);
-                }
-            }
-
-            // 单选框组件
-            else if (c instanceof Radiogroup) {
-                Radiogroup radiogroup = (Radiogroup) c;
-                if (radiogroup.getSelectedIndex() > -1) {
-                    addOrRemoveSearchArg(c.getId(), radiogroup.getSelectedItem().getValue(), bean);
-                }
-            }
-
-            // 读取合并ZK控件中的属性值
-            combineComponentAttributes(c, bean);
+            addOrRemoveSearchArg(
+                c.getId(),
+                extractSearchValue(c, false),
+                bean
+            );
         }
 
         return bean;
@@ -461,62 +463,34 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         }
 
         // 清除动态的搜索条件
-        for (Component c : searchComponents) {
-            // 获取已设置的默认值
-            Object defaultValue = c.getAttribute(DEFAULT_VALUE_KEY);
-            // 将默认值添加至搜索条件中
-            addOrRemoveSearchArg(c.getId(), defaultValue, bean);
+        for (int i = 0; i < searchComponents.size(); i++) {
+            Component c = searchComponents.get(i);
 
-            // 清除文本框的值
-            if (c instanceof Textbox) {
-                if (c instanceof Combobox) {
-                    int i = ((Combobox) c).getSelectedIndex();
-                    if (i > -1) {
-                        ((Combobox) c).setValue((String) defaultValue);
-                    }
-                } else if (c instanceof Bandbox) {
-                    ((Bandbox) c).setValue((String) defaultValue);
-                } else {
-                    ((Textbox) c).setValue((String) defaultValue);
-                }
+            if (c.getPage() == null) {
+                searchComponents.remove(i--);
+
+                continue;
             }
 
-            // 清除数字框的值
-            else if (c instanceof NumberInputElement) {
-                if (c instanceof Intbox) {
-                    ((Intbox) c).setValue((Integer) defaultValue);
-                } else if (c instanceof Longbox) {
-                    ((Longbox) c).setValue((Long) defaultValue);
-                } else if (c instanceof Decimalbox) {
-                    ((Decimalbox) c).setValue((BigDecimal) defaultValue);
-                } else if (c instanceof Doublebox) {
-                    ((Doublebox) c).setValue((Double) defaultValue);
-                } else if (c instanceof Spinner) {
-                    ((Spinner) c).setValue((Integer) defaultValue);
-                } else {
-                    ((Doublespinner) c).setValue((Double) defaultValue);
-                }
-            }
-
-            // 清除日期框的值
-            else if (c instanceof FormatInputElement) {
-                if (c instanceof Datebox) {
-                    ((Datebox) c).setValue((Date) defaultValue);
-                } else {
-                    ((Timebox) c).setValue((Date) defaultValue);
-                }
-            }
-
-            // 清除复选框的值
-            else if ((c instanceof Checkbox) && !(c instanceof Radio)) {
-                addOrRemoveSearchArg(c.getId(), ((Checkbox) c).isChecked(), bean);
-            }
-
-            // 读取合并ZK控件中的属性值
-            combineComponentAttributes(c, bean);
+            addOrRemoveSearchArg(
+                c.getId(),
+                extractSearchValue(c, true),
+                bean
+            );
         }
 
         return bean;
+    }
+
+    /* 汲取搜索控件的值 */
+    @SuppressWarnings("unchecked")
+    private Object extractSearchValue(Component c, boolean reset) {
+        Object value = ((ValueFinder) c.getAttribute(COMP_VALUE_FINDER_ID))
+            .getValue(c, reset);
+        logger.debug("The value from component is [{}]. Component ID: [{}].",
+            value, c.getId());
+
+        return value;
     }
 
     /**
@@ -624,22 +598,71 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         return null;
     }
 
-    /**
-     * 合并添加组件中的自定义属性作为搜索条件。
-     *
-     * @param c    ZK组件实例
-     * @param bean <code>AbstractSearchFormBean</code>
-     */
-    private void combineComponentAttributes(Component c, AbstractSearchFormBean bean) {
-        Map<String, Object> attributes = c.getAttributes();
-        if (isNotEmpty(attributes)) {
-            Set<String> keySet = attributes.keySet();
-            for (String key : keySet) {
-                if (!DEFAULT_VALUE_KEY.equals(key)) {
-                    addOrRemoveSearchArg(key, attributes.get(key), bean);
-                }
+    @SuppressWarnings("unchecked")
+    private <C extends Component> ValueFinder<C> _createValueFinder(C c) {
+        if (c instanceof NumberInputElement) {
+            if (c instanceof Intbox) {
+                return (ValueFinder<C>) new IntboxValueFinder();
+            }
+
+            if (c instanceof Longbox) {
+                return (ValueFinder<C>) new LongboxValueFinder();
+            }
+
+            if (c instanceof Doublebox) {
+                return (ValueFinder<C>) new DoubleboxValueFinder();
+            }
+
+            if (c instanceof Decimalbox) {
+                return (ValueFinder<C>) new DecimalboxValueFinder();
+            }
+
+            if (c instanceof Spinner) {
+                return (ValueFinder<C>) new SpinnerValueFinder();
+            }
+
+            if (c instanceof Doublespinner) {
+                return (ValueFinder<C>) new DoublespinnerValueFinder();
             }
         }
+
+        if (c instanceof FormatInputElement) {
+            if (c instanceof Datebox) {
+                return (ValueFinder<C>) new DateboxValueFinder();
+            }
+
+            if (c instanceof Timebox) {
+                return (ValueFinder<C>) new TimeboxValueFinder();
+            }
+        }
+
+        if (c instanceof InputElement) {
+            if (c instanceof Combobox) {
+                return (ValueFinder<C>) new ComboboxValueFinder();
+            }
+
+            if (c instanceof Bandbox) {
+                return (ValueFinder<C>) new BandboxValueFinder();
+            }
+
+            if (c instanceof Textbox) {
+                return (ValueFinder<C>) new TextboxValueFinder();
+            }
+        }
+
+        if (c instanceof Radio) {
+            return (ValueFinder<C>) new RadioValueFinder();
+        }
+
+        if (c instanceof Checkbox) {
+            return (ValueFinder<C>) new CheckboxValueFinder();
+        }
+
+        if (c instanceof Radiogroup) {
+            return (ValueFinder<C>) new RadiogroupValueFinder();
+        }
+
+        return createCustomValueFinder(c);
     }
 
     /**
@@ -727,4 +750,22 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
             }
         }
     }
+
+    /**
+     * ZK组件UUID值的比较器对象类
+     */
+    private class ComponentUuidPredicate implements Predicate<Component> {
+
+        private String uuid;
+
+        public ComponentUuidPredicate(String uuid) {
+            this.uuid = uuid;
+        }
+
+        @Override
+        public boolean evaluate(Component object) {
+            return uuid.equals(object.getUuid());
+        }
+    }
 }
+
