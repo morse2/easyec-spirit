@@ -13,6 +13,13 @@ import java.util.Map;
 public interface SearchablePagingExecutor extends PagingExecutor {
 
     /**
+     * 设置查找搜索组件的范围是否在Page内
+     *
+     * @param searchSelectorsInPage bool值
+     */
+    void setSearchSelectorsInPage(boolean searchSelectorsInPage);
+
+    /**
      * 触发分页执行的方法。
      *
      * @param currentPage     当前页码
