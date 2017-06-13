@@ -15,8 +15,8 @@
     <name>spirit</name>
     <url>http://code.google.com/p/easyec</url>
     <description>
-        Spirit is a framework for j2ee web project. It uses Mybatis framework as DAO.
-        It is easy to integrate and develop your own web project.
+        Spirit is a framework for j2ee web project. It uses Mybatis framework as DAO. It is easy to integrate and develop your own web
+        project.
     </description>
 
     <licenses>
@@ -119,6 +119,12 @@
         </dependency>
 
         <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.8.3</version>
+        </dependency>
+
+        <dependency>
             <groupId>javax.servlet.jsp</groupId>
             <artifactId>jsp-api</artifactId>
             <version>2.0</version>
@@ -178,8 +184,7 @@
                             <rules>
                                 <requireMavenVersion>
                                     <version>(,2.1.0),(2.1.0,2.2.0),(2.2.0,)</version>
-                                    <message>Maven 2.1.0 and 2.2.0 produce incorrect GPG signatures and checksums
-                                        respectively.
+                                    <message>Maven 2.1.0 and 2.2.0 produce incorrect GPG signatures and checksums respectively.
                                     </message>
                                 </requireMavenVersion>
                             </rules>
