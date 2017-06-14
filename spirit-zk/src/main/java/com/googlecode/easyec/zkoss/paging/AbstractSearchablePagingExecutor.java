@@ -17,7 +17,6 @@ import com.googlecode.easyec.zkoss.paging.terms.BindComposerSearchTermFilter;
 import com.googlecode.easyec.zkoss.paging.terms.BlankStringSearchTermFilter;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.Predicate;
-import org.apache.commons.lang.ObjectUtils;
 import org.springframework.util.Assert;
 import org.zkoss.xel.fn.CommonFns;
 import org.zkoss.zk.ui.Component;
@@ -698,11 +697,9 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
 
         String id = comp.getId();
         if (isNotBlank(id)) {
-            String val = !(value instanceof String)
-                ? ObjectUtils.toString(value)
-                : ((String) value);
+            if (value instanceof String && isBlank((String) value)) return;
 
-            if (isNotBlank(val)) bean.addSearchTerm(id, val);
+            bean.addSearchTerm(id, value);
 
             return;
         }
