@@ -1,5 +1,6 @@
 package com.googlecode.easyec.zkoss.paging.finder.impl;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.zkoss.zul.Combobox;
 import org.zkoss.zul.Comboitem;
 
@@ -8,9 +9,10 @@ import org.zkoss.zul.Comboitem;
  *
  * @author JunJie
  */
-public class ComboboxValueFinder extends AbstractItemsValueFinder<Combobox> {
+public class ComboboxValueFinder extends AbstractValueFinder<Combobox> {
 
-    private static final long serialVersionUID = 2365257185178054188L;
+    public static final String REMAIN_AT_INDEX = "remainsAtIndex";
+    private static final long serialVersionUID = -6978946441926362749L;
 
     @Override
     protected Object getValue(Combobox comp) {
@@ -20,7 +22,18 @@ public class ComboboxValueFinder extends AbstractItemsValueFinder<Combobox> {
 
     @Override
     protected Object resetValue(Combobox comp, Object defaultValue) {
-        removeValues(comp);
+        int index = -1;
+
+        Object remainsAtIndex = comp.getAttribute(REMAIN_AT_INDEX);
+        if (remainsAtIndex != null) {
+            if (remainsAtIndex instanceof String) {
+                index = NumberUtils.toInt(((String) remainsAtIndex), -1);
+            } else if (remainsAtIndex instanceof Number) {
+                index = ((Number) remainsAtIndex).intValue();
+            }
+        }
+
+        if (index >= -1) removeValues(comp, index);
 
         if (defaultValue != null) {
             if (defaultValue instanceof String) {
@@ -54,5 +67,13 @@ public class ComboboxValueFinder extends AbstractItemsValueFinder<Combobox> {
         }
 
         return null;
+    }
+
+    private void removeValues(Combobox comp, int index) {
+        if (comp.getItemCount() > 0) {
+            for (int i = (comp.getItemCount() - 1); i > index; i--) {
+                comp.removeItemAt(i);
+            }
+        }
     }
 }

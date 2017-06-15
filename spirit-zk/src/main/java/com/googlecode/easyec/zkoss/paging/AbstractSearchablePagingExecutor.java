@@ -15,6 +15,7 @@ import com.googlecode.easyec.zkoss.paging.finder.impl.*;
 import com.googlecode.easyec.zkoss.paging.terms.AfterRenderListenerSearchTermFilter;
 import com.googlecode.easyec.zkoss.paging.terms.BindComposerSearchTermFilter;
 import com.googlecode.easyec.zkoss.paging.terms.BlankStringSearchTermFilter;
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections4.Predicate;
 import org.springframework.util.Assert;
 import org.zkoss.xel.fn.CommonFns;
@@ -35,6 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.googlecode.easyec.zkoss.utils.SelectorUtils.find;
 import static org.apache.commons.collections4.IterableUtils.matchesAny;
 import static org.apache.commons.collections4.MapUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.zkoss.zk.ui.event.Events.ON_OK;
 import static org.zkoss.zul.event.ZulEvents.ON_AFTER_RENDER;
@@ -50,7 +52,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
     public static final String AFTER_RENDER_LISTENER = "afterRenderListener";
     public static final String COMPONENT_VALUE_FINDER = "valueFinder";
     public static final String COMP_VALUE_FINDER_ID = "$valueFinder$";
-    private static final long serialVersionUID = -9001080708477883494L;
+    private static final long serialVersionUID = 3202812421051262304L;
 
     /**
      * 构造方法。
@@ -82,7 +84,6 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         this.searchScope = searchScope;
     }
 
-    @Override
     public void setSearchSelectorsInPage(boolean searchSelectorsInPage) {
         this.searchSelectorsInPage = searchSelectorsInPage;
     }
@@ -438,11 +439,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
                 continue;
             }
 
-            addOrRemoveSearchArg(
-                c.getId(),
-                extractSearchValue(c, false),
-                bean
-            );
+            _addSearchArg(bean, c, false);
         }
 
         return bean;
@@ -472,11 +469,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
                 continue;
             }
 
-            addOrRemoveSearchArg(
-                c.getId(),
-                extractSearchValue(c, true),
-                bean
-            );
+            _addSearchArg(bean, c, true);
         }
 
         return bean;
@@ -598,6 +591,24 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         return null;
     }
 
+    /**
+     * 获得给定ZK组件的name属性值。
+     * 有的ZK组件也许没有name属性，
+     * 那么则忽略该属性，直接返回null
+     *
+     * @param comp ZK组件对象
+     * @return name属性值
+     */
+    protected String getComponentName(Component comp) {
+        try {
+            return BeanUtils.getProperty(comp, "name");
+        } catch (Exception e) {
+            logger.debug(e.getMessage(), e);
+        }
+
+        return null;
+    }
+
     @SuppressWarnings("unchecked")
     private <C extends Component> ValueFinder<C> _createValueFinder(C c) {
         if (c instanceof NumberInputElement) {
@@ -666,26 +677,50 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
     }
 
     /**
-     * 添加或删除搜索条件。
+     * 为给定的ZK组件添加搜索参数值的方法。
+     * 如果组件的ID有值，那么表示该搜索条件是唯一值；
+     * 如果组件的ID没值，但name有值，那么此方法认为
+     * 搜索条件可能有多个值
      *
-     * @param id    组件id
-     * @param value 组件值
-     * @param bean  <code>AbstractSearchFormBean</code>
+     * @param comp  ZK组件对象
+     * @param reset 表示是否重设搜索条件值
+     * @param bean  表单搜索对象Bean
      */
-    private void addOrRemoveSearchArg(String id, Object value, AbstractSearchFormBean bean) {
-        if (null != value) {
-            if (value instanceof String) {
-                if (isNotBlank((String) value)) {
-                    bean.addSearchTerm(id, value);
-                } else {
-                    bean.removeSearchTerm(id);
-                }
-            } else {
-                bean.addSearchTerm(id, value);
-            }
-        } else {
-            bean.removeSearchTerm(id);
+    @SuppressWarnings("unchecked")
+    private void _addSearchArg(AbstractSearchFormBean bean, Component comp, boolean reset) {
+        Object value = extractSearchValue(comp, reset);
+        if (value == null) {
+            logger.debug("No value was found from component. UUID: [{}].", comp.getUuid());
+
+            return;
         }
+
+        String id = comp.getId();
+        if (isNotBlank(id)) {
+            if (value instanceof String && isBlank((String) value)) return;
+
+            bean.addSearchTerm(id, value);
+
+            return;
+        }
+
+        String name = getComponentName(comp);
+
+        if (isBlank(name)) {
+            logger.warn("The component [uuid:{}] has no id and name. So ignore add arg into search scope.",
+                comp.getUuid());
+
+            return;
+        }
+
+        Set<Object> values;
+        // 如果当前表单搜索对象中不包含该名字的搜索条件值，则新增一个Set对象
+        if (!bean.hasSearchTerm(name)) {
+            values = new HashSet<Object>();
+            bean.addSearchTerm(name, values);
+        } else values = (Set<Object>) bean.getSearchTerms().get(name);
+
+        values.add(value);
     }
 
     /**
@@ -758,13 +793,13 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
 
         private String uuid;
 
-        public ComponentUuidPredicate(String uuid) {
+        ComponentUuidPredicate(String uuid) {
             this.uuid = uuid;
         }
 
         @Override
-        public boolean evaluate(Component object) {
-            return uuid.equals(object.getUuid());
+        public boolean evaluate(Component comp) {
+            return uuid.equals(comp.getUuid());
         }
     }
 }

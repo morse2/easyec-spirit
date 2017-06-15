@@ -8,7 +8,7 @@ import org.zkoss.zul.Radiogroup;
  *
  * @author JunJie
  */
-public class RadiogroupValueFinder extends AbstractItemsValueFinder<Radiogroup> {
+public class RadiogroupValueFinder extends AbstractValueFinder<Radiogroup> {
 
     private static final long serialVersionUID = -7043529848256965330L;
 
@@ -20,8 +20,6 @@ public class RadiogroupValueFinder extends AbstractItemsValueFinder<Radiogroup> 
 
     @Override
     protected Object resetValue(Radiogroup comp, Object defaultValue) {
-        removeValues(comp);
-
         if (defaultValue != null) {
             if (defaultValue instanceof String) {
                 Radio item = _getSelectedItem(comp, ((String) defaultValue));
