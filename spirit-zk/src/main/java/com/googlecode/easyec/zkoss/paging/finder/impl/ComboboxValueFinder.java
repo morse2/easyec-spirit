@@ -25,13 +25,18 @@ public class ComboboxValueFinder extends AbstractValueFinder<Combobox> {
 
     @Override
     protected Object resetValue(Combobox comp, Object defaultValue) {
-        String argFixed = (String) comp.getAttribute(ARG_FIXED_COMBOITEM);
+        Object argFixed = comp.getAttribute(ARG_FIXED_COMBOITEM);
 
         /*
          * 参数Fixed表示下拉框中的值是否是固定的，
          * 如果不是固定的，那么需要删除下拉框中的值
          */
-        Boolean fixed = toBooleanObject(argFixed);
+        Boolean fixed = null;
+        if (argFixed != null) {
+            if (argFixed instanceof Boolean) {
+                fixed = (Boolean) argFixed;
+            } else fixed = toBooleanObject(argFixed.toString());
+        }
         if (fixed != null && !fixed) {
             int index = -1;
 
