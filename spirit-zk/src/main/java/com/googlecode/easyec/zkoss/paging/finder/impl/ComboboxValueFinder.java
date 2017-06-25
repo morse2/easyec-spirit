@@ -1,5 +1,6 @@
 package com.googlecode.easyec.zkoss.paging.finder.impl;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.zkoss.zul.Combobox;
 import org.zkoss.zul.Comboitem;
@@ -23,12 +24,13 @@ public class ComboboxValueFinder extends AbstractValueFinder<Combobox> {
 
     @Override
     protected Object resetValue(Combobox comp, Object defaultValue) {
-        Boolean fixed = (Boolean) comp.getAttribute(FIXED_COMBOITEM);
+        String argFixed = (String) comp.getAttribute(FIXED_COMBOITEM);
 
         /*
          * 参数Fixed表示下拉框中的值是否是固定的，
          * 如果不是固定的，那么需要删除下拉框中的值
          */
+        Boolean fixed = BooleanUtils.toBooleanObject(argFixed);
         if (fixed != null && !fixed) {
             int index = -1;
 
@@ -53,9 +55,7 @@ public class ComboboxValueFinder extends AbstractValueFinder<Combobox> {
                     return item.getValue();
                 }
             }
-        }
-
-        comp.setSelectedItem(null);
+        } else comp.setSelectedItem(null);
 
         return null;
     }
