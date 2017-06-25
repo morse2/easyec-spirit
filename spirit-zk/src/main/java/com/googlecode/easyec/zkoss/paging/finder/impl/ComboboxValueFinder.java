@@ -4,6 +4,8 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.zkoss.zul.Combobox;
 import org.zkoss.zul.Comboitem;
 
+import static org.apache.commons.lang3.BooleanUtils.toBooleanObject;
+
 /**
  * ZK的Combobox组件的查找值的对象类
  *
@@ -23,12 +25,13 @@ public class ComboboxValueFinder extends AbstractValueFinder<Combobox> {
 
     @Override
     protected Object resetValue(Combobox comp, Object defaultValue) {
-        Boolean fixed = (Boolean) comp.getAttribute(ARG_FIXED);
+        String argFixed = (String) comp.getAttribute(ARG_FIXED);
 
         /*
          * 参数Fixed表示下拉框中的值是否是固定的，
          * 如果不是固定的，那么需要删除下拉框中的值
          */
+        Boolean fixed = toBooleanObject(argFixed);
         if (fixed != null && !fixed) {
             int index = -1;
 
