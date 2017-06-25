@@ -62,7 +62,10 @@ public class ComboboxValueFinder extends AbstractValueFinder<Combobox> {
                     return item.getValue();
                 }
             }
-        } else comp.setSelectedItem(null);
+        } else {
+            comp.setSelectedItem(null);
+            comp.setValue(null);
+        }
 
         return null;
     }
