@@ -12,7 +12,6 @@ public abstract class AbstractValueFinder<T extends Component> implements ValueF
 
     private static final long serialVersionUID = 1721575977904900024L;
 
-    @Override
     public Object getValue(T comp, boolean reset) {
         if (comp == null) return null;
 

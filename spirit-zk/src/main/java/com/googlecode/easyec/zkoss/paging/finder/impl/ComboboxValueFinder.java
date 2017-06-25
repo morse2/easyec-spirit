@@ -11,8 +11,9 @@ import org.zkoss.zul.Comboitem;
  */
 public class ComboboxValueFinder extends AbstractValueFinder<Combobox> {
 
+    public static final String FIXED_COMBOITEM = "fixed";
     public static final String REMAIN_AT_INDEX = "remainsAtIndex";
-    private static final long serialVersionUID = -6978946441926362749L;
+    private static final long serialVersionUID = 9187626402333532730L;
 
     @Override
     protected Object getValue(Combobox comp) {
@@ -22,18 +23,26 @@ public class ComboboxValueFinder extends AbstractValueFinder<Combobox> {
 
     @Override
     protected Object resetValue(Combobox comp, Object defaultValue) {
-        int index = -1;
+        Boolean fixed = (Boolean) comp.getAttribute(FIXED_COMBOITEM);
 
-        Object remainsAtIndex = comp.getAttribute(REMAIN_AT_INDEX);
-        if (remainsAtIndex != null) {
-            if (remainsAtIndex instanceof String) {
-                index = NumberUtils.toInt(((String) remainsAtIndex), -1);
-            } else if (remainsAtIndex instanceof Number) {
-                index = ((Number) remainsAtIndex).intValue();
+        /*
+         * 参数Fixed表示下拉框中的值是否是固定的，
+         * 如果不是固定的，那么需要删除下拉框中的值
+         */
+        if (fixed != null && !fixed) {
+            int index = -1;
+
+            Object remainsAtIndex = comp.getAttribute(REMAIN_AT_INDEX);
+            if (remainsAtIndex != null) {
+                if (remainsAtIndex instanceof String) {
+                    index = NumberUtils.toInt(((String) remainsAtIndex), -1);
+                } else if (remainsAtIndex instanceof Number) {
+                    index = ((Number) remainsAtIndex).intValue();
+                }
             }
-        }
 
-        if (index >= -1) removeValues(comp, index);
+            if (index >= -1) removeValues(comp, index);
+        }
 
         if (defaultValue != null) {
             if (defaultValue instanceof String) {
@@ -45,15 +54,8 @@ public class ComboboxValueFinder extends AbstractValueFinder<Combobox> {
                 }
             }
         }
-        // 如果没有默认值，那么取下拉框中的第一个元素
-        else {
-            if (comp.getItemCount() > 0) {
-                Comboitem item = comp.getItemAtIndex(0);
-                comp.setSelectedItem(item);
 
-                return item.getValue();
-            }
-        }
+        comp.setSelectedItem(null);
 
         return null;
     }
