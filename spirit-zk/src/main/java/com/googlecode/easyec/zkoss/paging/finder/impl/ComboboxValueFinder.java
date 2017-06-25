@@ -11,8 +11,9 @@ import org.zkoss.zul.Comboitem;
  */
 public class ComboboxValueFinder extends AbstractValueFinder<Combobox> {
 
-    public static final String REMAIN_AT_INDEX = "remainsAtIndex";
-    private static final long serialVersionUID = -6978946441926362749L;
+    public static final String ARG_FIXED = "fixed";
+    public static final String ARG_REMAIN_AT_INDEX = "remainsAtIndex";
+    private static final long serialVersionUID = -7081904922367374959L;
 
     @Override
     protected Object getValue(Combobox comp) {
@@ -22,18 +23,26 @@ public class ComboboxValueFinder extends AbstractValueFinder<Combobox> {
 
     @Override
     protected Object resetValue(Combobox comp, Object defaultValue) {
-        int index = -1;
+        Boolean fixed = (Boolean) comp.getAttribute(ARG_FIXED);
 
-        Object remainsAtIndex = comp.getAttribute(REMAIN_AT_INDEX);
-        if (remainsAtIndex != null) {
-            if (remainsAtIndex instanceof String) {
-                index = NumberUtils.toInt(((String) remainsAtIndex), -1);
-            } else if (remainsAtIndex instanceof Number) {
-                index = ((Number) remainsAtIndex).intValue();
+        /*
+         * 参数Fixed表示下拉框中的值是否是固定的，
+         * 如果不是固定的，那么需要删除下拉框中的值
+         */
+        if (fixed != null && !fixed) {
+            int index = -1;
+
+            Object remainsAtIndex = comp.getAttribute(ARG_REMAIN_AT_INDEX);
+            if (remainsAtIndex != null) {
+                if (remainsAtIndex instanceof String) {
+                    index = NumberUtils.toInt(((String) remainsAtIndex), -1);
+                } else if (remainsAtIndex instanceof Number) {
+                    index = ((Number) remainsAtIndex).intValue();
+                }
             }
-        }
 
-        if (index >= -1) removeValues(comp, index);
+            if (index >= -1) removeValues(comp, index);
+        }
 
         if (defaultValue != null) {
             if (defaultValue instanceof String) {
