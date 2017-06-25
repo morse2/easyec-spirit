@@ -13,9 +13,9 @@ import static org.apache.commons.lang3.BooleanUtils.toBooleanObject;
  */
 public class ComboboxValueFinder extends AbstractValueFinder<Combobox> {
 
-    public static final String ARG_FIXED = "fixed";
+    public static final String ARG_FIXED_COMBOITEM = "fixed";
     public static final String ARG_REMAIN_AT_INDEX = "remainsAtIndex";
-    private static final long serialVersionUID = -7081904922367374959L;
+    private static final long serialVersionUID = 9171821401357369427L;
 
     @Override
     protected Object getValue(Combobox comp) {
@@ -25,7 +25,7 @@ public class ComboboxValueFinder extends AbstractValueFinder<Combobox> {
 
     @Override
     protected Object resetValue(Combobox comp, Object defaultValue) {
-        String argFixed = (String) comp.getAttribute(ARG_FIXED);
+        String argFixed = (String) comp.getAttribute(ARG_FIXED_COMBOITEM);
 
         /*
          * 参数Fixed表示下拉框中的值是否是固定的，
@@ -56,16 +56,7 @@ public class ComboboxValueFinder extends AbstractValueFinder<Combobox> {
                     return item.getValue();
                 }
             }
-        }
-        // 如果没有默认值，那么取下拉框中的第一个元素
-        else {
-            if (comp.getItemCount() > 0) {
-                Comboitem item = comp.getItemAtIndex(0);
-                comp.setSelectedItem(item);
-
-                return item.getValue();
-            }
-        }
+        } else comp.setSelectedItem(null);
 
         return null;
     }
