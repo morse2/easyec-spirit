@@ -27,25 +27,25 @@
         <dependency>
             <groupId>org.zkoss.zk</groupId>
             <artifactId>zk</artifactId>
-            <version>8.0.2.2</version>
+            <version>8.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.zkoss.zk</groupId>
             <artifactId>zkplus</artifactId>
-            <version>8.0.2.2</version>
+            <version>8.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.zkoss.zk</groupId>
             <artifactId>zkbind</artifactId>
-            <version>8.0.2.2</version>
+            <version>8.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.zkoss.zk</groupId>
             <artifactId>zhtml</artifactId>
-            <version>8.0.2.2</version>
+            <version>8.0.0</version>
         </dependency>
 
         <dependency>
