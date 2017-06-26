@@ -4,7 +4,7 @@
 
     <groupId>com.googlecode.easyec</groupId>
     <artifactId>spirit</artifactId>
-    <version>0.6.5-SNAPSHOT</version>
+    <version>0.6.6-SNAPSHOT</version>
     <modules>
         <module>spirit-dao</module>
         <module>spirit-mybatis</module>
@@ -44,26 +44,16 @@
 
     <distributionManagement>
         <snapshotRepository>
-            <id>sonatype-nexus-snapshots</id>
-            <name>Sonatype Nexus Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <id>dm_3</id>
+            <name>Maven Snapshot Repository of Tuogo</name>
+            <url>http://www.shoppingmango.com/nexus3/repository/maven-snapshots/</url>
         </snapshotRepository>
         <repository>
-            <id>sonatype-nexus-staging</id>
-            <name>Nexus Release Repository</name>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <id>dm_3</id>
+            <name>Maven Release Repository of Tuogo</name>
+            <url>http://www.shoppingmango.com/nexus3/repository/maven-releases/</url>
         </repository>
     </distributionManagement>
-
-    <repositories>
-        <repository>
-            <id>oss-snapshot-repo</id>
-            <snapshots>
-                <updatePolicy>daily</updatePolicy>
-            </snapshots>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-        </repository>
-    </repositories>
 
     <dependencies>
         <dependency>
@@ -120,6 +110,12 @@
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
             <version>3.2.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.8.3</version>
         </dependency>
 
         <dependency>
@@ -188,8 +184,7 @@
                             <rules>
                                 <requireMavenVersion>
                                     <version>(,2.1.0),(2.1.0,2.2.0),(2.2.0,)</version>
-                                    <message>Maven 2.1.0 and 2.2.0 produce incorrect GPG signatures and checksums
-                                        respectively.
+                                    <message>Maven 2.1.0 and 2.2.0 produce incorrect GPG signatures and checksums respectively.
                                     </message>
                                 </requireMavenVersion>
                             </rules>

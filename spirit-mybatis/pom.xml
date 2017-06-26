@@ -3,12 +3,12 @@
     <parent>
         <artifactId>spirit</artifactId>
         <groupId>com.googlecode.easyec</groupId>
-        <version>0.6.5-SNAPSHOT</version>
+        <version>0.6.6-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>spirit-mybatis</artifactId>
-    <version>0.6.5-SNAPSHOT</version>
+    <version>0.6.6-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>spirit-mybatis</name>
     <url>http://code.google.com/p/easyec</url>
@@ -32,7 +32,7 @@
         <dependency>
             <groupId>com.googlecode.easyec</groupId>
             <artifactId>spirit-dao</artifactId>
-            <version>0.6.5-SNAPSHOT</version>
+            <version>0.6.6-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -50,7 +50,7 @@
         <dependency>
             <groupId>com.googlecode.easyec</groupId>
             <artifactId>spirit-web</artifactId>
-            <version>0.6.5-SNAPSHOT</version>
+            <version>0.6.6-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
