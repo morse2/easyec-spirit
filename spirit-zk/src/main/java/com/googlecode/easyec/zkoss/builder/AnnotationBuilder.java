@@ -9,6 +9,7 @@ import org.zkoss.zk.ui.sys.ComponentCtrl;
 import java.util.Map;
 
 import static org.zkoss.bind.impl.BindEvaluatorXUtil.parseArgs;
+import static org.zkoss.bind.impl.BinderImpl.BINDER;
 
 /**
  * 组件注解构建类
@@ -24,7 +25,7 @@ public class AnnotationBuilder {
      * @param parameter 组件注解参数对象
      */
     public static void addAnnotation(ComponentCtrl ctrl, AnnotationParameter parameter) {
-        addAnnotations(null, ctrl, new AnnotationParameter[] { parameter });
+        addAnnotation(getBinder((Component) ctrl), ctrl, parameter);
     }
 
     /**
@@ -34,7 +35,7 @@ public class AnnotationBuilder {
      * @param parameters 组件注解参数对象集合
      */
     public static void addAnnotations(ComponentCtrl ctrl, AnnotationParameter[] parameters) {
-        addAnnotations(null, ctrl, parameters);
+        addAnnotations(getBinder((Component) ctrl), ctrl, parameters);
     }
 
     /**
@@ -46,6 +47,27 @@ public class AnnotationBuilder {
      */
     public static void addAnnotation(Binder binder, ComponentCtrl ctrl, AnnotationParameter parameter) {
         addAnnotations(binder, ctrl, new AnnotationParameter[] { parameter });
+    }
+
+    /**
+     * 通过给定组件，查找其关联的
+     * {@link Binder}对象
+     *
+     * @param comp ZK组件
+     * @return <code>Binder</code>
+     */
+    public static Binder getBinder(Component comp) {
+        Component _this = comp;
+        Binder binder = null;
+
+        do {
+            binder = (Binder) _this.getAttribute(BINDER);
+            if (binder != null) break;
+
+            _this = _this.getParent();
+        } while (_this != null);
+
+        return binder;
     }
 
     /**
