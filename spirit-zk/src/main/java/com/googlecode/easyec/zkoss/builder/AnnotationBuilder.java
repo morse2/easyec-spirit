@@ -8,7 +8,6 @@ import org.zkoss.zk.ui.sys.ComponentCtrl;
 
 import java.util.Map;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.zkoss.bind.impl.BindEvaluatorXUtil.parseArgs;
 import static org.zkoss.bind.impl.BinderImpl.BINDER;
 
@@ -62,9 +61,10 @@ public class AnnotationBuilder {
         Binder binder = null;
 
         do {
-            String binderId = (String) comp.getAttribute(BINDER);
-            if (isBlank(binderId)) _this = _this.getParent();
-            else binder = (Binder) _this.getAttribute(binderId);
+            binder = (Binder) _this.getAttribute(BINDER);
+            if (binder != null) break;
+
+            _this = _this.getParent();
         } while (_this != null);
 
         return binder;
