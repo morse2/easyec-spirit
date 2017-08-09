@@ -50,7 +50,7 @@
             <snapshots>
                 <updatePolicy>always</updatePolicy>
             </snapshots>
-            <url>http://www.shoppingmango.com/nexus3/repository/maven-public/</url>
+            <url>http://dev.tuogo.com.cn/nexus3/repository/maven-public/</url>
         </repository>
     </repositories>
 
@@ -58,12 +58,12 @@
         <snapshotRepository>
             <id>dm_3</id>
             <name>Maven Snapshot Repository for Tuogo</name>
-            <url>http://www.shoppingmango.com/nexus3/repository/maven-snapshots/</url>
+            <url>http://dev.tuogo.com.cn/nexus3/repository/maven-snapshots/</url>
         </snapshotRepository>
         <repository>
             <id>dm_3</id>
             <name>Maven Release Repository for Tuogo</name>
-            <url>http://www.shoppingmango.com/nexus3/repository/maven-releases/</url>
+            <url>http://dev.tuogo.com.cn/nexus3/repository/maven-releases/</url>
         </repository>
     </distributionManagement>
 
@@ -78,7 +78,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>3.2.8.RELEASE</version>
+            <version>3.2.18.RELEASE</version>
             <scope>test</scope>
         </dependency>
 
