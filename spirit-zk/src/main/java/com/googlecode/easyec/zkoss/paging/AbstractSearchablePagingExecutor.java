@@ -33,6 +33,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.googlecode.easyec.zkoss.paging.finder.ValueFinder.DISPOSABLE_VALUE_KEY;
 import static com.googlecode.easyec.zkoss.utils.SelectorUtils.find;
 import static org.apache.commons.collections4.IterableUtils.matchesAny;
 import static org.apache.commons.collections4.MapUtils.isNotEmpty;
@@ -146,14 +147,16 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
                     new ComponentUuidPredicate(c.getUuid())
                 );
                 logger.debug("Is this component [{}] in search scope? [{}]",
-                    c.getUuid(), matches);
+                             c.getUuid(), matches
+                );
 
                 if (matches) continue;
 
                 ValueFinder<Component> finder = createValueFinder(c);
                 if (finder == null) {
                     logger.warn("Component. ID: [{}], class: [{}] has no any ValueFinder. So it will be ignore to search.",
-                        c.getId(), c.getClass().getName());
+                                c.getId(), c.getClass().getName()
+                    );
 
                     continue;
                 }
@@ -213,7 +216,8 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
                         = (c instanceof Combobox && ((Combobox) c).getModel() != null)
                         || (c instanceof Radiogroup && ((Radiogroup) c).getModel() != null);
                     logger.debug("Should component be added onAfterRender listener? ["
-                        + shouldAddEventListener + "], id: [" + c.getId() + "].");
+                                     + shouldAddEventListener + "], id: ["
+                                     + c.getId() + "].");
 
                     if (shouldAddEventListener) {
                         c.addEventListener(ON_AFTER_RENDER, lstnr);
@@ -356,6 +360,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         }
         // 其他组件
         else {
+            c.setAttribute(DISPOSABLE_VALUE_KEY, v);
             extractSearchValue(c, true);
         }
     }
@@ -481,7 +486,8 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         Object value = ((ValueFinder) c.getAttribute(COMP_VALUE_FINDER_ID))
             .getValue(c, reset);
         logger.debug("The value from component is [{}]. Component ID: [{}].",
-            value, c.getId());
+                     value, c.getId()
+        );
 
         return value;
     }
@@ -707,8 +713,10 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         String name = getComponentName(comp);
 
         if (isBlank(name)) {
-            logger.warn("The component [uuid:{}] has no id and name. So ignore add arg into search scope.",
-                comp.getUuid());
+            logger.warn(
+                "The component [uuid:{}] has no id and name. So ignore add arg into search scope.",
+                comp.getUuid()
+            );
 
             return;
         }
