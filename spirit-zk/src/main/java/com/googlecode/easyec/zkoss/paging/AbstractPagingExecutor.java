@@ -112,6 +112,12 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
      * @param searchFormBean 表单搜索对象
      */
     protected void firePaging(AbstractSearchFormBean searchFormBean) {
+        if (!_isPagingAlive()) {
+            logger.warn("Current object 'Paging' isn't alive.");
+
+            return;
+        }
+
         if (null == searchFormBean) searchFormBean = new SearchFormBean();
 
         logger.debug("Current page for paging: [" + searchFormBean.getPageNumber() + "].");
@@ -229,9 +235,9 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
             } catch (WrongValueException e) {
                 logger.trace(e.getMessage(), e);
 
-            /* fix bug:修复如果当前页码大于_paging
-             * 对象的最大页码，会报错的问题
-             */
+                /* fix bug:修复如果当前页码大于_paging
+                 * 对象的最大页码，会报错的问题
+                 */
                 if (page.getPrevPageAvailable()) {
                     firePaging(page.getCurrentPage() - 1);
                 } else doClear(page);
