@@ -90,6 +90,12 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
 
     @Override
     public void draw(Page page) {
+        if (!_isPagingAlive()) {
+            logger.warn("Current object 'Paging' isn't alive.");
+
+            return;
+        }
+
         _paging.setTotalSize(page.getTotalRecordsCount());
         _paging.setPageSize(page.getPageSize());
 
@@ -141,6 +147,12 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
      * @param searchFormBean 表单搜索对象
      */
     protected void firePaging(AbstractSearchFormBean searchFormBean) {
+        if (!_isPagingAlive()) {
+            logger.warn("Current object 'Paging' isn't alive.");
+
+            return;
+        }
+
         if (null == searchFormBean) searchFormBean = new SearchFormBean();
 
         logger.debug("Current page for paging: [" + searchFormBean.getPageNumber() + "].");
@@ -168,6 +180,10 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
         if (lazyLoad) setComponentVisible(_comp, true);
         // 画出分页结果
         draw(page);
+    }
+
+    protected boolean _isPagingAlive() {
+        return _paging != null && _paging.getPage() != null && _paging.getPage().isAlive();
     }
 
     /**
