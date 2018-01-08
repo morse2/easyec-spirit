@@ -122,12 +122,12 @@ class DefaultMybatisPagingWork implements PagingInterceptor.PagingWork<MybatisPa
 
         logger.debug("build result map object. key: [" + (selectCountKey + RESULT_MAP_KEY_SUFFIX) + "].");
 
-        List<ResultMap> resultMaps = new ArrayList<ResultMap>();
+        List<ResultMap> resultMaps = new ArrayList<>();
         resultMaps.add(new ResultMap.Builder(
             config,
             selectCountKey + RESULT_MAP_KEY_SUFFIX,
             Integer.class,
-            new ArrayList<ResultMapping>(0)
+            new ArrayList<>(0)
         ).build());
 
         logger.debug("build count sql MappedStatement object. key: [" + selectCountKey + "].");
@@ -191,12 +191,14 @@ class DefaultMybatisPagingWork implements PagingInterceptor.PagingWork<MybatisPa
 
         List<Sort> sorts = page.getSorts();
         if (isNotEmpty(sorts)) {
-            List<String> list = new ArrayList<String>(
-                collect(sorts, new Transformer() {
-
-                    public Object transform(Object input) {
-                        return ((Sort) input).getName() + " " + ((Sort) input).getType();
-                    }
+            List<String> list = new ArrayList<>(
+                collect(sorts, (Transformer) input -> {
+                    Sort _s = (Sort) input;
+                    return new StringBuilder()
+                        .append(_s.getName())
+                        .append(' ')
+                        .append(_s.getType())
+                        .toString();
                 })
             );
 
@@ -207,10 +209,14 @@ class DefaultMybatisPagingWork implements PagingInterceptor.PagingWork<MybatisPa
         thisSql = pageDialect.getPagedSql(thisSql);
         logger.debug("Paged sql: [{}].", thisSql);
 
-        Map<String, Object> parameterMap = new HashMap<String, Object>();
-        List<ParameterMapping> parameterMappings = new ArrayList<ParameterMapping>();
+        Map<String, Object> parameterMap = new HashMap<>();
 
-        parameterMappings.addAll(boundSql.getParameterMappings());
+        List<ParameterMapping> parameterMappings
+            = new ArrayList<>(
+            boundSql.getParameterMappings()
+        );
+
+        // merge parameters
         mergeParameterObject(parameterMap, parameterObject);
 
         int[] pagedParameters = pageDialect.getPagedParameters(page.getCurrentPage(), page.getPageSize());

@@ -3,7 +3,7 @@
     <parent>
         <artifactId>spirit</artifactId>
         <groupId>com.googlecode.easyec</groupId>
-        <version>0.7.2-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>spirit-ldap</artifactId>
@@ -18,33 +18,33 @@
         <dependency>
             <groupId>com.googlecode.easyec</groupId>
             <artifactId>spirit-dao</artifactId>
-            <version>0.7.2-SNAPSHOT</version>
+            <version>0.8.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.ldap</groupId>
             <artifactId>spring-ldap-core</artifactId>
-            <version>2.1.0.RELEASE</version>
+            <version>2.3.2.RELEASE</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>4.3.3.RELEASE</version>
+            <version>4.3.13.RELEASE</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
-            <version>4.3.3.RELEASE</version>
+            <version>4.3.13.RELEASE</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-tx</artifactId>
-            <version>4.3.3.RELEASE</version>
+            <version>4.3.13.RELEASE</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

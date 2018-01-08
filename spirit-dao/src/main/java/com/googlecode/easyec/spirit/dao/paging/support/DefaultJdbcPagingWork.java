@@ -57,11 +57,13 @@ class DefaultJdbcPagingWork implements PagingInterceptor.PagingWork<JdbcPage> {
         List<Sort> sorts = page.getSorts();
         if (isNotEmpty(sorts)) {
             List<String> sortList = new ArrayList<String>(
-                collect(sorts, new Transformer() {
-
-                    public Object transform(Object input) {
-                        return ((Sort) input).getName() + " " + ((Sort) input).getType();
-                    }
+                collect(sorts, (Transformer) input -> {
+                    Sort _s = (Sort) input;
+                    return new StringBuilder()
+                        .append(_s.getName())
+                        .append(' ')
+                        .append(_s.getType())
+                        .toString();
                 })
             );
 
