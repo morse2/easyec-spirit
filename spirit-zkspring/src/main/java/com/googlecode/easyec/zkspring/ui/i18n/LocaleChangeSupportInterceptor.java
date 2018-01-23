@@ -1,16 +1,15 @@
-package com.googlecode.easyec.zkoss.i18n;
+package com.googlecode.easyec.zkspring.ui.i18n;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import org.zkoss.web.Attributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.Locale;
-
-import static org.zkoss.web.Attributes.PREFERRED_LOCALE;
 
 /**
  * 支持ZK本地化切换的拦截器类
@@ -30,9 +29,9 @@ public class LocaleChangeSupportInterceptor extends HandlerInterceptorAdapter im
         Locale locale = localeResolver.resolveLocale(request);
         if (locale != null) {
             HttpSession session = request.getSession();
-            Locale preferredLocale = (Locale) session.getAttribute(PREFERRED_LOCALE);
+            Locale preferredLocale = (Locale) session.getAttribute(Attributes.PREFERRED_LOCALE);
             if (_needReplace(locale, preferredLocale)) {
-                session.setAttribute(PREFERRED_LOCALE, locale);
+                session.setAttribute(Attributes.PREFERRED_LOCALE, locale);
             }
         }
 

@@ -5,12 +5,8 @@
 
     <version>
         <version-class>com.googlecode.easyec.zkoss.Version</version-class>
-        <version-uid>0.7.2</version-uid>
+        <version-uid>0.8.1</version-uid>
     </version>
-
-    <listener>
-        <listener-class>com.googlecode.easyec.zkoss.init.CoreWebAppInit</listener-class>
-    </listener>
 
     <listener>
         <listener-class>com.googlecode.easyec.zkoss.proxy.MyBatisObjectProxyTargetHandler</listener-class>

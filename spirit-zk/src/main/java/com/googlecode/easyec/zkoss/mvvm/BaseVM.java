@@ -1,5 +1,7 @@
 package com.googlecode.easyec.zkoss.mvvm;
 
+import com.googlecode.easyec.zkoss.ui.builders.UiBuilder;
+import com.googlecode.easyec.zkoss.utils.ExecUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +15,7 @@ import org.zkoss.xel.VariableResolver;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.select.Selectors;
+import org.zkoss.zk.ui.select.annotation.WireVariable;
 import org.zkoss.zk.ui.util.ComponentActivationListener;
 import org.zkoss.zkplus.spring.DelegatingVariableResolver;
 import org.zkoss.zul.Messagebox;
@@ -37,7 +40,7 @@ import static org.zkoss.zk.ui.Executions.getCurrent;
  */
 public abstract class BaseVM<T extends Component> implements ComponentActivationListener, Serializable {
 
-    private static final long serialVersionUID = -7631380852061453018L;
+    private static final long serialVersionUID = 2138878329327257888L;
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     /* 标识是否做过激活操作 */
@@ -48,6 +51,18 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
 
     /* 最近引用的uri路径 */
     private String prevUri;
+
+    @WireVariable
+    private UiBuilder uiBuilder;
+
+    /**
+     * 返回当前注入的ZK UI构建器对象实例
+     *
+     * @return <code>UiBuilder</code>
+     */
+    public UiBuilder getUiBuilder() {
+        return uiBuilder;
+    }
 
     /**
      * 返回当前组件的引用对象
@@ -155,9 +170,9 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
      * @see Init
      */
     protected void doInit() {
-        Object request = getNativeRequest();
-        if (request instanceof HttpServletRequest) {
-            this.prevUri = (String) ((HttpServletRequest) request).getAttribute(PREV_REQUEST_URI);
+        HttpServletRequest request = ExecUtils.getNativeRequest();
+        if (request != null) {
+            this.prevUri = (String) request.getAttribute(PREV_REQUEST_URI);
         }
     }
 

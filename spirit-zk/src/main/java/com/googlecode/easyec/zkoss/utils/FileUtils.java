@@ -4,12 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zkoss.util.media.Media;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.nio.charset.Charset;
 
 import static org.apache.commons.io.IOUtils.toByteArray;
-import static org.apache.commons.io.IOUtils.toInputStream;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * ZK文件处理的工具类
@@ -23,29 +20,14 @@ public class FileUtils {
     private FileUtils() { /* no op */ }
 
     /**
-     * 从<code>Media</code>对象中获取输入流信息
+     * 从<code>Media</code>对象中获取字节流信息
      *
      * @param media 媒体流对象
-     * @return 输入流对象
+     * @return 字节流对象
      */
-    public static InputStream getStreamData(Media media) {
-        if (null == media) return null;
-
-        if (media.isBinary()) {
-            return media.inMemory()
-                ? new ByteArrayInputStream(media.getByteData())
-                : media.getStreamData();
-        }
-
-        try {
-            return media.inMemory()
-                ? toInputStream(media.getStringData())
-                : new ByteArrayInputStream(toByteArray(media.getReaderData()));
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-
-            return null;
-        }
+    @Deprecated
+    public static byte[] getByteData(Media media) {
+        return getByteData(media, "utf-8");
     }
 
     /**
@@ -54,7 +36,7 @@ public class FileUtils {
      * @param media 媒体流对象
      * @return 字节流对象
      */
-    public static byte[] getByteData(Media media) {
+    public static byte[] getUtf8ByteData(Media media) {
         return getByteData(media, "utf-8");
     }
 
@@ -66,7 +48,18 @@ public class FileUtils {
      * @return 字节流对象
      */
     public static byte[] getByteData(Media media, String charset) {
-        if (null == media || isBlank(charset)) return null;
+        return getByteData(media, Charset.forName(charset));
+    }
+
+    /**
+     * 从<code>Media</code>对象中获取字节流信息
+     *
+     * @param media   媒体流对象
+     * @param charset 字符集对象
+     * @return 字节流对象
+     */
+    public static byte[] getByteData(Media media, Charset charset) {
+        if (null == media) return null;
 
         if (media.isBinary()) {
             try {
@@ -80,10 +73,15 @@ public class FileUtils {
             }
         }
 
+        Charset _curCharset = charset;
+        if (_curCharset == null) {
+            _curCharset = Charset.defaultCharset();
+        }
+
         try {
             return media.inMemory()
-                ? media.getStringData().getBytes(charset)
-                : toByteArray(media.getReaderData(), charset);
+                ? media.getStringData().getBytes(_curCharset)
+                : toByteArray(media.getReaderData(), _curCharset);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
 

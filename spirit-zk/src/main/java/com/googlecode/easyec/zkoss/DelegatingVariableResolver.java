@@ -1,14 +1,17 @@
 package com.googlecode.easyec.zkoss;
 
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zkoss.lang.Classes;
 import org.zkoss.lang.Library;
 import org.zkoss.lang.Objects;
 import org.zkoss.xel.VariableResolver;
 import org.zkoss.xel.XelException;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -18,47 +21,63 @@ import java.util.List;
  */
 public class DelegatingVariableResolver implements VariableResolver, Serializable {
 
-    public static final String RESOLVER_CLASS = "com.googlecode.easyec.zkoss.VariableResolver.class";
-    private static final long serialVersionUID = -1796672500062108417L;
+    public static final String RESOLVER_CLASS = "com.googlecode.easyec.zk.VariableResolver.class";
 
-    private List<VariableResolver> variableResolvers = new ArrayList<VariableResolver>();
+    private static final Logger logger = LoggerFactory.getLogger(DelegatingVariableResolver.class);
+    private static final long serialVersionUID = 6294959821662123447L;
+    private List<VariableResolver> _variableResolvers = new ArrayList<>();
 
     public DelegatingVariableResolver() {
-        final String classes = Library.getProperty(RESOLVER_CLASS);
-
-        String[] vrClss = classes.split(",");
-        for (String vrCls : vrClss) {
+        final String clsStr = Library.getProperty(RESOLVER_CLASS);
+        String[] classes = StringUtils.split(clsStr, ",");
+        for (String cls : classes) {
             try {
-                VariableResolver o = (VariableResolver) Classes.newInstanceByThread(vrCls);
-                if (!variableResolvers.contains(o)) {
-                    variableResolvers.add(o);
+                VariableResolver o = (VariableResolver)
+                    Classes.newInstanceByThread(cls.trim());
+                if (!_variableResolvers.contains(o)) {
+                    _variableResolvers.add(o);
                 }
             } catch (Exception e) {
-                // do nothing
+                logger.warn(e.getMessage(), e);
             }
         }
     }
 
     @Override
     public Object resolveVariable(String name) throws XelException {
-        Object o = null;
-        for (final Iterator it = variableResolvers.iterator(); it.hasNext(); ) {
-            VariableResolver resolver = (VariableResolver) it.next();
-            o = resolver.resolveVariable(name);
-            if (o != null) {
-                return o;
-            }
+        Object ret = null;
+
+        for (VariableResolver resolver : _variableResolvers) {
+            ret = resolver.resolveVariable(name);
+            if (ret != null) break;
         }
 
-        return o;
+        return ret;
     }
 
     public int hashCode() {
-        return Objects.hashCode(variableResolvers);
+        return Objects.hashCode(_variableResolvers);
     }
 
     public boolean equals(Object obj) {
         return this == obj || (obj instanceof DelegatingVariableResolver
-            && Objects.equals(variableResolvers, ((DelegatingVariableResolver) obj).variableResolvers));
+            && Objects.equals(_variableResolvers, ((DelegatingVariableResolver) obj)._variableResolvers));
+    }
+
+    // -- Serializable --//
+    private synchronized void writeObject(java.io.ObjectOutputStream s) throws IOException {
+        s.defaultWriteObject();
+        s.writeInt(_variableResolvers.size());
+        for (VariableResolver resolver : _variableResolvers) {
+            s.writeObject(resolver);
+        }
+    }
+
+    private void readObject(java.io.ObjectInputStream s) throws IOException, ClassNotFoundException {
+        s.defaultReadObject();
+        int size = s.readInt();
+        for (int i = 0; i < size; i++) {
+            _variableResolvers.add((VariableResolver) s.readObject());
+        }
     }
 }

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <config-name>spirit-zkspring</config-name><!-- used to resolve dependency -->
+    <depends>spirit-zk</depends>
+
+    <version>
+        <version-class>com.googlecode.easyec.zkspring.Version</version-class>
+        <version-uid>0.8.1</version-uid>
+    </version>
+</config>

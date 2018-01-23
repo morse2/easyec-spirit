@@ -1,4 +1,4 @@
-package com.googlecode.easyec.zkoss.servlet.view;
+package com.googlecode.easyec.zkspring.ui.servlet.view;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,9 +42,7 @@ public class ZHtmlView extends AbstractUrlBasedView {
 
     @Override
     public boolean checkResource(Locale locale) throws Exception {
-        return new File(
-            getServletContext().getRealPath("/") + getUrl()
-        ).exists();
+        return new File(getServletContext().getRealPath("/") + getUrl()).exists();
     }
 
     /**
@@ -74,7 +72,7 @@ public class ZHtmlView extends AbstractUrlBasedView {
             );
 
             try {
-                if (!process(sess, request, response, getUrl(), false)) {
+                if (!_process(sess, request, response, getUrl())) {
                     _handleError(sess, request, response, getUrl(), null);
                 }
             } catch (Throwable ex) {
@@ -89,7 +87,7 @@ public class ZHtmlView extends AbstractUrlBasedView {
         }
     }
 
-    protected boolean process(Session sess, HttpServletRequest request, HttpServletResponse response, String path, boolean bRichlet)
+    private boolean _process(Session sess, HttpServletRequest request, HttpServletResponse response, String path)
         throws ServletException, IOException {
         final WebApp webApp = sess.getWebApp();
         final WebAppCtrl webAppCtrl = (WebAppCtrl) webApp;
@@ -131,7 +129,7 @@ public class ZHtmlView extends AbstractUrlBasedView {
                 ((SessionCtrl) sess).notifyClientRequest(true);
 
                 final UiFactory uf = webAppCtrl.getUiFactory();
-                if (uf.isRichlet(ri, bRichlet)) {
+                if (uf.isRichlet(ri, false)) {
                     final Richlet richlet = uf.getRichlet(ri, path);
                     if (richlet == null)
                         return false; //not found
@@ -200,7 +198,7 @@ public class ZHtmlView extends AbstractUrlBasedView {
                     request.setAttribute("javax.servlet.error.exception", err);
                     request.setAttribute("javax.servlet.error.exception_type", err.getClass());
                     request.setAttribute("javax.servlet.error.status_code", 500);
-                    if (process(sess, request, response, errpg, false)) return; //done
+                    if (_process(sess, request, response, errpg)) return; //done
 
                     log.warn("The error page not found: " + errpg);
                 } catch (IOException ex) { //eat it (connection off)
@@ -225,7 +223,7 @@ public class ZHtmlView extends AbstractUrlBasedView {
     }
 
     /* 处理zul解析异常的方法 */
-    void _handleError(ServletContext ctx, HttpServletRequest request, HttpServletResponse response, String path, Throwable err)
+    private void _handleError(ServletContext ctx, HttpServletRequest request, HttpServletResponse response, String path, Throwable err)
         throws ServletException, IOException {
         if (Servlets.isIncluded(request)) {
             final String msg = (err != null)
@@ -234,7 +232,7 @@ public class ZHtmlView extends AbstractUrlBasedView {
                     Exceptions.formatStackTrace(null, err, null, 6) })
                 : Messages.get(MZk.PAGE_NOT_FOUND, new Object[] { path });
 
-            final Map<String, String> attrs = new HashMap<String, String>();
+            final Map<String, String> attrs = new HashMap<>();
             attrs.put(org.zkoss.web.Attributes.ALERT_TYPE, "error");
             attrs.put(org.zkoss.web.Attributes.ALERT, msg);
             Servlets.include(ctx, request, response,

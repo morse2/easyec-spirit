@@ -11,6 +11,7 @@
         <module>spirit-web</module>
         <module>spirit-zk</module>
         <module>spirit-ldap</module>
+        <module>spirit-zkspring</module>
     </modules>
     <packaging>pom</packaging>
     <name>spirit</name>

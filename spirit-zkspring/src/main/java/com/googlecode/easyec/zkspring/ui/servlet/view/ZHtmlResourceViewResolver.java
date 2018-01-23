@@ -1,4 +1,4 @@
-package com.googlecode.easyec.zkoss.servlet.view;
+package com.googlecode.easyec.zkspring.ui.servlet.view;
 
 import org.springframework.web.servlet.view.AbstractUrlBasedView;
 import org.springframework.web.servlet.view.UrlBasedViewResolver;
