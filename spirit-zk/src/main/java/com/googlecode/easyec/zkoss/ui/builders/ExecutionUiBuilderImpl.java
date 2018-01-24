@@ -5,7 +5,9 @@ import org.zkoss.bind.Binder;
 import org.zkoss.zk.ui.AbstractComponent;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Executions;
+import org.zkoss.zk.ui.metainfo.PageDefinition;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.zkoss.bind.impl.BindEvaluatorXUtil.parseArgs;
@@ -18,12 +20,16 @@ import static org.zkoss.bind.sys.BinderCtrl.BINDER;
  */
 public class ExecutionUiBuilderImpl implements UiBuilder {
 
+    public static final String PARAM_PAGE_DEF = "$PageDef$";
+
     @Override
     public Component manufacture(UiParameter parameter) {
+        PageDefinition definition = parameter.getPageDefinition();
+        Map<Object, Object> args = new HashMap<>(parameter.getArgs());
+        args.put(PARAM_PAGE_DEF, definition);
+
         return Executions.createComponents(
-            parameter.getPageDefinition(),
-            parameter.getParent(),
-            parameter.getArgs()
+            definition, parameter.getParent(), args
         );
     }
 

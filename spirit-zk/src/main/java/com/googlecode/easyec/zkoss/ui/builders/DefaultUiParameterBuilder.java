@@ -46,7 +46,6 @@ public class DefaultUiParameterBuilder {
 
     public UiParameter build() {
         Assert.notNull(this.pageDefinition, "PageDefinition is null.");
-        Assert.notNull(this.parent, "Parent component is null.");
 
         UiParameterImpl impl = new UiParameterImpl(pageDefinition);
         impl.setParent(this.parent);
