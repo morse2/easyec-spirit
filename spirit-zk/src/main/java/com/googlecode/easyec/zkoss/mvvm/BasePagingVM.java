@@ -1,6 +1,8 @@
 package com.googlecode.easyec.zkoss.mvvm;
 
 import com.googlecode.easyec.zkoss.paging.PagingExecutor;
+import com.googlecode.easyec.zkoss.ui.listeners.StepOutEventListener;
+import com.googlecode.easyec.zkoss.ui.listeners.StepOutWithPagingEventListener;
 import org.springframework.util.Assert;
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Init;
@@ -20,7 +22,6 @@ import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.autowire
 @Init(superclass = true)
 public abstract class BasePagingVM<T extends Component> extends BaseVM<T> {
 
-    private static final long serialVersionUID = -2466151502994352867L;
     private PagingExecutor pagingExecutor;
 
     /**
@@ -63,5 +64,17 @@ public abstract class BasePagingVM<T extends Component> extends BaseVM<T> {
      */
     protected void beforePagingExecutorInit(PagingExecutor exec) {
         logger.trace("beforePagingExecutorInit() done..");
+    }
+
+    @Override
+    protected StepOutEventListener createStepOutEventListener() {
+        StepOutWithPagingEventListener lsnr
+            = new StepOutWithPagingEventListener(
+            getSelf(), getSelf().getParent()
+        );
+
+        lsnr.setPagingExecutor(pagingExecutor);
+
+        return lsnr;
     }
 }
