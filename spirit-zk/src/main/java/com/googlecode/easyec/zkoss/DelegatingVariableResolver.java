@@ -1,5 +1,6 @@
 package com.googlecode.easyec.zkoss;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,15 +31,17 @@ public class DelegatingVariableResolver implements VariableResolver, Serializabl
     public DelegatingVariableResolver() {
         final String clsStr = Library.getProperty(RESOLVER_CLASS);
         String[] classes = StringUtils.split(clsStr, ",");
-        for (String cls : classes) {
-            try {
-                VariableResolver o = (VariableResolver)
-                    Classes.newInstanceByThread(cls.trim());
-                if (!_variableResolvers.contains(o)) {
-                    _variableResolvers.add(o);
+        if (ArrayUtils.isNotEmpty(classes)) {
+            for (String cls : classes) {
+                try {
+                    VariableResolver o = (VariableResolver)
+                        Classes.newInstanceByThread(cls.trim());
+                    if (!_variableResolvers.contains(o)) {
+                        _variableResolvers.add(o);
+                    }
+                } catch (Exception e) {
+                    logger.warn(e.getMessage(), e);
                 }
-            } catch (Exception e) {
-                logger.warn(e.getMessage(), e);
             }
         }
     }

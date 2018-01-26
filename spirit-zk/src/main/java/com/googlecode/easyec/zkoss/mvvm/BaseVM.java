@@ -1,10 +1,15 @@
 package com.googlecode.easyec.zkoss.mvvm;
 
+import com.googlecode.easyec.zkoss.ui.builders.DefaultUiParameterBuilder;
 import com.googlecode.easyec.zkoss.ui.builders.UiBuilder;
+import com.googlecode.easyec.zkoss.ui.builders.UriUiParameterBuilder;
+import com.googlecode.easyec.zkoss.ui.events.StepOutEvent;
+import com.googlecode.easyec.zkoss.ui.listeners.StepOutEventListener;
 import com.googlecode.easyec.zkoss.utils.ExecUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
 import org.zkoss.bind.BindComposer;
 import org.zkoss.bind.Binder;
 import org.zkoss.bind.annotation.AfterCompose;
@@ -14,6 +19,7 @@ import org.zkoss.web.util.resource.ServletRequestResolver;
 import org.zkoss.xel.VariableResolver;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Executions;
+import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.select.Selectors;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
 import org.zkoss.zk.ui.util.ComponentActivationListener;
@@ -23,14 +29,15 @@ import org.zkoss.zul.Messagebox;
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static com.googlecode.easyec.spirit.web.controller.interceptors.RequestUriReusingInterceptor.PREV_REQUEST_URI;
 import static com.googlecode.easyec.zkoss.mvvm.BaseVM.FindScope.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.zkoss.bind.annotation.ContextType.COMPONENT;
-import static org.zkoss.zk.ui.Executions.getCurrent;
 
 /**
  * 模型视图-视图模型的基础类。
@@ -40,7 +47,7 @@ import static org.zkoss.zk.ui.Executions.getCurrent;
  */
 public abstract class BaseVM<T extends Component> implements ComponentActivationListener, Serializable {
 
-    private static final long serialVersionUID = 2138878329327257888L;
+    private static final long serialVersionUID = -8332745571693447112L;
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     /* 标识是否做过激活操作 */
@@ -53,7 +60,7 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
     private String prevUri;
 
     @WireVariable
-    private UiBuilder uiBuilder;
+    private transient UiBuilder uiBuilder;
 
     /**
      * 返回当前注入的ZK UI构建器对象实例
@@ -195,15 +202,6 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
     }
 
     /**
-     * 获取当前Native类型的Request对象实现
-     *
-     * @return Native Request
-     */
-    protected Object getNativeRequest() {
-        return getCurrent().getNativeRequest();
-    }
-
-    /**
      * 创建一组<code>VariableResolver</code>对象列表
      *
      * @return ZK变量解析对象列表
@@ -255,6 +253,82 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
         }
 
         return ret;
+    }
+
+    /**
+     * 方法说明参见{@link #stepIn(DefaultUiParameterBuilder)}
+     *
+     * @param uri ZK page uri
+     */
+    protected void stepIn(String uri) {
+        stepIn(uri, Collections.emptyMap());
+    }
+
+    /**
+     * 方法说明参见{@link #stepIn(DefaultUiParameterBuilder)}
+     *
+     * @param uri  ZK page uri
+     * @param args 参数集合
+     */
+    protected void stepIn(String uri, Map<Object, Object> args) {
+        Assert.isTrue(isNotBlank(uri), "URI mustn't be null.");
+
+        stepIn(
+            UriUiParameterBuilder
+                .create()
+                .setUri(uri)
+                .setParent(self.getParent())
+                .setArgs(args)
+        );
+    }
+
+    /**
+     * 从当前的ZK组件页面步入给定的UI页面参数构造
+     * 器中的方法。如果给定的ZK页面组件创建成功，则
+     * 当前页面将从当前的父页面组件中脱离出来，
+     * 并加载新构造的页面组件。当新构造的页面触发
+     * 事件onStepOut时，当前的页面组件才会
+     * 被恢复并重新展现出来。
+     *
+     * @param builder URI参数构造器对象
+     */
+    protected void stepIn(DefaultUiParameterBuilder builder) {
+        Assert.notNull(builder, "UiParameterBuilder object mustn't be null.");
+
+        Component _newComp
+            = uiBuilder.manufacture(
+            builder.setParent(self.getParent()).build()
+        );
+
+        StepOutEventListener lsnr = createStepOutEventListener();
+        if (lsnr != null) _newComp.addEventListener("onStepOut", lsnr);
+    }
+
+    /**
+     * 从当前ZK页面组件中步出，
+     * 并返回到之前的页面的方法
+     */
+    protected void stepOut() {
+        stepOut(null);
+    }
+
+    /**
+     * 从当前ZK页面组件中步出，
+     * 并返回到之前的页面的方法
+     *
+     * @param data 返回到之前页面的数据对象
+     */
+    protected void stepOut(Object data) {
+        Events.postEvent(new StepOutEvent(self, data));
+    }
+
+    /**
+     * 创建一个<code>StepOutEventListener</code>对象实例的方法
+     *
+     * @return {@link StepOutEventListener}
+     */
+    protected StepOutEventListener createStepOutEventListener() {
+        return new StepOutEventListener(self, self.getParent());
     }
 
     private Object _findInArgs(String key) {

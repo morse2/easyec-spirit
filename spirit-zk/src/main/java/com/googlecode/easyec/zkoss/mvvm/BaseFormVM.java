@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 
 import static com.googlecode.easyec.zkoss.mvvm.BaseVM.FindScope.All;
+import static com.googlecode.easyec.zkoss.utils.ExecUtils.getNativeRequest;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
@@ -31,6 +32,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  *
  * @author JunJie
  */
+@Init(superclass = true)
 @AfterCompose(superclass = true)
 public abstract class BaseFormVM<T extends Component, M extends GenericPersistentDomainModel<E>, E extends Serializable> extends BaseVM<T> {
 
@@ -46,12 +48,12 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
      * 标识是否匹配VM对象类型
      */
     public static final String ARG_MATCH_VM = "com.googlecode.easyec.zkoss.mvvm.MatchVM";
-    private static final long serialVersionUID = -8030091277630808636L;
+    private static final long serialVersionUID = -9074925146753665272L;
 
     /**
      * 域模型对象实例。此对象不能为空。
      */
-    protected M          domainModel;
+    protected M domainModel;
     protected FormAction action;
 
     private String preQs;
@@ -96,15 +98,12 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
      */
     abstract public M loadModel(M model);
 
-    /**
-     * 初始化方法
-     */
-    @Init(superclass = true)
-    public void initBaseFormVM() {
-        Object request = getNativeRequest();
-        if (request instanceof HttpServletRequest) {
-            preQs = ((HttpServletRequest) request).getQueryString();
-        }
+    @Override
+    protected void doInit() {
+        super.doInit();
+
+        HttpServletRequest request = getNativeRequest();
+        if (request != null) preQs = request.getQueryString();
 
         resolveFormVariable();
     }
