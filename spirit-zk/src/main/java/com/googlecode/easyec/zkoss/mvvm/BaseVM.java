@@ -295,13 +295,27 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
     protected void stepIn(DefaultUiParameterBuilder builder) {
         Assert.notNull(builder, "UiParameterBuilder object mustn't be null.");
 
-        Component _newComp
-            = uiBuilder.manufacture(
-            builder.setParent(self.getParent()).build()
-        );
+        // 强制设置父组件为null
+        builder.setParent(null);
 
-        StepOutEventListener lsnr = createStepOutEventListener();
-        if (lsnr != null) _newComp.addEventListener("onStepOut", lsnr);
+        Component _newComp = uiBuilder.manufacture(builder.build());
+
+        // 组件创建成功后
+        if (_newComp != null) {
+            StepOutEventListener lsnr = createStepOutEventListener();
+            if (lsnr != null) {
+                // 获取当前组件的父组件
+                Component _parent = self.getParent();
+                // 托管当前页面
+                self.detach();
+                // 移除当前页面的所有元素
+                lsnr.removeChildren(_parent);
+                // 设置新组件的父组件
+                _newComp.setParent(_parent);
+                // 添加onStepOut事件监听
+                _newComp.addEventListener("onStepOut", lsnr);
+            }
+        }
     }
 
     /**

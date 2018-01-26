@@ -5,13 +5,11 @@ import org.springframework.util.Assert;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.SerializableEventListener;
 
-import java.util.List;
-
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 public class StepOutEventListener implements SerializableEventListener<StepOutEvent> {
 
-    private static final long serialVersionUID = -635437173380705895L;
+    private static final long serialVersionUID = -1789323181118688436L;
     private final Component _curComp;
     private final Component _parent;
 
@@ -30,13 +28,14 @@ public class StepOutEventListener implements SerializableEventListener<StepOutEv
     public void onEvent(StepOutEvent event) throws Exception {
         synchronized (_parent) {
             event.getTarget().invalidate();
-            _removeChildrenOfParent();
+            removeChildren(_parent);
             _curComp.setParent(_parent);
         }
     }
 
-    private void _removeChildrenOfParent() {
-        List<Component> children = getParent().getChildren();
-        if (isNotEmpty(children)) children.clear();
+    public void removeChildren(Component parent) {
+        if (parent != null && isNotEmpty(parent.getChildren())) {
+            parent.getChildren().clear();
+        }
     }
 }
