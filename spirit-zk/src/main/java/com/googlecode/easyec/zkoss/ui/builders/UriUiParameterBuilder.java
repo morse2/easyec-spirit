@@ -28,4 +28,11 @@ public class UriUiParameterBuilder extends DefaultUiParameterBuilder {
 
         return super.build();
     }
+
+    @Override
+    protected void clearParam() {
+        super.clearParam();
+
+        this.uri = null;
+    }
 }

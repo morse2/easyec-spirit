@@ -51,6 +51,16 @@ public class DefaultUiParameterBuilder {
         impl.setParent(this.parent);
         impl.setArgs(this.args);
 
-        return impl;
+        try {
+            return impl;
+        } finally {
+            clearParam();
+        }
+    }
+
+    protected void clearParam() {
+        this.parent = null;
+        this.pageDefinition = null;
+        this.args.clear();
     }
 }
