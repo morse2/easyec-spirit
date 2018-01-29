@@ -1,5 +1,6 @@
 package com.googlecode.easyec.zkoss.mvvm;
 
+import com.googlecode.easyec.zkoss.ui.Steps;
 import com.googlecode.easyec.zkoss.ui.builders.DefaultUiParameterBuilder;
 import com.googlecode.easyec.zkoss.ui.builders.UiBuilder;
 import com.googlecode.easyec.zkoss.ui.builders.UriUiParameterBuilder;
@@ -45,19 +46,17 @@ import static org.zkoss.bind.annotation.ContextType.COMPONENT;
  *
  * @author JunJie
  */
-public abstract class BaseVM<T extends Component> implements ComponentActivationListener, Serializable {
+public abstract class BaseVM<T extends Component> implements ComponentActivationListener, Serializable, Steps {
 
-    private static final long serialVersionUID = -8332745571693447112L;
+    private static final long serialVersionUID = -8830463527568229686L;
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     /* 标识是否做过激活操作 */
     private transient boolean _activated;
-
-    /* 当前ZK组件对象 */
-    private T self;
-
     /* 最近引用的uri路径 */
     private String prevUri;
+    /* 当前ZK组件对象 */
+    private T self;
 
     @WireVariable
     private transient UiBuilder uiBuilder;
@@ -260,7 +259,7 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
      *
      * @param uri ZK page uri
      */
-    protected void stepIn(String uri) {
+    public void stepIn(String uri) {
         stepIn(uri, Collections.emptyMap());
     }
 
@@ -270,7 +269,7 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
      * @param uri  ZK page uri
      * @param args 参数集合
      */
-    protected void stepIn(String uri, Map<Object, Object> args) {
+    public void stepIn(String uri, Map<Object, Object> args) {
         Assert.isTrue(isNotBlank(uri), "URI mustn't be null.");
 
         stepIn(
@@ -292,7 +291,7 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
      *
      * @param builder URI参数构造器对象
      */
-    protected void stepIn(DefaultUiParameterBuilder builder) {
+    public void stepIn(DefaultUiParameterBuilder builder) {
         Assert.notNull(builder, "UiParameterBuilder object mustn't be null.");
 
         // 强制设置父组件为null
@@ -322,7 +321,7 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
      * 从当前ZK页面组件中步出，
      * 并返回到之前的页面的方法
      */
-    protected void stepOut() {
+    public void stepOut() {
         stepOut(null);
     }
 
@@ -332,7 +331,7 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
      *
      * @param data 返回到之前页面的数据对象
      */
-    protected void stepOut(Object data) {
+    public void stepOut(Object data) {
         Events.postEvent(new StepOutEvent(self, data));
     }
 
