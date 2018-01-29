@@ -15,6 +15,7 @@ import java.util.Map;
  *
  * @author JunJie
  */
+@Deprecated
 public abstract class BaseFormValidator extends AbstractValidator {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
