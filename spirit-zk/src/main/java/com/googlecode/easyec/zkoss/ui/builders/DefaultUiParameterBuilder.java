@@ -48,8 +48,8 @@ public class DefaultUiParameterBuilder {
         Assert.notNull(this.pageDefinition, "PageDefinition is null.");
 
         UiParameterImpl impl = new UiParameterImpl(pageDefinition);
+        impl.setArgs(new HashMap<>(this.args));
         impl.setParent(this.parent);
-        impl.setArgs(this.args);
 
         try {
             return impl;
