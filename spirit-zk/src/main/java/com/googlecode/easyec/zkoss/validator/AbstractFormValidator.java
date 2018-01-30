@@ -70,12 +70,7 @@ public abstract class AbstractFormValidator extends AbstractValidator {
         List<WrongValueException> result = new ArrayList<>();
         List<ValidationException> exceptions = e.getExceptions();
         for (ValidationException ex : exceptions) {
-            result.add(
-                new WrongValueException(
-                    ex.getComponent(),
-                    ex.getMessage()
-                )
-            );
+            result.add(convertException(ex));
         }
 
         if (!result.isEmpty()) {
@@ -103,6 +98,19 @@ public abstract class AbstractFormValidator extends AbstractValidator {
 
             throw e;
         }
+    }
+
+    /**
+     * 转换异常的方法
+     *
+     * @param e 源异常对象
+     * @return 目标异常对象
+     */
+    protected WrongValueException convertException(ValidationException e) {
+        return new WrongValueException(
+            e.getComponent(),
+            e.getMessage()
+        );
     }
 
     /**

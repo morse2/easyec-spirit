@@ -1,11 +1,12 @@
-package com.googlecode.easyec.zkoss.validator.annotation;
+package com.googlecode.easyec.zkoss.validator.prop.annotation;
 
-import com.googlecode.easyec.zkoss.validator.PropertyValidator;
+import com.googlecode.easyec.zkoss.validator.prop.PropertyValidator;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -15,8 +16,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * @author junjie
  */
 @Documented
-@Target(FIELD)
 @Retention(RUNTIME)
+@Target({ ANNOTATION_TYPE, FIELD })
 public @interface Validator {
 
     /**

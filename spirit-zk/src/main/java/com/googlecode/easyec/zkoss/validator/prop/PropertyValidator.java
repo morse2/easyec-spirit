@@ -1,5 +1,6 @@
-package com.googlecode.easyec.zkoss.validator;
+package com.googlecode.easyec.zkoss.validator.prop;
 
+import com.googlecode.easyec.zkoss.validator.ValidationException;
 import org.zkoss.bind.Property;
 
 public interface PropertyValidator {
