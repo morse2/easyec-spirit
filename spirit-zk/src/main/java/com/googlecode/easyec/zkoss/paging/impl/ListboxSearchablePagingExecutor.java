@@ -106,12 +106,13 @@ public abstract class ListboxSearchablePagingExecutor extends AbstractSearchable
     @Override
     protected void doClear() {
         _comp.getItems().clear();
+        _comp.setModel(new ListModelList<>());
         _comp.setEmptyMessage(getEmptyMessage());
     }
 
     @Override
     protected void doRedraw(List<?> records) {
-        ListModelList<Object> model = new ListModelList<Object>(records);
+        ListModelList<Object> model = new ListModelList<>(records);
         model.setMultiple(isMultiple());
 
         _comp.getItems().clear();

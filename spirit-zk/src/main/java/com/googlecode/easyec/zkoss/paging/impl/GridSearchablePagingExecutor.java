@@ -8,7 +8,7 @@ import org.zkoss.zul.*;
 
 import java.util.List;
 
-import static org.springframework.util.CollectionUtils.isEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 /**
  * 网格组件的可搜索的分页操作执行器类。
@@ -56,6 +56,7 @@ public abstract class GridSearchablePagingExecutor extends AbstractSearchablePag
     @Override
     protected void doClear() {
         removeRowsChild(_comp.getRows());
+        _comp.setModel(new ListModelList<>());
         _comp.setEmptyMessage(getEmptyMessage());
     }
 
@@ -67,14 +68,11 @@ public abstract class GridSearchablePagingExecutor extends AbstractSearchablePag
 
     private void removeRowsChild(Rows rows) {
         if (null != rows) {
-            List<Component> children = rows.getChildren();
+            rows.invalidate();
 
-            do {
-                if (isEmpty(children)) break;
-
-                rows.removeChild(children.get(0));
-                children = rows.getChildren();
-            } while (true);
+            if (isNotEmpty(rows.getChildren())) {
+                rows.getChildren().clear();
+            }
         }
     }
 }
