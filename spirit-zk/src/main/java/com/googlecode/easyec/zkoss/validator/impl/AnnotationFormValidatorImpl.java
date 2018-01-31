@@ -78,10 +78,11 @@ public class AnnotationFormValidatorImpl extends AbstractFormValidator {
                         ((SavePropertyBinding) binding).getProperty()
                     );
 
-                Class<?> _curClz = _getTargetClass(valRefer.getBase());
+                Object inst = valRefer.getBase();
+                Class<?> _curClz = _getTargetClass(inst);
                 BeanWrapper bw = beanMap.get(_curClz);
                 if (bw == null) {
-                    bw = createInstance(_curClz);
+                    bw = createInstance(inst);
                     beanMap.put(_curClz, bw);
                 }
 
