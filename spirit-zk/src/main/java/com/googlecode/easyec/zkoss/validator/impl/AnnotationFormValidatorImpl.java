@@ -28,8 +28,11 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+import static org.springframework.aop.support.AopUtils.getTargetClass;
 import static org.springframework.util.ClassUtils.getConstructorIfAvailable;
 
 /**
@@ -48,9 +51,6 @@ public class AnnotationFormValidatorImpl extends AbstractFormValidator {
             "AnnotationFormValidator must use AnnotationBinder."
         );
 
-        // 获取当前表单的domainModel对象
-        Object dm = ctx.getProperty().getBase();
-
         // 获取Binder对象实例
         Binder binder = bindContext.getBinder();
         Set<SaveBinding> bindings
@@ -60,8 +60,7 @@ public class AnnotationFormValidatorImpl extends AbstractFormValidator {
             );
 
         if (isNotEmpty(bindings)) {
-            BeanWrapper bw = createInstance(dm);
-
+            ConcurrentMap<Class<?>, BeanWrapper> beanMap = new ConcurrentHashMap<>();
             ValidationsException ex = new ValidationsException();
             for (SaveBinding binding : bindings) {
                 if (!(binding instanceof SavePropertyBinding)) {
@@ -77,6 +76,13 @@ public class AnnotationFormValidatorImpl extends AbstractFormValidator {
                         binding.getComponent(),
                         ((SavePropertyBinding) binding).getProperty()
                     );
+
+                Class<?> _curClz = getTargetClass(valRefer.getBase());
+                BeanWrapper bw = beanMap.get(_curClz);
+                if (bw == null) {
+                    bw = createInstance(_curClz);
+                    beanMap.put(_curClz, bw);
+                }
 
                 String name = (String) valRefer.getProperty();
                 Field field
