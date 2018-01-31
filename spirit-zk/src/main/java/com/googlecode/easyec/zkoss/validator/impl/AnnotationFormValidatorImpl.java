@@ -9,11 +9,8 @@ import com.googlecode.easyec.zkoss.validator.prop.annotation.NullValidator;
 import com.googlecode.easyec.zkoss.validator.prop.annotation.NumberValidator;
 import com.googlecode.easyec.zkoss.validator.prop.annotation.Validator;
 import com.googlecode.easyec.zkoss.validator.prop.impl.NumberPropertyValidator.Method;
-import javassist.util.proxy.ProxyObject;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import org.zkoss.bind.BindContext;
@@ -29,11 +26,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
-import static org.springframework.aop.support.AopUtils.getTargetClass;
 import static org.springframework.util.ClassUtils.getConstructorIfAvailable;
 
 /**
@@ -61,7 +55,6 @@ public class AnnotationFormValidatorImpl extends AbstractFormValidator {
             );
 
         if (isNotEmpty(bindings)) {
-            ConcurrentMap<Class<?>, BeanWrapper> beanMap = new ConcurrentHashMap<>();
             ValidationsException ex = new ValidationsException();
             for (SaveBinding binding : bindings) {
                 if (!(binding instanceof SavePropertyBinding)) {
@@ -79,21 +72,10 @@ public class AnnotationFormValidatorImpl extends AbstractFormValidator {
                     );
 
                 Object inst = valRefer.getBase();
-                Class<?> _curClz = _getTargetClass(inst);
-                BeanWrapper bw = beanMap.get(_curClz);
-                if (bw == null) {
-                    bw = createInstance(inst);
-                    beanMap.put(_curClz, bw);
-                }
-
                 String name = (String) valRefer.getProperty();
-                Field field
-                    = ReflectionUtils.findField(
-                    bw.getWrappedClass(), name
-                );
-
+                Field field = _findField(inst.getClass(), name);
                 if (field == null) {
-                    logger.warn("Field [{}] cannot be found in class [{}].", name, bw.getWrappedClass());
+                    logger.warn("Field [{}] cannot be found in class [{}].", name, inst.getClass());
 
                     continue;
                 }
@@ -169,14 +151,13 @@ public class AnnotationFormValidatorImpl extends AbstractFormValidator {
         validate(getConstructorIfAvailable(ann.value()), property);
     }
 
-    private Class<?> _getTargetClass(Object obj) {
-        return obj instanceof ProxyObject
-            ? obj.getClass().getSuperclass()
-            : getTargetClass(obj);
-    }
+    private Field _findField(Class<?> cls, String name) {
+        if (cls == null) return null;
 
-    protected BeanWrapper createInstance(Object dm) {
-        return new BeanWrapperImpl(dm);
+        Field field = ReflectionUtils.findField(cls, name);
+        if (field != null) return field;
+
+        return _findField(cls.getSuperclass(), name);
     }
 
     protected void validate(Constructor<? extends PropertyValidator> cons, Property property, Object... values) throws ValidationException {
