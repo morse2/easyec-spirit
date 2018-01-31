@@ -9,6 +9,7 @@ import com.googlecode.easyec.zkoss.validator.prop.annotation.NullValidator;
 import com.googlecode.easyec.zkoss.validator.prop.annotation.NumberValidator;
 import com.googlecode.easyec.zkoss.validator.prop.annotation.Validator;
 import com.googlecode.easyec.zkoss.validator.prop.impl.NumberPropertyValidator.Method;
+import javassist.util.proxy.ProxyObject;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
@@ -77,7 +78,7 @@ public class AnnotationFormValidatorImpl extends AbstractFormValidator {
                         ((SavePropertyBinding) binding).getProperty()
                     );
 
-                Class<?> _curClz = getTargetClass(valRefer.getBase());
+                Class<?> _curClz = _getTargetClass(valRefer.getBase());
                 BeanWrapper bw = beanMap.get(_curClz);
                 if (bw == null) {
                     bw = createInstance(_curClz);
@@ -165,6 +166,12 @@ public class AnnotationFormValidatorImpl extends AbstractFormValidator {
 
     private void _validate(Validator ann, Property property) throws ValidationException {
         validate(getConstructorIfAvailable(ann.value()), property);
+    }
+
+    private Class<?> _getTargetClass(Object obj) {
+        return obj instanceof ProxyObject
+            ? obj.getClass().getSuperclass()
+            : getTargetClass(obj);
     }
 
     protected BeanWrapper createInstance(Object dm) {
