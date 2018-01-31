@@ -20,11 +20,11 @@ public class EmailPropertyValidator extends AbstractPropertyValidator {
 
     @Override
     public void validate(Property property) throws ValidationException {
-        Object value = property.getValue();
+        Object value = getPropertyValue(property);
         if (value == null || !(value instanceof String)) {
             logger.warn(
                 "The property [{}]'s value is not present. Value: [{}]. So ignore this validation.",
-                property.getProperty(), value
+                property.getProperty(), null
             );
 
             return;

@@ -42,7 +42,7 @@ public class NumberPropertyValidator extends AbstractPropertyValidator {
 
     @Override
     public void validate(Property property) throws ValidationException {
-        Object value = property.getValue();
+        Object value = getPropertyValue(property);
         if (value == null || !(value instanceof Number)) {
             logger.warn(
                 "Neither property [{}]'s value is null or not present. Value: [{}].",

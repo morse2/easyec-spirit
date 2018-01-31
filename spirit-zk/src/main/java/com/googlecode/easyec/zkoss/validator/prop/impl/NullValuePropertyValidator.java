@@ -14,7 +14,7 @@ public class NullValuePropertyValidator extends AbstractPropertyValidator {
 
     @Override
     public void validate(Property property) throws ValidationException {
-        Object value = property.getValue();
+        Object value = getPropertyValue(property);
 
         if (value == null) {
             logger.warn("Property [{}]'s value is null.", property.getProperty());
