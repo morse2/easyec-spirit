@@ -1,9 +1,12 @@
 package com.googlecode.easyec.zkoss.validator.prop;
 
-import com.googlecode.easyec.zkoss.validator.prop.PropertyValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 public abstract class AbstractPropertyValidator implements PropertyValidator {
+
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     private String message;
 

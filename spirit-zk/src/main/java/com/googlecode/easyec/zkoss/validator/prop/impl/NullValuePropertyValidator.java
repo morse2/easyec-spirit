@@ -17,10 +17,17 @@ public class NullValuePropertyValidator extends AbstractPropertyValidator {
         Object value = property.getValue();
 
         if (value == null) {
+            logger.warn("Property [{}]'s value is null.", property.getProperty());
+
             throw new ValidationException(getMessage());
         }
 
         if (value instanceof String && isBlank(((String) value))) {
+            logger.warn(
+                "Property [{}] is instanceof java.lang.String, but has no value.",
+                property.getProperty()
+            );
+
             throw new ValidationException(getMessage());
         }
     }

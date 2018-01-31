@@ -44,7 +44,12 @@ public class NumberPropertyValidator extends AbstractPropertyValidator {
     public void validate(Property property) throws ValidationException {
         Object value = property.getValue();
         if (value == null || !(value instanceof Number)) {
-            throw new ValidationException(getMessage());
+            logger.warn(
+                "Neither property [{}]'s value is null or not present. Value: [{}].",
+                property.getProperty(), value
+            );
+
+            return;
         }
 
         double v1 = getValue().doubleValue();

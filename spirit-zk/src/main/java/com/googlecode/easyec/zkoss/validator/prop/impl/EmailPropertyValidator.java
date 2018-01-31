@@ -22,7 +22,12 @@ public class EmailPropertyValidator extends AbstractPropertyValidator {
     public void validate(Property property) throws ValidationException {
         Object value = property.getValue();
         if (value == null || !(value instanceof String)) {
-            throw new ValidationException(getMessage());
+            logger.warn(
+                "The property [{}]'s value is not present. Value: [{}]. So ignore this validation.",
+                property.getProperty(), value
+            );
+
+            return;
         }
 
         if (!_pEmail.matcher((String) value).find()) {
