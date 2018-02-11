@@ -4,10 +4,7 @@ import com.googlecode.easyec.zkoss.validator.AbstractFormValidator;
 import com.googlecode.easyec.zkoss.validator.ValidationException;
 import com.googlecode.easyec.zkoss.validator.ValidationsException;
 import com.googlecode.easyec.zkoss.validator.prop.PropertyValidator;
-import com.googlecode.easyec.zkoss.validator.prop.annotation.EmailValidator;
-import com.googlecode.easyec.zkoss.validator.prop.annotation.NullValidator;
-import com.googlecode.easyec.zkoss.validator.prop.annotation.NumberValidator;
-import com.googlecode.easyec.zkoss.validator.prop.annotation.Validator;
+import com.googlecode.easyec.zkoss.validator.prop.annotation.*;
 import com.googlecode.easyec.zkoss.validator.prop.impl.NumberPropertyValidator.Method;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.BeanUtils;
@@ -111,6 +108,13 @@ public class AnnotationFormValidatorImpl extends AbstractFormValidator {
                                     binding.getValidate(bindContext)
                                 );
                             }
+                            // PhoneValidator
+                            else if (ann instanceof PhoneValidator) {
+                                _validate(
+                                    (PhoneValidator) ann,
+                                    binding.getValidate(bindContext)
+                                );
+                            }
                             // check whether is custom validator
                             else {
                                 Class<? extends Annotation> annType = ann.annotationType();
@@ -145,6 +149,10 @@ public class AnnotationFormValidatorImpl extends AbstractFormValidator {
     private void _validate(EmailValidator ann, Property property) throws ValidationException {
         Validator anno = ann.annotationType().getAnnotation(Validator.class);
         validate(getConstructorIfAvailable(anno.value(), String.class), property, ann.message());
+    }
+
+    private void _validate(PhoneValidator ann, Property property) throws ValidationException {
+        validate(getConstructorIfAvailable(ann.value(), String.class), property, ann.message());
     }
 
     private void _validate(Validator ann, Property property) throws ValidationException {

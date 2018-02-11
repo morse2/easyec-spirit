@@ -18,7 +18,7 @@ import java.util.List;
  */
 public abstract class ListboxSearchablePagingExecutor extends AbstractSearchablePagingExecutor<Listbox> {
 
-    private static final long serialVersionUID = 6361109293049839555L;
+    private static final long serialVersionUID = -5354868178904741831L;
 
     /**
      * 构造方法。
@@ -28,55 +28,6 @@ public abstract class ListboxSearchablePagingExecutor extends AbstractSearchable
      */
     protected ListboxSearchablePagingExecutor(Paging paging, Listbox comp) {
         super(paging, comp);
-    }
-
-    private boolean checkmark;
-    private boolean multiple;
-
-    /**
-     * 返回此列表框中的数据是否可选。
-     * <p>
-     * 如果此方法返回假，那么调用方法
-     * {@link #setMultiple(boolean)}
-     * 不会产生任何效果。
-     * </p>
-     *
-     * @return 返回真代表可勾选
-     */
-    public boolean isCheckmark() {
-        return checkmark;
-    }
-
-    /**
-     * 设置此列表框中的数据是否可选。
-     * <p>
-     * 如果此方法设置为假，那么调用方法
-     * {@link #setMultiple(boolean)}
-     * 不会产生任何效果。
-     * </p>
-     *
-     * @param checkmark 复选标识
-     */
-    public void setCheckmark(boolean checkmark) {
-        this.checkmark = checkmark;
-    }
-
-    /**
-     * 返回此列表框中的数据是否是多选。
-     *
-     * @return 返回真表示为复选框
-     */
-    public boolean isMultiple() {
-        return multiple;
-    }
-
-    /**
-     * 设置此列表框中的数据是否是多选。
-     *
-     * @param multiple 复选框标识
-     */
-    public void setMultiple(boolean multiple) {
-        this.multiple = multiple;
     }
 
     @Override
@@ -112,11 +63,7 @@ public abstract class ListboxSearchablePagingExecutor extends AbstractSearchable
 
     @Override
     protected void doRedraw(List<?> records) {
-        ListModelList<Object> model = new ListModelList<>(records);
-        model.setMultiple(isMultiple());
-
         _comp.getItems().clear();
-        _comp.setModel(model);
-        _comp.setCheckmark(isCheckmark());
+        _comp.setModel(new ListModelList<>(records));
     }
 }
