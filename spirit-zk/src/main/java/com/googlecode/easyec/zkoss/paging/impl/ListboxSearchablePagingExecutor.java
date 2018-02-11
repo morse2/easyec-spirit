@@ -17,6 +17,7 @@ import java.util.List;
  */
 public abstract class ListboxSearchablePagingExecutor extends AbstractSearchablePagingExecutor<Listbox> {
 
+    private static final long serialVersionUID = 5390276915424848863L;
     private boolean checkmark;
     private boolean multiple;
 
