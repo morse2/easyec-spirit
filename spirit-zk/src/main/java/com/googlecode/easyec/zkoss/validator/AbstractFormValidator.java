@@ -70,7 +70,8 @@ public abstract class AbstractFormValidator extends AbstractValidator {
         List<WrongValueException> result = new ArrayList<>();
         List<ValidationException> exceptions = e.getExceptions();
         for (ValidationException ex : exceptions) {
-            result.add(convertException(ex));
+            WrongValueException ve = convertException(ex);
+            if (ve != null) result.add(ve);
         }
 
         if (!result.isEmpty()) {
