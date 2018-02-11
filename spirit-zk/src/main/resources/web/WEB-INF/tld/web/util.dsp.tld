@@ -81,7 +81,7 @@
         </description>
         <name>fd1</name>
         <function-class>com.googlecode.easyec.zkoss.utils.CommonFnsUtils</function-class>
-        <function-signature>java.lang.String formatDate(java.util.Date,java.lang.String)</function-signature>
+        <function-signature>java.lang.String formatDate(java.util.Date)</function-signature>
     </function>
 
     <function>
