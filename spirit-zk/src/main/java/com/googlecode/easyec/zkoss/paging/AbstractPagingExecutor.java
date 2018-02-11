@@ -174,12 +174,14 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
         beforePaging(searchFormBean);
         Page page = doPaging(searchFormBean);
         Assert.notNull(page, "Page object is null after invoking method doPaging.");
-        afterPaging(page);
 
         // 如果页面为延迟加载，此时则应该显示组件
         if (lazyLoad) setComponentVisible(_comp, true);
         // 画出分页结果
         draw(page);
+
+        // 执行分页后的操作
+        afterPaging(page);
     }
 
     protected boolean _isPagingAlive() {

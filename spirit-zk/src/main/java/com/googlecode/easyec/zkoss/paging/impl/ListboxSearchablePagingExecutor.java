@@ -1,13 +1,12 @@
 package com.googlecode.easyec.zkoss.paging.impl;
 
+import com.googlecode.easyec.spirit.dao.paging.Page;
 import com.googlecode.easyec.zkoss.paging.AbstractSearchablePagingExecutor;
 import com.googlecode.easyec.zkoss.paging.sort.SortComparator;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zul.ListModelList;
-import org.zkoss.zul.Listbox;
-import org.zkoss.zul.Listheader;
-import org.zkoss.zul.Paging;
+import org.zkoss.zul.*;
+import org.zkoss.zul.ext.Selectable;
 
 import java.util.List;
 
@@ -18,16 +17,34 @@ import java.util.List;
  */
 public abstract class ListboxSearchablePagingExecutor extends AbstractSearchablePagingExecutor<Listbox> {
 
-    private static final long serialVersionUID = -5354868178904741831L;
+    private boolean checkmark;
+    private boolean multiple;
 
-    /**
-     * 构造方法。
-     *
-     * @param paging 分页组件对象
-     * @param comp   呈现分页结果组件对象
-     */
     protected ListboxSearchablePagingExecutor(Paging paging, Listbox comp) {
         super(paging, comp);
+
+        this.checkmark = comp.isCheckmark();
+        this.multiple = comp.isMultiple();
+    }
+
+    /**
+     * 返回当前<code>Listbox</code>
+     * 的状态是否可选
+     *
+     * @return 布尔值
+     */
+    public boolean isCheckmark() {
+        return checkmark;
+    }
+
+    /**
+     * 返回当前<code>Listbox</code>
+     * 的状态是否可多选
+     *
+     * @return 布尔值
+     */
+    public boolean isMultiple() {
+        return multiple;
     }
 
     @Override
@@ -65,5 +82,17 @@ public abstract class ListboxSearchablePagingExecutor extends AbstractSearchable
     protected void doRedraw(List<?> records) {
         _comp.getItems().clear();
         _comp.setModel(new ListModelList<>(records));
+    }
+
+    @Override
+    protected void afterPaging(Page page) {
+        if (isCheckmark() != _comp.isCheckmark()) {
+            _comp.setCheckmark(isCheckmark());
+        }
+
+        ListModel<Object> model = _comp.getModel();
+        if (model instanceof Selectable && isMultiple() != ((Selectable) model).isMultiple()) {
+            ((Selectable) model).setMultiple(isMultiple());
+        }
     }
 }
