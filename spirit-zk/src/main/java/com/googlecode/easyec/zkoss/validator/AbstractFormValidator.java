@@ -30,7 +30,7 @@ public abstract class AbstractFormValidator extends AbstractValidator {
             // begin validating
             validateForm(ctx);
         } catch (WrongValueException e) {
-            if (!ctx.isValid()) ctx.setInvalid();
+            if (ctx.isValid()) ctx.setInvalid();
 
             handleException(
                 new WrongValuesException(
@@ -38,11 +38,11 @@ public abstract class AbstractFormValidator extends AbstractValidator {
                 )
             );
         } catch (WrongValuesException e) {
-            if (!ctx.isValid()) ctx.setInvalid();
+            if (ctx.isValid()) ctx.setInvalid();
 
             handleException(e);
         } catch (ValidationsException e) {
-            if (!ctx.isValid()) ctx.setInvalid();
+            if (ctx.isValid()) ctx.setInvalid();
 
             handleException(e);
         }
