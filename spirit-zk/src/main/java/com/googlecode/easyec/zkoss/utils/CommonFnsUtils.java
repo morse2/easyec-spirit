@@ -1,9 +1,9 @@
 package com.googlecode.easyec.zkoss.utils;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.zkoss.xel.fn.CommonFns;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,7 +21,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 public class CommonFnsUtils {
 
     private static final Pattern P_UNICODE = Pattern.compile("\\\\u[0-9A-Za-z]{4}");
-    private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     /**
      * 获取国际化标签的值。
@@ -150,12 +149,31 @@ public class CommonFnsUtils {
      * @return 文本文字
      */
     public static String formatDate(Date date, String pattern) {
-        if (null == date) return "";
+        return null != date ? DateFormatUtils.format(date, pattern) : "";
+    }
 
-        return
-            new SimpleDateFormat(
-                isBlank(pattern) ? DATE_PATTERN : pattern
-            ).format(date);
+    /**
+     * 格式化给定的日期对象，
+     * 如果日期对象不是空，那么
+     * 就格式化成yyyy-MM-dd字符串。
+     *
+     * @param date <code>java.util.Date</code>
+     * @return 格式化后的日期字符串
+     */
+    public static String formatDate(Date date) {
+        return formatDate(date, "yyyy-MM-dd");
+    }
+
+    /**
+     * 格式化给定的日期对象，
+     * 如果日期对象不是空，那么
+     * 就格式化成yyyy-MM-dd HH:mm字符串。
+     *
+     * @param date <code>java.util.Date</code>
+     * @return 格式化后的日期字符串
+     */
+    public static String formatDateTime(Date date) {
+        return formatDate(date, "yyyy-MM-dd HH:mm");
     }
 
     /**

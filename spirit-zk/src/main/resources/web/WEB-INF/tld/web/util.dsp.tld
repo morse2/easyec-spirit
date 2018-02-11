@@ -23,13 +23,15 @@
     <function>
         <name>l2</name>
         <function-class>com.googlecode.easyec.zkoss.utils.CommonFnsUtils</function-class>
-        <function-signature>java.lang.String getLabel(java.lang.String,java.lang.Object,java.lang.Object)</function-signature>
+        <function-signature>java.lang.String getLabel(java.lang.String,java.lang.Object,java.lang.Object)
+        </function-signature>
     </function>
 
     <function>
         <name>l3</name>
         <function-class>com.googlecode.easyec.zkoss.utils.CommonFnsUtils</function-class>
-        <function-signature>java.lang.String getLabel(java.lang.String,java.lang.Object,java.lang.Object,java.lang.Object)
+        <function-signature>java.lang.String
+            getLabel(java.lang.String,java.lang.Object,java.lang.Object,java.lang.Object)
         </function-signature>
     </function>
 
@@ -59,13 +61,35 @@
         <name>lf3</name>
         <function-class>com.googlecode.easyec.zkoss.utils.CommonFnsUtils</function-class>
         <function-signature>
-            java.lang.String getLabelWithFrag(java.lang.String,java.lang.Object,java.lang.Object,java.lang.Object,java.lang.Object)
+            java.lang.String
+            getLabelWithFrag(java.lang.String,java.lang.Object,java.lang.Object,java.lang.Object,java.lang.Object)
         </function-signature>
     </function>
 
     <function>
-        <name>formatDate</name>
+        <description>
+            Format a date for your own pattern
+        </description>
+        <name>fd0</name>
         <function-class>com.googlecode.easyec.zkoss.utils.CommonFnsUtils</function-class>
         <function-signature>java.lang.String formatDate(java.util.Date,java.lang.String)</function-signature>
+    </function>
+
+    <function>
+        <description>
+            Format a date as string 'yyyy-MM-dd'
+        </description>
+        <name>fd1</name>
+        <function-class>com.googlecode.easyec.zkoss.utils.CommonFnsUtils</function-class>
+        <function-signature>java.lang.String formatDate(java.util.Date,java.lang.String)</function-signature>
+    </function>
+
+    <function>
+        <description>
+            Format a date as string 'yyyy-MM-dd HH:mm'
+        </description>
+        <name>fd2</name>
+        <function-class>com.googlecode.easyec.zkoss.utils.CommonFnsUtils</function-class>
+        <function-signature>java.lang.String formatDateTime(java.util.Date)</function-signature>
     </function>
 </taglib>
