@@ -2,6 +2,7 @@ package com.googlecode.easyec.zkoss.mvvm;
 
 import com.googlecode.easyec.spirit.web.utils.WebUtils;
 import com.googlecode.easyec.zkoss.paging.PagingExecutor;
+import com.googlecode.easyec.zkoss.paging.PagingSelectable;
 import com.googlecode.easyec.zkoss.paging.SearchablePagingExecutor;
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
@@ -110,7 +111,12 @@ public abstract class BaseSearchablePagingVM<T extends Component> extends BasePa
      */
     @Command
     public void search() {
-        getPagingExecutor().firePaging(1);
+        SearchablePagingExecutor exec = getPagingExecutor();
+        if (exec instanceof PagingSelectable) {
+            ((PagingSelectable) exec).clear();
+        }
+
+        exec.firePaging(1);
     }
 
     /**
@@ -118,7 +124,12 @@ public abstract class BaseSearchablePagingVM<T extends Component> extends BasePa
      */
     @Command
     public void reset() {
-        getPagingExecutor().firePaging(1, false);
+        SearchablePagingExecutor exec = getPagingExecutor();
+        if (exec instanceof PagingSelectable) {
+            ((PagingSelectable) exec).clear();
+        }
+
+        exec.firePaging(1, false);
     }
 
     /**

@@ -17,15 +17,14 @@ import java.util.List;
  */
 public abstract class ListboxSearchablePagingExecutor extends AbstractSearchablePagingExecutor<Listbox> {
 
-    private static final long serialVersionUID = 5390276915424848863L;
+    private static final long serialVersionUID = -8558100189748774107L;
     private boolean checkmark;
     private boolean multiple;
 
     protected ListboxSearchablePagingExecutor(Paging paging, Listbox comp) {
         super(paging, comp);
 
-        this.checkmark = comp.isCheckmark();
-        this.multiple = comp.isMultiple();
+        initListbox();
     }
 
     /**
@@ -95,5 +94,13 @@ public abstract class ListboxSearchablePagingExecutor extends AbstractSearchable
         if (model instanceof Selectable && isMultiple() != ((Selectable) model).isMultiple()) {
             ((Selectable) model).setMultiple(isMultiple());
         }
+    }
+
+    /**
+     * 初始化<code>Listbox</code>对象实例的方法
+     */
+    protected void initListbox() {
+        this.checkmark = this._comp.isCheckmark();
+        this.multiple = this._comp.isMultiple();
     }
 }
