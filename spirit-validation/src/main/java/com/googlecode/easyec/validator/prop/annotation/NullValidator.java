@@ -1,6 +1,6 @@
-package com.googlecode.easyec.zkoss.validator.prop.annotation;
+package com.googlecode.easyec.validator.prop.annotation;
 
-import com.googlecode.easyec.zkoss.validator.prop.impl.NullValuePropertyValidator;
+import com.googlecode.easyec.validator.prop.impl.NullPropertyValidator;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -12,8 +12,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 @Target(FIELD)
 @Retention(RUNTIME)
-@Validator(NullValuePropertyValidator.class)
+@Validator(NullPropertyValidator.class)
 public @interface NullValidator {
 
     String message();
+
+    boolean i18n() default true;
 }

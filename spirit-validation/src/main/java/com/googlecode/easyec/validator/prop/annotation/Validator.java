@@ -1,6 +1,6 @@
-package com.googlecode.easyec.zkoss.validator.prop.annotation;
+package com.googlecode.easyec.validator.prop.annotation;
 
-import com.googlecode.easyec.zkoss.validator.prop.PropertyValidator;
+import com.googlecode.easyec.validator.prop.PropertyValidator;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;

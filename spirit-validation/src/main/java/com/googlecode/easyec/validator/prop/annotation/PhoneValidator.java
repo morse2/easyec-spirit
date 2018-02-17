@@ -1,6 +1,6 @@
-package com.googlecode.easyec.zkoss.validator.prop.annotation;
+package com.googlecode.easyec.validator.prop.annotation;
 
-import com.googlecode.easyec.zkoss.validator.prop.impl.PhonePropertyValidator;
+import com.googlecode.easyec.validator.prop.impl.PhonePropertyValidator;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -22,4 +22,6 @@ public @interface PhoneValidator {
     Class<? extends PhonePropertyValidator> value();
 
     String message();
+
+    boolean i18n() default true;
 }

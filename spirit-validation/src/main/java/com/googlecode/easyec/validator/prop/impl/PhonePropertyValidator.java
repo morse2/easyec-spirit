@@ -1,16 +1,12 @@
-package com.googlecode.easyec.zkoss.validator.prop.impl;
+package com.googlecode.easyec.validator.prop.impl;
 
-import com.googlecode.easyec.zkoss.validator.ValidationException;
-import com.googlecode.easyec.zkoss.validator.prop.AbstractPropertyValidator;
-import org.zkoss.bind.Property;
+import com.googlecode.easyec.validator.ValidationException;
+import com.googlecode.easyec.validator.prop.AbstractMessagingPropertyValidator;
+import com.googlecode.easyec.validator.prop.Property;
 
 import java.util.regex.Pattern;
 
-public abstract class PhonePropertyValidator extends AbstractPropertyValidator {
-
-    public PhonePropertyValidator(String message) {
-        super(message);
-    }
+public abstract class PhonePropertyValidator extends AbstractMessagingPropertyValidator {
 
     @Override
     public void validate(Property property) throws ValidationException {
@@ -26,7 +22,9 @@ public abstract class PhonePropertyValidator extends AbstractPropertyValidator {
         }
 
         if (!getPhonePattern().matcher((String) value).find()) {
-            throw new ValidationException(getMessage());
+            ValidationException ex = new ValidationException(getMessage());
+            ex.setI18nMsg(isI18n());
+            throw ex;
         }
     }
 

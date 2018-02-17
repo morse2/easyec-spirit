@@ -61,6 +61,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.googlecode.easyec</groupId>
+            <artifactId>spirit-validation</artifactId>
+            <version>0.8.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
             <version>3.4.5</version>

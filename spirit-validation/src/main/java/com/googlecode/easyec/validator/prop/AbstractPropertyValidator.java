@@ -1,24 +1,15 @@
-package com.googlecode.easyec.zkoss.validator.prop;
+package com.googlecode.easyec.validator.prop;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
-import org.springframework.util.Assert;
-import org.zkoss.bind.Property;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public abstract class AbstractPropertyValidator implements PropertyValidator {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
-
-    private String message;
-
-    public AbstractPropertyValidator(String message) {
-        Assert.notNull(message, "Parameter 'message' is null");
-        this.message = message;
-    }
 
     protected Object getPropertyValue(Property property) {
         Object value = property.getValue();
@@ -36,10 +27,6 @@ public abstract class AbstractPropertyValidator implements PropertyValidator {
         value = bw.getPropertyValue(propertyName);
 
         return _isNullString(value) ? null : value;
-    }
-
-    public String getMessage() {
-        return message;
     }
 
     private boolean _isNullString(Object val) {

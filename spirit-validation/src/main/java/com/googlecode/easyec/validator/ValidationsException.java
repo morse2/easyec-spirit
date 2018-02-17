@@ -1,11 +1,11 @@
-package com.googlecode.easyec.zkoss.validator;
+package com.googlecode.easyec.validator;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ValidationsException extends Exception {
 
-    private static final long serialVersionUID = -5505867914298320986L;
+    private static final long serialVersionUID = -1162531965859257859L;
     private List<ValidationException> _exceptions = new ArrayList<>();
 
     public ValidationsException() { }

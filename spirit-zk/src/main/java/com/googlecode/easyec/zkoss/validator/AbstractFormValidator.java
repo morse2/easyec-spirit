@@ -1,10 +1,13 @@
 package com.googlecode.easyec.zkoss.validator;
 
+import com.googlecode.easyec.validator.ValidationException;
+import com.googlecode.easyec.validator.ValidationsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zkoss.bind.BindContext;
 import org.zkoss.bind.ValidationContext;
 import org.zkoss.bind.validator.AbstractValidator;
+import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.WrongValueException;
 import org.zkoss.zk.ui.WrongValuesException;
 
@@ -109,7 +112,7 @@ public abstract class AbstractFormValidator extends AbstractValidator {
      */
     protected WrongValueException convertException(ValidationException e) {
         return new WrongValueException(
-            e.getComponent(),
+            (Component) e.getReference(),
             e.getMessage()
         );
     }

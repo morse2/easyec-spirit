@@ -1,7 +1,7 @@
-package com.googlecode.easyec.zkoss.validator.prop.annotation;
+package com.googlecode.easyec.validator.prop.annotation;
 
-import com.googlecode.easyec.zkoss.validator.prop.impl.NumberPropertyValidator;
-import com.googlecode.easyec.zkoss.validator.prop.impl.NumberPropertyValidator.Method;
+import com.googlecode.easyec.validator.prop.impl.NumberPropertyValidator;
+import com.googlecode.easyec.validator.prop.impl.NumberPropertyValidator.Method;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -21,4 +21,6 @@ public @interface NumberValidator {
     Method method();
 
     double value() default 0;
+
+    boolean i18n() default true;
 }

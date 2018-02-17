@@ -1,4 +1,4 @@
-package com.googlecode.easyec.zkoss.validator.prop.impl;
+package com.googlecode.easyec.validator.prop.impl;
 
 import java.util.regex.Pattern;
 
@@ -13,10 +13,6 @@ public class ChinaTelephonePropertyValidator extends PhonePropertyValidator {
 
     private static Pattern _pTelephone
         = Pattern.compile("^(0\\\\d{2}-\\\\d{8}(-\\\\d{1,4})?)|(0\\\\d{3}-\\\\d{7,8}(-\\\\d{1,4})?)$", CASE_INSENSITIVE);
-
-    public ChinaTelephonePropertyValidator(String message) {
-        super(message);
-    }
 
     @Override
     protected Pattern getPhonePattern() {

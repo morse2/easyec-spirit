@@ -1,11 +1,11 @@
-package com.googlecode.easyec.zkoss.validator.prop.impl;
+package com.googlecode.easyec.validator.prop.impl;
 
-import com.googlecode.easyec.zkoss.validator.ValidationException;
-import com.googlecode.easyec.zkoss.validator.prop.AbstractPropertyValidator;
+import com.googlecode.easyec.validator.ValidationException;
+import com.googlecode.easyec.validator.prop.AbstractMessagingPropertyValidator;
+import com.googlecode.easyec.validator.prop.Property;
 import org.springframework.util.Assert;
-import org.zkoss.bind.Property;
 
-public class NumberPropertyValidator extends AbstractPropertyValidator {
+public class NumberPropertyValidator extends AbstractMessagingPropertyValidator {
 
     public enum Method {
 
@@ -22,9 +22,7 @@ public class NumberPropertyValidator extends AbstractPropertyValidator {
     private Method method;
     private Number value;
 
-    public NumberPropertyValidator(String message, Method method, Number value) {
-        super(message);
-
+    public NumberPropertyValidator(Method method, Number value) {
         Assert.notNull(method, "Parameter 'method' cannot be null.");
         Assert.notNull(value, "Parameter 'value' cannot be null.");
 
@@ -73,6 +71,8 @@ public class NumberPropertyValidator extends AbstractPropertyValidator {
     }
 
     private void _throws() throws ValidationException {
-        throw new ValidationException(getMessage());
+        ValidationException ex = new ValidationException(getMessage());
+        ex.setI18nMsg(isI18n());
+        throw ex;
     }
 }
