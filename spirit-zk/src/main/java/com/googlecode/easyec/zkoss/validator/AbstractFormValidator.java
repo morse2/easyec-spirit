@@ -14,6 +14,7 @@ import org.zkoss.zk.ui.WrongValuesException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.googlecode.easyec.zkoss.utils.CommonFnsUtils.getLabel;
 import static org.apache.commons.lang3.StringUtils.equalsAny;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -113,7 +114,7 @@ public abstract class AbstractFormValidator extends AbstractValidator {
     protected WrongValueException convertException(ValidationException e) {
         return new WrongValueException(
             (Component) e.getReference(),
-            e.getMessage()
+            e.isI18nMsg() ? getLabel(e.getMessage()) : e.getMessage()
         );
     }
 
