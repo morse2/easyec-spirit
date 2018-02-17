@@ -17,5 +17,5 @@ public @interface NullValidator {
 
     String message();
 
-    boolean i18n() default true;
+    boolean localized() default true;
 }

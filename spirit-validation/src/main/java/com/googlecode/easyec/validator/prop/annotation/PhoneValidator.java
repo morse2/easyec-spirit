@@ -23,5 +23,5 @@ public @interface PhoneValidator {
 
     String message();
 
-    boolean i18n() default true;
+    boolean localized() default true;
 }

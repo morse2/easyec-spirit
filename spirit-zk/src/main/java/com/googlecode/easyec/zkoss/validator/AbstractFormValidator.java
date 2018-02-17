@@ -114,7 +114,7 @@ public abstract class AbstractFormValidator extends AbstractValidator {
     protected WrongValueException convertException(ValidationException e) {
         return new WrongValueException(
             (Component) e.getReference(),
-            e.isI18nMsg() ? getLabel(e.getMessage()) : e.getMessage()
+            e.isLocalized() ? getLabel(e.getMessage()) : e.getMessage()
         );
     }
 

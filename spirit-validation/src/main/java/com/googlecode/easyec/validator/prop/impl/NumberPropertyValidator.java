@@ -72,7 +72,7 @@ public class NumberPropertyValidator extends AbstractMessagingPropertyValidator 
 
     private void _throws() throws ValidationException {
         ValidationException ex = new ValidationException(getMessage());
-        ex.setI18nMsg(isI18n());
+        ex.setLocalized(isLocalized());
         throw ex;
     }
 }

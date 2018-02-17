@@ -10,7 +10,7 @@ import com.googlecode.easyec.validator.MessageCtrl;
 public abstract class AbstractMessagingPropertyValidator extends AbstractPropertyValidator implements MessageCtrl {
 
     private String message;
-    private boolean i18n;
+    private boolean localized;
 
     @Override
     public String getMessage() {
@@ -23,12 +23,12 @@ public abstract class AbstractMessagingPropertyValidator extends AbstractPropert
     }
 
     @Override
-    public boolean isI18n() {
-        return i18n;
+    public boolean isLocalized() {
+        return localized;
     }
 
     @Override
-    public void setI18n(boolean b) {
-        this.i18n = b;
+    public void setLocalized(boolean b) {
+        this.localized = b;
     }
 }

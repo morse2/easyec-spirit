@@ -17,5 +17,5 @@ public @interface EmailValidator {
 
     String message();
 
-    boolean i18n() default true;
+    boolean localized() default true;
 }

@@ -23,7 +23,7 @@ public abstract class PhonePropertyValidator extends AbstractMessagingPropertyVa
 
         if (!getPhonePattern().matcher((String) value).find()) {
             ValidationException ex = new ValidationException(getMessage());
-            ex.setI18nMsg(isI18n());
+            ex.setLocalized(isLocalized());
             throw ex;
         }
     }

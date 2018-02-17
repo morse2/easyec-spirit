@@ -16,7 +16,7 @@ public class NullPropertyValidator extends AbstractMessagingPropertyValidator {
             logger.warn("Property [{}]'s value is null.", property.getProperty());
 
             ValidationException ex = new ValidationException(getMessage());
-            ex.setI18nMsg(isI18n());
+            ex.setLocalized(isLocalized());
             throw ex;
         }
 
@@ -27,7 +27,7 @@ public class NullPropertyValidator extends AbstractMessagingPropertyValidator {
             );
 
             ValidationException ex = new ValidationException(getMessage());
-            ex.setI18nMsg(isI18n());
+            ex.setLocalized(isLocalized());
             throw ex;
         }
     }

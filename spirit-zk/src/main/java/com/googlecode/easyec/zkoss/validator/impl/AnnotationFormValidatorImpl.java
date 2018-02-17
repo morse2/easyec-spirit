@@ -139,7 +139,7 @@ public class AnnotationFormValidatorImpl extends AbstractFormValidator {
     private void _validate(NullValidator ann, Property property) throws ValidationException {
         Validator anno = ann.annotationType().getAnnotation(Validator.class);
         PropertyValidator pv = BeanUtils.instantiateClass(anno.value());
-        _setMsgProps(pv, ann.message(), ann.i18n());
+        _setMsgProps(pv, ann.message(), ann.localized());
         pv.validate(property);
     }
 
@@ -150,20 +150,20 @@ public class AnnotationFormValidatorImpl extends AbstractFormValidator {
             ann.method(), ann.value()
         );
 
-        _setMsgProps(pv, ann.message(), ann.i18n());
+        _setMsgProps(pv, ann.message(), ann.localized());
         pv.validate(property);
     }
 
     private void _validate(EmailValidator ann, Property property) throws ValidationException {
         Validator anno = ann.annotationType().getAnnotation(Validator.class);
         PropertyValidator pv = BeanUtils.instantiateClass(anno.value());
-        _setMsgProps(pv, ann.message(), ann.i18n());
+        _setMsgProps(pv, ann.message(), ann.localized());
         pv.validate(property);
     }
 
     private void _validate(PhoneValidator ann, Property property) throws ValidationException {
         PhonePropertyValidator pv = BeanUtils.instantiateClass(ann.value());
-        _setMsgProps(pv, ann.message(), ann.i18n());
+        _setMsgProps(pv, ann.message(), ann.localized());
         pv.validate(property);
     }
 
@@ -180,10 +180,10 @@ public class AnnotationFormValidatorImpl extends AbstractFormValidator {
         return _findField(cls.getSuperclass(), name);
     }
 
-    private void _setMsgProps(Object inst, String message, boolean i18n) {
+    private void _setMsgProps(Object inst, String message, boolean localized) {
         if (inst instanceof MessageCtrl) {
             ((MessageCtrl) inst).setMessage(message);
-            ((MessageCtrl) inst).setI18n(i18n);
+            ((MessageCtrl) inst).setLocalized(localized);
         }
     }
 

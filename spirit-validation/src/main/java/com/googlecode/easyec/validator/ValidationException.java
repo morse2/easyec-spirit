@@ -2,9 +2,9 @@ package com.googlecode.easyec.validator;
 
 public class ValidationException extends Exception {
 
-    private static final long serialVersionUID = -6047124095930189011L;
+    private static final long serialVersionUID = -8464175157899178554L;
     private Object reference;
-    private boolean i18nMsg;
+    private boolean localized;
 
     public ValidationException(String message) {
         super(message);
@@ -31,8 +31,8 @@ public class ValidationException extends Exception {
      *
      * @return 布尔值
      */
-    public boolean isI18nMsg() {
-        return i18nMsg;
+    public boolean isLocalized() {
+        return localized;
     }
 
     /**
@@ -40,7 +40,7 @@ public class ValidationException extends Exception {
      *
      * @param b 布尔值
      */
-    public void setI18nMsg(boolean b) {
-        this.i18nMsg = b;
+    public void setLocalized(boolean b) {
+        this.localized = b;
     }
 }

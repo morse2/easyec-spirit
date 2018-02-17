@@ -6,7 +6,7 @@ public interface MessageCtrl {
 
     void setMessage(String message);
 
-    boolean isI18n();
+    boolean isLocalized();
 
-    void setI18n(boolean b);
+    void setLocalized(boolean b);
 }

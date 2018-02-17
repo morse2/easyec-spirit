@@ -22,5 +22,5 @@ public @interface NumberValidator {
 
     double value() default 0;
 
-    boolean i18n() default true;
+    boolean localized() default true;
 }
