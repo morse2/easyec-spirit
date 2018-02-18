@@ -3,8 +3,8 @@ package com.googlecode.easyec.validator;
 public class ValidationException extends Exception {
 
     private static final long serialVersionUID = -8464175157899178554L;
+    private boolean localized = true;
     private Object reference;
-    private boolean localized;
 
     public ValidationException(String message) {
         super(message);
