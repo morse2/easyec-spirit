@@ -16,7 +16,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Validator(NumberPropertyValidator.class)
 public @interface NumberValidator {
 
-    String message();
+    String message() default "common.field.illegal_num";
 
     Method method();
 

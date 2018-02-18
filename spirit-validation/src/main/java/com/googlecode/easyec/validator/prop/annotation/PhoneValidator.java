@@ -21,7 +21,7 @@ public @interface PhoneValidator {
      */
     Class<? extends PhonePropertyValidator> value();
 
-    String message();
+    String message() default "common.field.illegal_phone";
 
     boolean localized() default true;
 }

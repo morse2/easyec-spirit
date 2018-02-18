@@ -15,7 +15,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Validator(NullPropertyValidator.class)
 public @interface NullValidator {
 
-    String message();
+    String message() default "common.field.null";
 
     boolean localized() default true;
 }

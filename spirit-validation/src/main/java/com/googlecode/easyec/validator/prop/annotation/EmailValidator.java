@@ -15,7 +15,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Validator(EmailPropertyValidator.class)
 public @interface EmailValidator {
 
-    String message();
+    String message() default "common.field.invalid_email";
 
     boolean localized() default true;
 }
