@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<language>
+    <addon-name>spirit-pushstate</addon-name>
+    <language-name>xul/html</language-name>
+    <javascript src="~./js/pushstate/main.js" type="text/javascript"/>
+</language>

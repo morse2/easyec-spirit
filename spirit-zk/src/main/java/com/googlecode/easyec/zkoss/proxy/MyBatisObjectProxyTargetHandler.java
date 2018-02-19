@@ -78,7 +78,7 @@ public class MyBatisObjectProxyTargetHandler implements ProxyTargetHandler {
 
                 _supported = true;
             } catch (Exception e) {
-                logger.debug(e.getMessage(), e);
+                logger.trace(e.getMessage(), e);
             }
 
             _init = true;
