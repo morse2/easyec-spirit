@@ -6,6 +6,8 @@ import com.googlecode.easyec.zkoss.ui.builders.UiBuilder;
 import com.googlecode.easyec.zkoss.ui.builders.UriUiParameterBuilder;
 import com.googlecode.easyec.zkoss.ui.events.StepOutEvent;
 import com.googlecode.easyec.zkoss.ui.listeners.StepOutEventListener;
+import com.googlecode.easyec.zkoss.ui.pushstate.DefaultPopState;
+import com.googlecode.easyec.zkoss.ui.pushstate.PushState;
 import com.googlecode.easyec.zkoss.utils.ExecUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
@@ -313,6 +315,8 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
                 _newComp.setParent(_parent);
                 // 添加onStepOut事件监听
                 _newComp.addEventListener("onStepOut", lsnr);
+                // 将当前组件状态推送至客户端
+                PushState.push(new DefaultPopState(_newComp));
             }
         }
     }
