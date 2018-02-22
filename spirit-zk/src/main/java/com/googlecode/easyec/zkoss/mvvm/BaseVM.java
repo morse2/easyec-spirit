@@ -1,5 +1,7 @@
 package com.googlecode.easyec.zkoss.mvvm;
 
+import com.googlecode.easyec.zkoss.ui.Breadcrumb;
+import com.googlecode.easyec.zkoss.ui.BreadcrumbCtrl;
 import com.googlecode.easyec.zkoss.ui.Steps;
 import com.googlecode.easyec.zkoss.ui.builders.DefaultUiParameterBuilder;
 import com.googlecode.easyec.zkoss.ui.builders.UiBuilder;
@@ -10,6 +12,7 @@ import com.googlecode.easyec.zkoss.ui.pushstate.DefaultPopState;
 import com.googlecode.easyec.zkoss.ui.pushstate.PushState;
 import com.googlecode.easyec.zkoss.utils.ExecUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -23,6 +26,7 @@ import org.zkoss.xel.VariableResolver;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.event.Events;
+import org.zkoss.zk.ui.metainfo.PageDefinition;
 import org.zkoss.zk.ui.select.Selectors;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
 import org.zkoss.zk.ui.util.ComponentActivationListener;
@@ -36,8 +40,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.googlecode.easyec.spirit.web.controller.interceptors.RequestUriReusingInterceptor.PREV_REQUEST_URI;
 import static com.googlecode.easyec.zkoss.mvvm.BaseVM.FindScope.*;
+import static com.googlecode.easyec.zkoss.ui.Breadcrumb.TYPE_PAGE;
+import static com.googlecode.easyec.zkoss.ui.Breadcrumb.TYPE_URI;
+import static com.googlecode.easyec.zkoss.ui.builders.ExecutionUiBuilderImpl.PARAM_PAGE_DEF;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.zkoss.bind.annotation.ContextType.COMPONENT;
@@ -48,15 +54,14 @@ import static org.zkoss.bind.annotation.ContextType.COMPONENT;
  *
  * @author JunJie
  */
-public abstract class BaseVM<T extends Component> implements ComponentActivationListener, Serializable, Steps {
+public abstract class BaseVM<T extends Component> implements ComponentActivationListener, Serializable, Steps, BreadcrumbCtrl {
 
-    private static final long serialVersionUID = -8830463527568229686L;
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     /* 标识是否做过激活操作 */
     private transient boolean _activated;
-    /* 最近引用的uri路径 */
-    private String prevUri;
+    /* 面包屑对象 */
+    private Breadcrumb _breadcrumb;
     /* 当前ZK组件对象 */
     private T self;
 
@@ -178,10 +183,29 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
      * @see Init
      */
     protected void doInit() {
-        HttpServletRequest request = ExecUtils.getNativeRequest();
-        if (request != null) {
-            this.prevUri = (String) request.getAttribute(PREV_REQUEST_URI);
-        }
+        /* 从外部获取面包屑信息 */
+        Breadcrumb _bc = findParameter(BC_ID, Arg, Breadcrumb.class);
+        if (_bc == null) _bc = findParameter(BC_ID, Execution, Breadcrumb.class);
+
+        // 如果外部没有提供面包屑，则试图构造面包屑
+        if (_bc == null) {
+            HttpServletRequest request = ExecUtils.getNativeRequest();
+            String uri = request.getRequestURI();
+            String base = request.getContextPath();
+            if (StringUtils.isNotBlank(base)) {
+                uri = uri.replaceFirst(base, "");
+            }
+
+            /*
+             * 如果是以/zkau开头，则说明是ZK的ajax
+             * 请求创建的页面，那么就获取当前页面的
+             * 绝对路径
+             */
+            if (uri.startsWith("/zkau")) {
+                PageDefinition _def = findParameter(PARAM_PAGE_DEF, All, PageDefinition.class);
+                if (_def != null) this._breadcrumb = createBreadcrumb(_def.getRequestPath(), TYPE_PAGE);
+            } else this._breadcrumb = createBreadcrumb(uri, TYPE_URI);
+        } else this._breadcrumb = _bc;
     }
 
     /**
@@ -189,18 +213,7 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
      *
      * @see AfterCompose
      */
-    protected void doAfterCompose() {
-        // no op
-    }
-
-    /**
-     * 获取进入当前uri的之前引用的uri
-     *
-     * @return Previous URI
-     */
-    protected String getPrevUri() {
-        return prevUri;
-    }
+    protected void doAfterCompose() { /* no op */ }
 
     /**
      * 创建一组<code>VariableResolver</code>对象列表
@@ -208,7 +221,7 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
      * @return ZK变量解析对象列表
      */
     protected List<VariableResolver> createVariableResolvers() {
-        return Arrays.<VariableResolver>asList(
+        return Arrays.asList(
             new com.googlecode.easyec.zkoss.DelegatingVariableResolver(),
             new DelegatingVariableResolver(),
             new ServletRequestResolver()
@@ -337,6 +350,22 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
      */
     public void stepOut(Object data) {
         Events.postEvent(new StepOutEvent(self, data));
+    }
+
+    @Override
+    public Breadcrumb getBreadcrumb() {
+        return this._breadcrumb;
+    }
+
+    /**
+     * 创建面包屑对象实例
+     *
+     * @param uri  页面URI
+     * @param type 面包屑类型
+     * @return 面包屑对象
+     */
+    protected Breadcrumb createBreadcrumb(String uri, int type) {
+        return null;
     }
 
     /**
