@@ -13,14 +13,16 @@ public class Breadcrumb implements Serializable {
     public static final int TYPE_URI = -1;
     /** 面包屑类型是Page */
     public static final int TYPE_PAGE = 1;
-    private static final long serialVersionUID = -4804127068853538532L;
+    private static final long serialVersionUID = -2583256487665258205L;
 
     private Breadcrumb parent;
     private String label;
+    private String uri;
     private int type;
 
-    public Breadcrumb(String label, int type) {
+    public Breadcrumb(String label, String uri, int type) {
         this.label = label;
+        this.uri = uri;
         this.type = type;
     }
 
@@ -40,6 +42,15 @@ public class Breadcrumb implements Serializable {
      */
     public String getLabel() {
         return label;
+    }
+
+    /**
+     * 获取当前面包屑配置的uri
+     *
+     * @return page uri
+     */
+    public String getUri() {
+        return uri;
     }
 
     /**

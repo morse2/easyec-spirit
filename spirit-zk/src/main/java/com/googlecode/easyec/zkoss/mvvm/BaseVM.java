@@ -6,6 +6,7 @@ import com.googlecode.easyec.zkoss.ui.Steps;
 import com.googlecode.easyec.zkoss.ui.builders.DefaultUiParameterBuilder;
 import com.googlecode.easyec.zkoss.ui.builders.UiBuilder;
 import com.googlecode.easyec.zkoss.ui.builders.UriUiParameterBuilder;
+import com.googlecode.easyec.zkoss.ui.events.BreadcrumbEvent;
 import com.googlecode.easyec.zkoss.ui.events.StepOutEvent;
 import com.googlecode.easyec.zkoss.ui.listeners.StepOutEventListener;
 import com.googlecode.easyec.zkoss.ui.pushstate.DefaultPopState;
@@ -47,6 +48,7 @@ import static com.googlecode.easyec.zkoss.ui.builders.ExecutionUiBuilderImpl.PAR
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.zkoss.bind.annotation.ContextType.COMPONENT;
+import static org.zkoss.bind.sys.BinderCtrl.VM;
 
 /**
  * 模型视图-视图模型的基础类。
@@ -328,6 +330,17 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
                 _newComp.setParent(_parent);
                 // 添加onStepOut事件监听
                 _newComp.addEventListener("onStepOut", lsnr);
+                // 设置子组件的父级面包屑
+                Object _vm = _newComp.getAttribute(VM);
+                if (_vm != null && _vm instanceof BreadcrumbCtrl) {
+                    Breadcrumb _bc = ((BreadcrumbCtrl) _vm).getBreadcrumb();
+                    if (_bc != null) {
+                        _bc.setParent(getBreadcrumb());
+                        // 触发面包屑变更事件通知
+                        Events.postEvent(new BreadcrumbEvent(_parent, _bc));
+                    }
+                }
+
                 // 将当前组件状态推送至客户端
                 PushState.push(new DefaultPopState(_newComp));
             }
@@ -365,6 +378,15 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
      * @return 面包屑对象
      */
     protected Breadcrumb createBreadcrumb(String uri, int type) {
+        return new Breadcrumb(getBreadcrumbLabel(), uri, type);
+    }
+
+    /**
+     * 返回面包屑的显示文字
+     *
+     * @return 文字内容
+     */
+    protected String getBreadcrumbLabel() {
         return null;
     }
 
