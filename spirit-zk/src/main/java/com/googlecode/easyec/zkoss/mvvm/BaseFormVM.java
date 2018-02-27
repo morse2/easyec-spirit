@@ -100,12 +100,12 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
 
     @Override
     protected void doInit() {
-        super.doInit();
-
         HttpServletRequest request = getNativeRequest();
         if (request != null) preQs = request.getQueryString();
 
         resolveFormVariable();
+
+        super.doInit();
     }
 
     @SuppressWarnings("unchecked")
