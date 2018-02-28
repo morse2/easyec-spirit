@@ -9,6 +9,7 @@ import com.googlecode.easyec.zkoss.ui.builders.UriUiParameterBuilder;
 import com.googlecode.easyec.zkoss.ui.events.BreadcrumbEvent;
 import com.googlecode.easyec.zkoss.ui.events.StepOutEvent;
 import com.googlecode.easyec.zkoss.ui.listeners.StepOutEventListener;
+import com.googlecode.easyec.zkoss.ui.listeners.StepOutUpperEventListener;
 import com.googlecode.easyec.zkoss.ui.pushstate.DefaultPopState;
 import com.googlecode.easyec.zkoss.ui.pushstate.PushState;
 import com.googlecode.easyec.zkoss.utils.ExecUtils;
@@ -396,7 +397,7 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
      * @return {@link StepOutEventListener}
      */
     protected StepOutEventListener createStepOutEventListener() {
-        return new StepOutEventListener(self, self.getParent());
+        return new StepOutUpperEventListener(self, self.getParent());
     }
 
     private Object _findInArgs(String key) {
