@@ -79,6 +79,9 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> {
         // 加载默认的页面
         Tab _selTb = _tb.getSelectedTab();
         if (_selTb != null) _loadPanel(_selTb);
+
+        // 调用父类的doAfterCompose()方法
+        super.doAfterCompose();
     }
 
     /* 卸载给定Panel中的内容 */

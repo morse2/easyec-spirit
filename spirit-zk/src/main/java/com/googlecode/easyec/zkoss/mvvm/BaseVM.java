@@ -185,7 +185,14 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
      *
      * @see Init
      */
-    protected void doInit() {
+    protected void doInit() { /* no op */ }
+
+    /**
+     * 执行初始化后置操作的方法
+     *
+     * @see AfterCompose
+     */
+    protected void doAfterCompose() {
         /* 从外部获取面包屑信息 */
         Breadcrumb _bc = findParameter(BC_ID, Arg, Breadcrumb.class);
         if (_bc == null) _bc = findParameter(BC_ID, Execution, Breadcrumb.class);
@@ -210,13 +217,6 @@ public abstract class BaseVM<T extends Component> implements ComponentActivation
             } else this._breadcrumb = createBreadcrumb(uri, TYPE_URI);
         } else this._breadcrumb = _bc;
     }
-
-    /**
-     * 执行初始化后置操作的方法
-     *
-     * @see AfterCompose
-     */
-    protected void doAfterCompose() { /* no op */ }
 
     /**
      * 创建一组<code>VariableResolver</code>对象列表
