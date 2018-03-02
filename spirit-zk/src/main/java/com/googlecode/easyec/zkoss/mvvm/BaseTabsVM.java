@@ -1,10 +1,12 @@
 package com.googlecode.easyec.zkoss.mvvm;
 
+import com.googlecode.easyec.zkoss.ui.Steps;
 import com.googlecode.easyec.zkoss.ui.builders.PreSufPathUriUiParameterBuilder;
 import com.googlecode.easyec.zkoss.ui.listeners.StepsOutEventListener;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.util.Assert;
 import org.zkoss.bind.annotation.AfterCompose;
+import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.Init;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Executions;
@@ -24,6 +26,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.collections4.CollectionUtils.size;
+import static org.zkoss.bind.sys.BinderCtrl.VM;
 import static org.zkoss.zk.ui.event.Events.ON_SELECT;
 
 /**
@@ -125,6 +128,46 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> {
 
         // 添加引用关系
         this._panelsRef.putIfAbsent(_t, _comp);
+    }
+
+    @Command
+    public void backOut() {
+        // 获取当前选中的Tab组件
+        Tab _selTb = getTabbox().getSelectedTab();
+        if (_selTb == null) {
+            stepOut();
+
+            return;
+        }
+
+        // 获取当前正在呈现的组件对象
+        Component _comp = _panelsRef.get(_selTb);
+        if (_comp == null) {
+            stepOut();
+
+            return;
+        }
+
+        // 获取组件中绑定的VM
+        Object _vm = _comp.getAttribute(VM);
+        if (_vm == null) {
+            stepOut();
+
+            return;
+        }
+
+        // 卸载当前页面
+        _unloadPanel(_selTb);
+
+        // 判断VM是否为Steps的实例对象
+        if (!(_vm instanceof Steps)) {
+            stepOut();
+
+            return;
+        }
+
+        // 调用子组件中的stepOut()方法
+        ((Steps) _vm).stepOut();
     }
 
     /**
