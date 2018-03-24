@@ -13,6 +13,7 @@
         <module>spirit-ldap</module>
         <module>spirit-zkspring</module>
         <module>spirit-validation</module>
+        <module>spirit-zkex</module>
     </modules>
     <packaging>pom</packaging>
     <name>spirit</name>

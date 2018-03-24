@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<language-addon>
+    <!-- The name of this addon. It must be unique -->
+    <addon-name>spirit-zkex</addon-name>
+    <!-- Specifies what other addon this depends-->
+    <depends>zkbind</depends>
+    <!-- Which language this addon will be added to -->
+    <language-name>xul/html</language-name>
+
+    <version>
+        <version-class>com.googlecode.easyec.zkex.Version</version-class>
+        <version-uid>0.8.1</version-uid>
+        <zk-version>8.0.2.2</zk-version><!-- or later -->
+    </version>
+
+    <shadow-template>
+        <shadow-class>com.googlecode.easyec.zkex.zul.Apply</shadow-class>
+    </shadow-template>
+
+    <!-- Interpreters -->
+    <zscript language="Java">
+        import com.googlecode.easyec.zkex.zul.*;
+    </zscript><!-- the later the import, the higher the priority -->
+    <zscript language="JavaScript">
+        importPackage(Packages.com.googlecode.easyec.zkex.zul);
+    </zscript>
+    <!-- Groovy "forgot" what are imported, so we have to import each time -->
+    <zscript language="Groovy" each-time="true">
+        import com.googlecode.easyec.zkex.zul.*
+    </zscript>
+    <zscript language="Ruby">
+        module Java
+        include_package 'com.googlecode.easyec.zkex.zul'
+        end
+    </zscript>
+    <zscript language="Python">
+        import com.googlecode.easyec.zkex.zul
+    </zscript>
+
+    <component>
+        <component-name>apply</component-name>
+        <component-class>com.googlecode.easyec.zkex.zul.Apply</component-class>
+        <shadow-element/>
+    </component>
+    <component>
+        <component-name>choose</component-name>
+        <component-class>com.googlecode.easyec.zkex.zul.Choose</component-class>
+        <shadow-element/>
+    </component>
+    <component>
+        <component-name>forEach</component-name>
+        <component-class>com.googlecode.easyec.zkex.zul.ForEach</component-class>
+        <shadow-element/>
+    </component>
+    <component>
+        <component-name>if</component-name>
+        <component-class>com.googlecode.easyec.zkex.zul.If</component-class>
+        <shadow-element/>
+    </component>
+    <component>
+        <component-name>otherwise</component-name>
+        <component-class>com.googlecode.easyec.zkex.zul.Otherwise</component-class>
+        <shadow-element/>
+    </component>
+    <component>
+        <component-name>when</component-name>
+        <component-class>com.googlecode.easyec.zkex.zul.When</component-class>
+        <shadow-element/>
+    </component>
+</language-addon>
