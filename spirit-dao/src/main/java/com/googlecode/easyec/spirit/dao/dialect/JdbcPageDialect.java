@@ -16,7 +16,7 @@ import static java.util.regex.Pattern.compile;
 public abstract class JdbcPageDialect extends JdbcSqlDialect implements PageDialect {
 
     /* common pattern */
-    protected static final Pattern select_Pattern_m = compile("[\\w\\W\\s]*from\\s*", CASE_INSENSITIVE);
+    protected static final Pattern select_Pattern_m = compile("[\\w\\W\\s]+from\\s+", CASE_INSENSITIVE);
     /* distinct pattern */
     protected static final Pattern select_Pattern_d = compile("(distinct)\\s+[\\w\\W]*", CASE_INSENSITIVE);
     /* group by pattern */
