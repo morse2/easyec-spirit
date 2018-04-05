@@ -75,9 +75,4 @@ public class ElasticSearchTestCase {
         Assert.assertNotNull(page);
         Assert.assertFalse(page.getNextPageAvailable());
     }
-
-    @Test
-    public void reindex() {
-        elasticsearchService.reindex(ProductBean.class);
-    }
 }
