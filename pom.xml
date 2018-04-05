@@ -4,7 +4,7 @@
 
     <groupId>com.googlecode.easyec</groupId>
     <artifactId>spirit</artifactId>
-    <version>0.8.1-SNAPSHOT</version>
+    <version>0.8.2-SNAPSHOT</version>
     <modules>
         <module>spirit-dao</module>
         <module>spirit-mybatis</module>
@@ -14,6 +14,7 @@
         <module>spirit-zkspring</module>
         <module>spirit-validation</module>
         <module>spirit-zkex</module>
+        <module>spirit-elasticsearch</module>
     </modules>
     <packaging>pom</packaging>
     <name>spirit</name>
@@ -69,7 +70,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>4.3.13.RELEASE</version>
+            <version>5.0.4.RELEASE</version>
             <scope>test</scope>
         </dependency>
 
