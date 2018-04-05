@@ -1,6 +1,5 @@
 package com.googlecode.easyec.test.beans;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.googlecode.easyec.es.ElasticsearchId;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
@@ -12,7 +11,6 @@ import java.util.List;
     indexName = "my_index",
     type = "product"
 )
-@JsonIgnoreProperties({ "uidPk" })
 public class ProductBean implements ElasticsearchId {
 
     @Field
