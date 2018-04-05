@@ -3,6 +3,7 @@ package com.googlecode.easyec.test;
 import com.googlecode.easyec.es.formbean.ElasticsearchFormBean;
 import com.googlecode.easyec.es.paging.EsPage;
 import com.googlecode.easyec.es.service.ElasticsearchService;
+import com.googlecode.easyec.test.beans.AttributeBean;
 import com.googlecode.easyec.test.beans.ProductBean;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -39,8 +40,15 @@ public class ElasticSearchTestCase {
     @Test
     public void saveProd() throws Exception {
         ProductBean prod = new ProductBean();
-        prod.setId("1234567");
-        prod.setName("This is web camera 3.");
+        prod.setId("1234");
+        prod.setName("This is web camera.");
+
+        AttributeBean brandAttr = new AttributeBean();
+        brandAttr.setCode("brand");
+//        brandAttr.addLabel("zh", "品牌");
+        brandAttr.addLabel("en", "Brand");
+
+        prod.addAttr(brandAttr);
 
         elasticsearchService.save(
             Arrays.asList(prod),
