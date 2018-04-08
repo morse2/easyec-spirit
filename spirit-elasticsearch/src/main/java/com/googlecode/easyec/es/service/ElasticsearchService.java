@@ -9,24 +9,25 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.EntityMapper;
 import org.springframework.data.elasticsearch.core.ResultsMapper;
 import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
 import org.springframework.data.elasticsearch.core.convert.ElasticsearchConverter;
-import org.springframework.data.elasticsearch.core.query.GetQuery;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
-import org.springframework.data.elasticsearch.core.query.UpdateQuery;
-import org.springframework.data.elasticsearch.core.query.UpdateQueryBuilder;
+import org.springframework.data.elasticsearch.core.mapping.ElasticsearchPersistentEntity;
+import org.springframework.data.elasticsearch.core.query.*;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Collections.emptyList;
 import static org.apache.commons.collections4.MapUtils.isNotEmpty;
 import static org.elasticsearch.common.xcontent.XContentType.JSON;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
@@ -131,6 +132,25 @@ public class ElasticsearchService extends ElasticsearchTemplate {
         );
     }
 
+    public <T> List<T> find(QueryBuilder qb, Class<T> cls, int pageSize) {
+        EsPage<T> page = findPaged(qb, cls, 1, pageSize);
+        return null != page ? page.getRecords() : emptyList();
+    }
+
+    public <T> EsPage<T> findPaged(QueryBuilder qb, Class<T> cls, int currentPage, int pageSize) {
+        NativeSearchQueryBuilder builder = new NativeSearchQueryBuilder();
+        ElasticsearchPersistentEntity entity = getPersistentEntityFor(cls);
+        builder.withIndices(entity.getIndexName());
+        builder.withTypes(entity.getIndexType());
+        builder.withFilter(qb);
+
+        builder.withPageable(
+            PageRequest.of(currentPage - 1, pageSize)
+        );
+
+        return _doFindPaged(builder.build(), cls);
+    }
+
     public <T> EsPage<T> findPaged(ElasticsearchFormBean<T> bean, int pageSize) {
         NativeSearchQueryBuilder builder = new NativeSearchQueryBuilder();
 
@@ -151,15 +171,15 @@ public class ElasticsearchService extends ElasticsearchTemplate {
             // TODO: 2018/4/4 build terms for other situation
         }
 
-        AggregatedPage<T> _page
-            = queryForPage(
-            builder.build(),
-            bean.getEntityClass()
-        );
+        return _doFindPaged(builder.build(), bean.getEntityClass());
+    }
 
+    private <T> EsPage<T> _doFindPaged(SearchQuery query, Class<T> cls) {
+        Pageable pageable = query.getPageable();
+        AggregatedPage<T> _page = queryForPage(query, cls);
         EsPageImpl<T> page = new EsPageImpl<>(
-            bean.getPageNumber(),
-            pageSize,
+            pageable.getPageNumber() + 1,
+            pageable.getPageSize(),
             _page.getTotalElements()
         );
 
