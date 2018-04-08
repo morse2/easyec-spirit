@@ -20,5 +20,12 @@
             <artifactId>spring-beans</artifactId>
             <version>5.0.4.RELEASE</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.zkoss.zk</groupId>
+            <artifactId>zkbind</artifactId>
+            <version>8.0.2.2</version>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 </project>

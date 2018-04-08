@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
+import org.zkoss.bind.proxy.FormProxyObject;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -27,6 +28,17 @@ public abstract class AbstractPropertyValidator implements PropertyValidator {
         value = bw.getPropertyValue(propertyName);
 
         return _isNullString(value) ? null : value;
+    }
+
+    protected Object getOrigin(Property property) {
+        if (null == property) return null;
+
+        Object base = property.getBase();
+        if (base instanceof FormProxyObject) {
+            return ((FormProxyObject) base).getOriginObject();
+        }
+
+        return null;
     }
 
     private boolean _isNullString(Object val) {
