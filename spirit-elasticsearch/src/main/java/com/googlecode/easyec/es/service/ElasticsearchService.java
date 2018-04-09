@@ -10,6 +10,7 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.search.sort.SortBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -138,6 +139,11 @@ public class ElasticsearchService extends ElasticsearchTemplate {
     }
 
     public <T> EsPage<T> findPaged(QueryBuilder qb, Class<T> cls, int currentPage, int pageSize) {
+        return findPaged(qb, null, cls, currentPage, pageSize);
+    }
+
+    public <T, S extends SortBuilder<S>> EsPage<T>
+    findPaged(QueryBuilder qb, SortBuilder<S> sb, Class<T> cls, int currentPage, int pageSize) {
         NativeSearchQueryBuilder builder = new NativeSearchQueryBuilder();
         ElasticsearchPersistentEntity entity = getPersistentEntityFor(cls);
         builder.withIndices(entity.getIndexName());
@@ -148,7 +154,25 @@ public class ElasticsearchService extends ElasticsearchTemplate {
             PageRequest.of(currentPage - 1, pageSize)
         );
 
-        return _doFindPaged(builder.build(), cls);
+        if (null != sb) {
+            builder.withSort(sb);
+        }
+
+        return findPaged(builder.build(), cls);
+    }
+
+    public <T> EsPage<T> findPaged(SearchQuery query, Class<T> cls) {
+        Pageable pageable = query.getPageable();
+        AggregatedPage<T> _page = queryForPage(query, cls);
+        EsPageImpl<T> page = new EsPageImpl<>(
+            pageable.getPageNumber() + 1,
+            pageable.getPageSize(),
+            _page.getTotalElements()
+        );
+
+        page.setRecords(_page.getContent());
+
+        return page;
     }
 
     public <T> EsPage<T> findPaged(ElasticsearchFormBean<T> bean, int pageSize) {
@@ -171,20 +195,6 @@ public class ElasticsearchService extends ElasticsearchTemplate {
             // TODO: 2018/4/4 build terms for other situation
         }
 
-        return _doFindPaged(builder.build(), bean.getEntityClass());
-    }
-
-    private <T> EsPage<T> _doFindPaged(SearchQuery query, Class<T> cls) {
-        Pageable pageable = query.getPageable();
-        AggregatedPage<T> _page = queryForPage(query, cls);
-        EsPageImpl<T> page = new EsPageImpl<>(
-            pageable.getPageNumber() + 1,
-            pageable.getPageSize(),
-            _page.getTotalElements()
-        );
-
-        page.setRecords(_page.getContent());
-
-        return page;
+        return findPaged(builder.build(), bean.getEntityClass());
     }
 }
