@@ -1,7 +1,6 @@
 package com.googlecode.easyec.spirit.mybatis.cache;
 
 import com.googlecode.easyec.caching.CacheService;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.cache.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +10,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.getBean;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * 缓存服务框架提供的Mybatis数据层的缓存支持类。
@@ -29,6 +29,7 @@ public class CacheServiceCache implements Cache {
     private String id;                      // 当前DAO ID
 
     public static final String DEFAULT_CACHE_NAME = "mybatisCache";
+    private String cacheName = DEFAULT_CACHE_NAME;
 
     public CacheServiceCache(String id) {
         Assert.notNull(id, "Mybatis Cache id of prefix cannot be null.");
@@ -85,7 +86,7 @@ public class CacheServiceCache implements Cache {
             if (null == getCacheService()) {
                 logger.debug("CacheService object is null, so find from Spring context.");
 
-                if (StringUtils.isNotBlank(cacheServiceName)) {
+                if (isNotBlank(cacheServiceName)) {
                     setCacheService(getBean(cacheServiceName, CacheService.class));
                 } else setCacheService(getBean(CacheService.class));
 
@@ -171,6 +172,26 @@ public class CacheServiceCache implements Cache {
         this.useGlobalCache = useGlobalCache;
     }
 
+    /**
+     * 返回当前Dao配置的缓存区域的名称
+     *
+     * @return 缓存名称
+     */
+    public String getCacheName() {
+        return cacheName;
+    }
+
+    /**
+     * 设置当前Dao配置的缓存区域的名称
+     *
+     * @param cacheName 缓存名称
+     */
+    public void setCacheName(String cacheName) {
+        if (isNotBlank(cacheName)) {
+            this.cacheName = cacheName;
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -189,6 +210,6 @@ public class CacheServiceCache implements Cache {
      * @return 缓存名称
      */
     protected String getTargetCacheName() {
-        return isUseGlobalCache() ? DEFAULT_CACHE_NAME : id;
+        return isUseGlobalCache() ? this.cacheName : this.id;
     }
 }
