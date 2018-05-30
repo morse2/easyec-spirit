@@ -1,5 +1,6 @@
 package com.googlecode.easyec.spirit.mybatis.plugin;
 
+import com.googlecode.easyec.spirit.mybatis.plugin.support.TransactionalContextHolder;
 import com.googlecode.easyec.spirit.web.utils.BeanUtils;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.ExecutorException;
@@ -10,6 +11,7 @@ import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.transaction.Transaction;
 import org.apache.ibatis.transaction.TransactionFactory;
+import org.springframework.util.Assert;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -48,24 +50,25 @@ public class ResultLazyLoadPlugin implements Interceptor {
             handler = BeanUtils.readField(handler, "delegate", StatementHandler.class);
         }
 
-        Executor executor = newExecutor(
-            BeanUtils.readField(handler, "configuration", Configuration.class)
-        );
+        Configuration _conf = BeanUtils.readField(handler, "configuration", Configuration.class);
 
-        BeanUtils.writeField(handler, "executor", executor);
+        Transaction _tx = null;
+        if (!TransactionalContextHolder.has()) {
+            Executor executor = newExecutor(_conf);
+            BeanUtils.writeField(handler, "executor", executor);
 
-        Transaction tx = executor.getTransaction();
-
-        try {
-            return new Invocation(
-                target, invocation.getMethod(),
-                new Object[] {
-                    tx.getConnection(),
-                    invocation.getArgs()[1]
-                }).proceed();
-        } finally {
-            tx.close();
+            _tx = executor.getTransaction();
+            TransactionalContextHolder.set(_tx);
         }
+
+        Assert.notNull(_tx, "Transaction mustn't be null.");
+
+        return new Invocation(
+            target, invocation.getMethod(),
+            new Object[] {
+                _tx.getConnection(),
+                invocation.getArgs()[1]
+            }).proceed();
     }
 
     @Override
