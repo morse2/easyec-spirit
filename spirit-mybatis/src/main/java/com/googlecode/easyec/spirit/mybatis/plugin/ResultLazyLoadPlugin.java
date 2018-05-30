@@ -52,8 +52,8 @@ public class ResultLazyLoadPlugin implements Interceptor {
 
         Configuration _conf = BeanUtils.readField(handler, "configuration", Configuration.class);
 
-        Transaction _tx = null;
-        if (!TransactionalContextHolder.has()) {
+        Transaction _tx = TransactionalContextHolder.get();
+        if (_tx == null || _tx.getConnection().isClosed()) {
             Executor executor = newExecutor(_conf);
             BeanUtils.writeField(handler, "executor", executor);
 

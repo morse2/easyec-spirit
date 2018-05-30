@@ -20,16 +20,8 @@ public final class TransactionalContextHolder {
         return useFlag;
     }
 
-    public static boolean has() {
-        Transaction _tx = _t.get();
-
-        try {
-            return _tx != null && !_tx.getConnection().isClosed();
-        } catch (SQLException e) {
-            logger.trace(e.getMessage(), e);
-        }
-
-        return false;
+    public static Transaction get() {
+        return _t.get();
     }
 
     public static void clear() {
