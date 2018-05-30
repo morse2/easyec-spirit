@@ -6,10 +6,19 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 
-public class TransactionalContextHolder {
+public final class TransactionalContextHolder {
 
     private static final Logger logger = LoggerFactory.getLogger(TransactionalContextHolder.class);
     private static ThreadLocal<Transaction> _t = new ThreadLocal<>();
+    private static boolean useFlag = false;
+
+    public static void setUse(boolean b) {
+        useFlag = b;
+    }
+
+    public static boolean isUse() {
+        return useFlag;
+    }
 
     public static boolean has() {
         Transaction _tx = _t.get();

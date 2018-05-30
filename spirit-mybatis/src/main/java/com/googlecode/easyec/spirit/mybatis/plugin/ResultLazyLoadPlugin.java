@@ -63,12 +63,18 @@ public class ResultLazyLoadPlugin implements Interceptor {
 
         Assert.notNull(_tx, "Transaction mustn't be null.");
 
-        return new Invocation(
-            target, invocation.getMethod(),
-            new Object[] {
-                _tx.getConnection(),
-                invocation.getArgs()[1]
-            }).proceed();
+        try {
+            return new Invocation(
+                target, invocation.getMethod(),
+                new Object[] {
+                    _tx.getConnection(),
+                    invocation.getArgs()[1]
+                }).proceed();
+        } finally {
+            if (!TransactionalContextHolder.isUse()) {
+                TransactionalContextHolder.clear();
+            }
+        }
     }
 
     @Override
