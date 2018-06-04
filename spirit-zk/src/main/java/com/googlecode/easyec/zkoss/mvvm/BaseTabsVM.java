@@ -4,6 +4,7 @@ import com.googlecode.easyec.zkoss.ui.Steps;
 import com.googlecode.easyec.zkoss.ui.builders.PreSufPathUriUiParameterBuilder;
 import com.googlecode.easyec.zkoss.ui.listeners.StepsOutEventListener;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.util.Assert;
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
@@ -24,6 +25,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import static com.googlecode.easyec.zkoss.mvvm.BaseFormVM.ARG_FORM_OBJECT;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.collections4.CollectionUtils.size;
 import static org.zkoss.bind.sys.BinderCtrl.VM;
@@ -39,7 +41,8 @@ import static org.zkoss.zk.ui.event.Events.ON_SELECT;
 public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> {
 
     public static final String ZUL_FILE = "zul-file";
-    private static final long serialVersionUID = -4482078341989184526L;
+    public static final String WITH_FORM_OBJ = "with-form-obj";
+    private static final long serialVersionUID = 1215351477966715357L;
 
     private final Map<Object, Object> args = new HashMap<>();
     private final ConcurrentMap<Tab, Component> _panelsRef = new ConcurrentHashMap<>();
@@ -112,12 +115,22 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> {
         Tabpanel _selPanel = _t.getLinkedPanel();
         String zulFile = (String) _t.getAttribute(ZUL_FILE);
 
+        final PreSufPathUriUiParameterBuilder _builder
+            = getUiParameterBuilder()
+            .setUri(zulFile);
+
+        final boolean _b = _isWithFormObj(_t);
+        Set<Object> argKeys = this.args.keySet();
+        for (Object _k : argKeys) {
+            if (!_b && ARG_FORM_OBJECT.equals(_k)) {
+                continue;
+            }
+
+            _builder.setArg(_k, this.args.get(_k));
+        }
+
         _comp = getUiBuilder().manufacture(
-            getUiParameterBuilder()
-                .setUri(zulFile)
-                .setArgs(this.args)
-                .setParent(_selPanel)
-                .build()
+            _builder.setParent(_selPanel).build()
         );
 
         // 添加StepOut监听事件
@@ -128,6 +141,18 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> {
 
         // 添加引用关系
         this._panelsRef.putIfAbsent(_t, _comp);
+    }
+
+    private boolean _isWithFormObj(Component c) {
+        Object _ret = c.getAttribute(WITH_FORM_OBJ);
+        if (_ret == null) return true;
+        if (_ret instanceof Boolean) return ((Boolean) _ret);
+        if (_ret instanceof String) {
+            Boolean _b = BooleanUtils.toBooleanObject(((String) _ret));
+            return _b != null && _b;
+        }
+
+        return true;
     }
 
     @Command
