@@ -9,9 +9,11 @@
     </version>
 
     <listener>
+        <listener-class>com.googlecode.easyec.zkoss.ui.form.tracker.impl.BindFormUiLifeCycle</listener-class>
+    </listener>
+    <listener>
         <listener-class>com.googlecode.easyec.zkoss.proxy.MyBatisObjectProxyTargetHandler</listener-class>
     </listener>
-
     <listener>
         <listener-class>com.googlecode.easyec.zkoss.ui.pushstate.PushStateDesktopInit</listener-class>
     </listener>
