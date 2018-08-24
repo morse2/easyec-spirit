@@ -1,15 +1,16 @@
 package com.googlecode.easyec.zkoss.ui.form.tracker.impl;
 
 import com.googlecode.easyec.zkoss.ui.util.UiLifeCycleAdapter;
-import org.springframework.util.ReflectionUtils;
 import org.zkoss.bind.AnnotateBinder;
 import org.zkoss.bind.BindContext;
 import org.zkoss.bind.Binder;
 import org.zkoss.bind.Form;
+import org.zkoss.bind.impl.AnnotateBinderX;
 import org.zkoss.bind.impl.BindContextUtil;
 import org.zkoss.bind.impl.BinderImpl;
 import org.zkoss.bind.impl.BinderUtil;
 import org.zkoss.bind.sys.Binding;
+import org.zkoss.bind.sys.InitPropertyBinding;
 import org.zkoss.bind.sys.LoadBinding;
 import org.zkoss.bind.sys.PropertyBinding;
 import org.zkoss.zk.ui.Component;
@@ -18,6 +19,7 @@ import org.zkoss.zk.ui.ShadowElement;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
+import org.zkoss.zk.ui.util.ComponentActivationListener;
 
 import java.util.List;
 import java.util.Map;
@@ -129,26 +131,24 @@ public class BindFormUiLifeCycle extends UiLifeCycleAdapter {
                     return;
             }
 
-            if (binder instanceof AnnotateBinder) {
+            if (binder instanceof AnnotateBinderX) {
+                AnnotateBinderX _binder = (AnnotateBinderX) binder;
+                // 订阅事件
+                ComponentActivationListener lsnr = _binder.setActivator(comp);
+                if (lsnr != null) lsnr.didActivate(comp);
+
                 String formId = (String) comp.removeAttribute(CACHED_FORM_ID);
                 if (isNotBlank(formId)) {
                     Object obj = comp.removeAttribute(CACHED_FORM);
                     if (obj instanceof Form) {
                         Form form = (Form) obj;
-                        AnnotateBinder _binder = (AnnotateBinder) binder;
                         _binder.storeForm(comp, formId, form);
+                        Map<Component, Map<String, List<Binding>>> _bindings
+                            = _binder.getAllBindings();
 
-                        ReflectionUtils.doWithFields(BinderImpl.class, field -> {
-                            ReflectionUtils.makeAccessible(field);
-                            @SuppressWarnings("unchecked")
-                            Map<Component, Map<String, List<Binding>>> _bindings
-                                = (Map<Component, Map<String, List<Binding>>>)
-                                ReflectionUtils.getField(field, _binder);
-
-                            if (_bindings != null) {
-                                processBindings(_bindings, _binder);
-                            }
-                        }, field -> "_bindings".equals(field.getName()));
+                        if (_bindings != null) {
+                            processBindings(_bindings, _binder);
+                        }
                     }
                 }
             }
@@ -165,6 +165,10 @@ public class BindFormUiLifeCycle extends UiLifeCycleAdapter {
 
                         if (binding instanceof PropertyBinding) {
                             BindContextUtil.setConverterArgs(_binder, _c, ctx, (PropertyBinding) binding);
+                        }
+
+                        if (binding instanceof InitPropertyBinding) {
+                            ((InitPropertyBinding) binding).load(ctx);
                         }
 
                         if (binding instanceof LoadBinding) {

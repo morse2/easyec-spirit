@@ -8,6 +8,11 @@
         <version-uid>0.8.2</version-uid>
     </version>
 
+    <library-property>
+        <name>org.zkoss.bind.AnnotateBinder.class</name>
+        <value>org.zkoss.bind.impl.AnnotateBinderX</value>
+    </library-property>
+
     <listener>
         <listener-class>com.googlecode.easyec.zkoss.ui.form.tracker.impl.BindFormUiLifeCycle</listener-class>
     </listener>
