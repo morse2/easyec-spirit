@@ -112,6 +112,12 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
      * @param searchFormBean 表单搜索对象
      */
     protected void firePaging(AbstractSearchFormBean searchFormBean) {
+        if (!_isPagingAlive()) {
+            logger.warn("Current object 'Paging' isn't alive.");
+
+            return;
+        }
+
         if (null == searchFormBean) searchFormBean = new SearchFormBean();
 
         logger.debug("Current page for paging: [" + searchFormBean.getPageNumber() + "].");
@@ -195,10 +201,12 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
      * @param page 分页结果对象
      */
     protected void doClear(Page page) {
-        _paging.setTotalSize(page.getTotalRecordsCount());
-        _paging.setPageSize(page.getPageSize());
+        if (_isPagingAlive()) {
+            _paging.setTotalSize(page.getTotalRecordsCount());
+            _paging.setPageSize(page.getPageSize());
 
-        clear(page);
+            clear(page);
+        }
     }
 
     /**
@@ -216,23 +224,30 @@ public abstract class AbstractPagingExecutor<T extends Component> implements Pag
      *
      * @param page 分页结果对象
      */
-    private void doRedraw(Page page) {
-        try {
-            _paging.setPageSize(page.getPageSize());
-            _paging.setTotalSize(page.getTotalRecordsCount());
-            _paging.setActivePage(page.getCurrentPage() - 1);
+    protected void doRedraw(Page page) {
+        if (_isPagingAlive()) {
+            try {
+                _paging.setPageSize(page.getPageSize());
+                _paging.setTotalSize(page.getTotalRecordsCount());
+                _paging.setActivePage(page.getCurrentPage() - 1);
 
-            redraw(page);
-        } catch (WrongValueException e) {
-            logger.trace(e.getMessage(), e);
+                redraw(page);
+            } catch (WrongValueException e) {
+                logger.trace(e.getMessage(), e);
 
-            /* fix bug:修复如果当前页码大于_paging
-             * 对象的最大页码，会报错的问题
-             */
-            if (page.getPrevPageAvailable()) {
-                firePaging(page.getCurrentPage() - 1);
-            } else doClear(page);
+                /* fix bug:修复如果当前页码大于_paging
+                 * 对象的最大页码，会报错的问题
+                 */
+                if (page.getPrevPageAvailable()) {
+                    firePaging(page.getCurrentPage() - 1);
+                } else doClear(page);
+            }
         }
+    }
+
+    /* 判断当前组件是否存活 */
+    private boolean _isPagingAlive() {
+        return _paging != null && _paging.getPage() != null && _paging.getPage().isAlive();
     }
 
     /**

@@ -15,9 +15,12 @@ public abstract class AbstractValueFinder<T extends Component> implements ValueF
     public Object getValue(T comp, boolean reset) {
         if (comp == null) return null;
 
-        return !reset
-            ? getValue(comp)
-            : resetValue(comp, comp.getAttribute(DEFAULT_VALUE_KEY));
+        if (!reset) return getValue(comp);
+
+        Object _thisVal = comp.removeAttribute(DISPOSABLE_VALUE_KEY);
+        if (_thisVal == null) _thisVal = comp.getAttribute(DEFAULT_VALUE_KEY);
+
+        return resetValue(comp, _thisVal);
     }
 
     /**

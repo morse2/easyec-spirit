@@ -33,6 +33,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.googlecode.easyec.zkoss.paging.finder.ValueFinder.DISPOSABLE_VALUE_KEY;
 import static com.googlecode.easyec.zkoss.utils.SelectorUtils.find;
 import static org.apache.commons.collections.CollectionUtils.exists;
 import static org.apache.commons.collections.MapUtils.isNotEmpty;
@@ -356,6 +357,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         }
         // 其他组件
         else {
+            c.setAttribute(DISPOSABLE_VALUE_KEY, v);
             extractSearchValue(c, true);
         }
     }

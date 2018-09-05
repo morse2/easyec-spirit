@@ -15,6 +15,10 @@ public interface ValueFinder<T extends Component> extends Serializable {
      * 指组件默认的值
      */
     String DEFAULT_VALUE_KEY = "defaultValue";
+    /**
+     * 指组件一次性使用的值
+     */
+    String DISPOSABLE_VALUE_KEY = "disposableValue";
 
     /**
      * 获取给定ZK组件的值
