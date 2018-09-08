@@ -3,9 +3,10 @@ package com.googlecode.easyec.spirit.dao.id.impl;
 import com.googlecode.easyec.spirit.dao.id.IdentifierNameConverter;
 import com.googlecode.easyec.spirit.dao.id.SequenceGenerator;
 import com.googlecode.easyec.spirit.domain.GenericPersistentDomainModel;
+import com.googlecode.easyec.spirit.proxy.ProxyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
@@ -17,7 +18,6 @@ import java.util.Collection;
 import java.util.Map;
 
 import static java.util.Collections.emptyList;
-import static org.springframework.beans.PropertyAccessorFactory.forBeanPropertyAccess;
 
 /**
  * 通用域模型的主键生成器实现类。
@@ -63,7 +63,10 @@ public abstract class DomainModelSequenceGenerator implements SequenceGenerator,
                 continue;
             }
 
-            BeanWrapper bw = forBeanPropertyAccess(o);
+            Class<?> clz = ProxyUtils.getClass(o);
+            logger.debug("DomainModel class is [{}].", clz.getName());
+
+            BeanWrapperImpl bw = new BeanWrapperImpl(clz);
             PropertyDescriptor pd = bw.getPropertyDescriptor("uidPk");
             Class<?> type = pd.getWriteMethod().getParameterTypes()[0];
             logger.debug("GenericPersistentDomainModel's parameter type of write method 'uidPk' is: [{}].", type.getName());
@@ -74,6 +77,7 @@ public abstract class DomainModelSequenceGenerator implements SequenceGenerator,
                 continue;
             }
 
+            bw.setBeanInstance(o);
             // 判断主键当的值是否为null
             Object curIdVal = bw.getPropertyValue(pd.getName());
             if (curIdVal != null) {

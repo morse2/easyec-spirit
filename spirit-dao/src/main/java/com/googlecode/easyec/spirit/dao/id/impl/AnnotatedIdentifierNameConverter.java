@@ -3,6 +3,7 @@ package com.googlecode.easyec.spirit.dao.id.impl;
 import com.googlecode.easyec.spirit.dao.id.IdentifierNameConverter;
 import com.googlecode.easyec.spirit.dao.id.IgnoreIdentifierGenerateException;
 import com.googlecode.easyec.spirit.dao.id.annotation.Identifier;
+import com.googlecode.easyec.spirit.proxy.ProxyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -42,7 +43,7 @@ public class AnnotatedIdentifierNameConverter implements IdentifierNameConverter
     private Identifier findIdentifier(Object o) {
         if (null == o) return null;
 
-        Class<?> thisClass = o.getClass();
+        Class<?> thisClass = ProxyUtils.getClass(o);
 
         // find annotation on this class.
         Identifier a = thisClass.getAnnotation(Identifier.class);
