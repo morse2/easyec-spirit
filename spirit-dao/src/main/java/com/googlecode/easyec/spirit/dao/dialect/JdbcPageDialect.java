@@ -16,13 +16,13 @@ import static java.util.regex.Pattern.compile;
 public abstract class JdbcPageDialect extends JdbcSqlDialect implements PageDialect {
 
     /* common pattern */
-    protected static final Pattern select_Pattern_m = compile("[\\w\\W\\s]*from\\s*", CASE_INSENSITIVE);
+    protected static final Pattern select_Pattern_m = compile("[\\d\\w.,_\\s\\r\\n\\t]+from\\s+", CASE_INSENSITIVE);
     /* distinct pattern */
     protected static final Pattern select_Pattern_d = compile("(distinct)\\s+[\\w\\W]*", CASE_INSENSITIVE);
     /* group by pattern */
     protected static final Pattern select_Pattern_g = compile("\\s*group\\s*by[\\s\\S\\w\\W]*", CASE_INSENSITIVE);
     /* union pattern */
-    protected static final Pattern select_Pattern_u = compile("\\s*union\\s*", CASE_INSENSITIVE);
+    protected static final Pattern select_Pattern_u = compile("\\s+union\\s+", CASE_INSENSITIVE);
 
     public String getCountSql(String jdbcSql) {
         if (StringUtils.isBlank(jdbcSql)) {
