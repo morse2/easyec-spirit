@@ -1,5 +1,6 @@
 package com.googlecode.easyec.spirit.dao.dialect;
 
+import com.googlecode.easyec.spirit.dao.dialect.impl.MySqlJdbcPageDialect;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.regex.Matcher;
@@ -16,7 +17,7 @@ import static java.util.regex.Pattern.compile;
 public abstract class JdbcPageDialect extends JdbcSqlDialect implements PageDialect {
 
     /* common pattern */
-    protected static final Pattern select_Pattern_m = compile("[\\d\\w.,_\\s\\r\\n\\t]+from\\s+", CASE_INSENSITIVE);
+    protected static final Pattern select_Pattern_m = compile("[\\d\\w.,_\\s\\r\\n\\t()]+from\\s+", CASE_INSENSITIVE);
     /* distinct pattern */
     protected static final Pattern select_Pattern_d = compile("(distinct)\\s+[\\w\\W]*", CASE_INSENSITIVE);
     /* group by pattern */
