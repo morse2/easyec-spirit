@@ -1,6 +1,5 @@
 package com.googlecode.easyec.spirit.dao.dialect;
 
-import com.googlecode.easyec.spirit.dao.dialect.impl.MySqlJdbcPageDialect;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.regex.Matcher;
