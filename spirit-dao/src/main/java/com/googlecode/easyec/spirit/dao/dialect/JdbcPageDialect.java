@@ -1,6 +1,5 @@
 package com.googlecode.easyec.spirit.dao.dialect;
 
-import com.googlecode.easyec.spirit.dao.dialect.impl.MySqlJdbcPageDialect;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.regex.Matcher;
@@ -98,12 +97,5 @@ public abstract class JdbcPageDialect extends JdbcSqlDialect implements PageDial
         logger.info("Native JDBC SQL for counting: [" + countSql + "].");
 
         return countSql;
-    }
-
-    public static void main(String[] args) {
-        String sql = "select a.id, a.code_name from table_1 where a.id = ?";
-
-        String countSql = new MySqlJdbcPageDialect().getCountSql(sql);
-        System.out.println(countSql);
     }
 }
