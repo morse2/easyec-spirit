@@ -16,13 +16,15 @@ import static java.util.regex.Pattern.compile;
 public abstract class JdbcPageDialect extends JdbcSqlDialect implements PageDialect {
 
     /* common pattern */
-    protected static final Pattern select_Pattern_m = compile("[\\d\\w.,_\\s\\r\\n\\t()]+from\\s+", CASE_INSENSITIVE);
+    protected static final Pattern select_Pattern_m = compile("\\s+from\\s+", CASE_INSENSITIVE);
     /* distinct pattern */
     protected static final Pattern select_Pattern_d = compile("(distinct)\\s+[\\w\\W]*", CASE_INSENSITIVE);
     /* group by pattern */
     protected static final Pattern select_Pattern_g = compile("\\s*group\\s*by[\\s\\S\\w\\W]*", CASE_INSENSITIVE);
     /* union pattern */
     protected static final Pattern select_Pattern_u = compile("\\s+union\\s+", CASE_INSENSITIVE);
+
+    private static final String MARKUP = "__|__";
 
     public String getCountSql(String jdbcSql) {
         if (StringUtils.isBlank(jdbcSql)) {
@@ -89,10 +91,13 @@ public abstract class JdbcPageDialect extends JdbcSqlDialect implements PageDial
         // replace count sql
         Matcher mm = select_Pattern_m.matcher(sql);
         if (mm.find()) {
-            mm.appendReplacement(sb, "select count(*) from ");
+            mm.appendReplacement(sb, MARKUP + " select count(*) from ");
         }
 
         countSql = mm.appendTail(sb).toString();
+
+        int i = countSql.indexOf(MARKUP) + MARKUP.length();
+        if (i > 0) countSql = countSql.substring(i);
 
         logger.info("Native JDBC SQL for counting: [" + countSql + "].");
 
