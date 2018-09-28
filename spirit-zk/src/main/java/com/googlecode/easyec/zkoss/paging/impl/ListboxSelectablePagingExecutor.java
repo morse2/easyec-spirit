@@ -27,13 +27,21 @@ import static org.zkoss.zk.ui.event.Events.ON_SELECT;
 public abstract class ListboxSelectablePagingExecutor<T extends UniqueDomainModel<E>, E extends Serializable>
     extends ListboxSearchablePagingExecutor implements PagingSelectable {
 
-    private static final long serialVersionUID = 775549918573822728L;
+    private static final long serialVersionUID = 770142279296592632L;
     private boolean spread = true;
 
     private ConcurrentSkipListSet<E> _selections = new ConcurrentSkipListSet<>();
 
     protected ListboxSelectablePagingExecutor(Paging paging, Listbox comp) {
+        this(paging, comp, null);
+    }
+
+    protected ListboxSelectablePagingExecutor(Paging paging, Listbox comp, Set<E> sels) {
         super(paging, comp);
+
+        if (isNotEmpty(sels)) {
+            this._selections.addAll(sels);
+        }
     }
 
     @Override
