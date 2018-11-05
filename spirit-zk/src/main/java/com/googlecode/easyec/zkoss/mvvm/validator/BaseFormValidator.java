@@ -63,7 +63,7 @@ public abstract class BaseFormValidator extends AbstractValidator {
      * @return 属性集合对象
      */
     protected Map<String, Property> getFormProperties(ValidationContext ctx) {
-        return ctx.getProperties(getDomainModel(ctx));
+        return ctx.getProperties((Object) getDomainModel(ctx));
     }
 
     /**
