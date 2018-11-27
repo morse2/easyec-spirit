@@ -1,5 +1,7 @@
 package com.googlecode.easyec.zkex.bind.impl;
 
+import com.googlecode.easyec.zkex.bind.BeanValidator;
+import com.googlecode.easyec.zkex.bind.FormBeanValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zkoss.bind.Validator;
@@ -20,8 +22,8 @@ public class Init {
     private static final Logger _log = LoggerFactory.getLogger(SystemConverters.class);
 
     public static void init(WebApp wapp) throws ServletException {
-        SystemValidators.set("beanValidator", new DeferredValidator("com.googlecode.easyec.zkex.bind.BeanValidator"));
-        SystemValidators.set("formBeanValidator", new DeferredValidator("com.googlecode.easyec.zkex.bind.FormBeanValidator"));
+        SystemValidators.set("beanValidator", new DeferredValidator(BeanValidator.class.getName()));
+        SystemValidators.set("formBeanValidator", new DeferredValidator(FormBeanValidator.class.getName()));
 
         String validators = Library.getProperty(APP_VALIDATORS);
         if (!Strings.isBlank(validators)) {

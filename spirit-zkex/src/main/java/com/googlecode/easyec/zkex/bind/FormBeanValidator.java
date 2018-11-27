@@ -1,5 +1,6 @@
 package com.googlecode.easyec.zkex.bind;
 
+import com.googlecode.easyec.zkex.bind.utils.ValidationUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.zkoss.bind.Property;
 import org.zkoss.bind.ValidationContext;
@@ -60,17 +61,19 @@ public class FormBeanValidator extends AbstractValidator {
             throw new NullPointerException("prefix of message key is empty, did you set prefix argument in @validator?");
         }
 
-        Object base = ctx.getProperty().getBase();
-        Class<?> clz = getBeanClass(ctx, base);
-        Map<String, Property> beanProps = ctx.getProperties(base);
-        beanProps.values().forEach(prop -> {
-            String pName = prop.getProperty();
-            if (!".".equals(pName)) {
-                Set<ConstraintViolation<?>> ret = validate(clz, pName, prop.getValue());
-                if (CollectionUtils.size(ret) > 0) {
-                    handleConstraintViolation(ctx, prefix + pName, ret);
+        if (ValidationUtils.shouldValidate(ctx)) {
+            Object base = ctx.getProperty().getBase();
+            Class<?> clz = getBeanClass(ctx, base);
+            Map<String, Property> beanProps = ctx.getProperties(base);
+            beanProps.values().forEach(prop -> {
+                String pName = prop.getProperty();
+                if (!".".equals(pName)) {
+                    Set<ConstraintViolation<?>> ret = validate(clz, pName, prop.getValue());
+                    if (CollectionUtils.size(ret) > 0) {
+                        handleConstraintViolation(ctx, prefix + pName, ret);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 }

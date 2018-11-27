@@ -1,5 +1,6 @@
 package com.googlecode.easyec.zkex.bind;
 
+import com.googlecode.easyec.zkex.bind.utils.ValidationUtils;
 import org.zkoss.bind.Binder;
 import org.zkoss.bind.Form;
 import org.zkoss.bind.ValidationContext;
@@ -29,7 +30,9 @@ public class BeanValidator extends org.zkoss.bind.validator.BeanValidator {
 
     @Override
     protected Object[] getValidationInfo(ValidationContext ctx, Object base, String property) {
-        if (!(base instanceof Form)) return super.getValidationInfo(ctx, base, property);
+        if (!(base instanceof Form) || !ValidationUtils.shouldValidate(ctx)) {
+            return super.getValidationInfo(ctx, base, property);
+        }
 
         Component formComp = (Component) ctx.getBindContext().getAttribute(LOAD_FORM_COMPONENT);
         if (formComp == null) {
