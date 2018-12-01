@@ -3,14 +3,19 @@ package com.googlecode.easyec.zkex.bind;
 import com.googlecode.easyec.zkex.bind.utils.ValidationUtils;
 import org.zkoss.bind.Binder;
 import org.zkoss.bind.Form;
+import org.zkoss.bind.Property;
 import org.zkoss.bind.ValidationContext;
+import org.zkoss.bind.sys.BinderCtrl;
+import org.zkoss.bind.sys.ValidationMessages;
 import org.zkoss.bind.xel.zel.BindELContext;
 import org.zkoss.xel.ExpressionX;
 import org.zkoss.xel.ValueReference;
 import org.zkoss.zk.ui.Component;
 
+import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import java.util.Set;
 
 import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.getBean;
 import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.isInitialized;
@@ -29,8 +34,35 @@ public class BeanValidator extends org.zkoss.bind.validator.BeanValidator {
     }
 
     @Override
+    public void validate(ValidationContext ctx) {
+        final Property p = ctx.getProperty();
+        final Object base = p.getBase();
+        String property = p.getProperty();
+        final Object value = p.getValue();
+
+        Object[] info = getValidationInfo(ctx, base, property);
+        Class<?> clz = (Class<?>) info[0];
+        property = (String) info[1];
+        final Class<?>[] groups = (Class<?>[]) ctx.getValidatorArg("groups");
+
+        if (!shouldValidate(ctx)) {
+            ValidationMessages vmsgs
+                = ((BinderCtrl) ctx.getBindContext()
+                .getBinder())
+                .getValidationMessages();
+            if (vmsgs != null) vmsgs.clearKeyMessages(property);
+
+            return;
+        }
+
+        Set<ConstraintViolation<?>> violations = validate(clz, property, value, groups);
+
+        handleConstraintViolation(ctx, violations);
+    }
+
+    @Override
     protected Object[] getValidationInfo(ValidationContext ctx, Object base, String property) {
-        if (!(base instanceof Form) || !ValidationUtils.shouldValidate(ctx)) {
+        if (!(base instanceof Form)) {
             return super.getValidationInfo(ctx, base, property);
         }
 
@@ -57,5 +89,20 @@ public class BeanValidator extends org.zkoss.bind.validator.BeanValidator {
         Class<?> clz = vr.getBase().getClass();
         property = vr.getProperty().toString();
         return new Object[] { clz, property };
+    }
+
+    protected boolean shouldValidate(String command, Object arg) {
+        if (arg instanceof String) {
+            return ValidationUtils.shouldValidate(command, ((String) arg));
+        }
+        if (arg instanceof String[]) {
+            return ValidationUtils.shouldValidate(command, ((String[]) arg));
+        }
+
+        return true;
+    }
+
+    private boolean shouldValidate(ValidationContext ctx) {
+        return shouldValidate(ctx.getCommand(), ctx.getValidatorArg("for"));
     }
 }

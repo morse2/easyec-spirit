@@ -4,7 +4,9 @@ import com.googlecode.easyec.zkex.bind.utils.ValidationUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.zkoss.bind.Property;
 import org.zkoss.bind.ValidationContext;
+import org.zkoss.bind.sys.BinderCtrl;
 import org.zkoss.bind.sys.SaveFormBinding;
+import org.zkoss.bind.sys.ValidationMessages;
 import org.zkoss.bind.validator.AbstractValidator;
 import org.zkoss.bind.validator.BeanValidations;
 import org.zkoss.lang.Strings;
@@ -61,19 +63,42 @@ public class FormBeanValidator extends AbstractValidator {
             throw new NullPointerException("prefix of message key is empty, did you set prefix argument in @validator?");
         }
 
-        if (ValidationUtils.shouldValidate(ctx)) {
-            Object base = ctx.getProperty().getBase();
-            Class<?> clz = getBeanClass(ctx, base);
-            Map<String, Property> beanProps = ctx.getProperties(base);
-            beanProps.values().forEach(prop -> {
-                String pName = prop.getProperty();
-                if (!".".equals(pName)) {
-                    Set<ConstraintViolation<?>> ret = validate(clz, pName, prop.getValue());
-                    if (CollectionUtils.size(ret) > 0) {
-                        handleConstraintViolation(ctx, prefix + pName, ret);
-                    }
-                }
-            });
+        if (!shouldValidate(ctx)) {
+            ValidationMessages vmsgs
+                = ((BinderCtrl) ctx.getBindContext()
+                .getBinder())
+                .getValidationMessages();
+            if (vmsgs != null) vmsgs.clearAllMessages();
+
+            return;
         }
+
+        Object base = ctx.getProperty().getBase();
+        Class<?> clz = getBeanClass(ctx, base);
+        Map<String, Property> beanProps = ctx.getProperties(base);
+        beanProps.values().forEach(prop -> {
+            String pName = prop.getProperty();
+            if (!".".equals(pName)) {
+                Set<ConstraintViolation<?>> ret = validate(clz, pName, prop.getValue());
+                if (CollectionUtils.size(ret) > 0) {
+                    handleConstraintViolation(ctx, prefix + pName, ret);
+                }
+            }
+        });
+    }
+
+    protected boolean shouldValidate(String command, Object arg) {
+        if (arg instanceof String) {
+            return ValidationUtils.shouldValidate(command, ((String) arg));
+        }
+        if (arg instanceof String[]) {
+            return ValidationUtils.shouldValidate(command, ((String[]) arg));
+        }
+
+        return true;
+    }
+
+    private boolean shouldValidate(ValidationContext ctx) {
+        return shouldValidate(ctx.getCommand(), ctx.getValidatorArg("for"));
     }
 }
