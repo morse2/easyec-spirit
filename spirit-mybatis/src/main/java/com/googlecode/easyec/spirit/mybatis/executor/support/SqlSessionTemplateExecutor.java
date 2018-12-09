@@ -1,6 +1,7 @@
 package com.googlecode.easyec.spirit.mybatis.executor.support;
 
 import com.googlecode.easyec.spirit.mybatis.mapper.DelegateDao;
+import com.googlecode.easyec.spirit.mybatis.mapper.support.DaoMapperUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.ibatis.binding.MapperMethod;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -51,7 +52,7 @@ public class SqlSessionTemplateExecutor implements Ordered {
         }
 
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-
+        // DAO委托模型
         if (DelegateDao.class.getName().equals(signature.getDeclaringTypeName())) {
             Class[] interfaces = ClassUtils.getAllInterfaces(joinPoint.getTarget());
             if (ArrayUtils.isNotEmpty(interfaces)) {
@@ -84,6 +85,11 @@ public class SqlSessionTemplateExecutor implements Ordered {
                     throw ex;
                 }
             }
+        }
+
+        // DAO映射代理模型
+        if (DaoMapperUtils.isProxy(joinPoint.getTarget())) {
+            return joinPoint.proceed(joinPoint.getArgs());
         }
 
         return new MapperMethod(

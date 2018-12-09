@@ -5,6 +5,7 @@ import com.googlecode.easyec.spirit.dao.paging.PageWritable;
 import com.googlecode.easyec.spirit.dao.paging.PagingException;
 import com.googlecode.easyec.spirit.dao.paging.PagingInterceptor;
 import com.googlecode.easyec.spirit.mybatis.mapper.DelegateDao;
+import com.googlecode.easyec.spirit.mybatis.mapper.support.DaoMapperUtils;
 import com.googlecode.easyec.spirit.mybatis.paging.MybatisPage;
 import com.googlecode.easyec.spirit.mybatis.paging.MybatisPageWritable;
 import org.apache.commons.lang3.ArrayUtils;
@@ -56,7 +57,7 @@ public class MybatisPagingInterceptor implements PagingInterceptor, Ordered {
         this.order = order;
     }
 
-    @Around("execution(* com.*..*.dao.*Dao.*(..)) && args(page)")
+    @Around("execution(* *..*.find(..)) && args(page)")
     public Object intercept(ProceedingJoinPoint joinPoint, Page page) throws Throwable {
         // Since 0.6.4.1
         if (!(page instanceof MybatisPage)) {
@@ -108,7 +109,16 @@ public class MybatisPagingInterceptor implements PagingInterceptor, Ordered {
             }
 
             StringBuffer sb = new StringBuffer();
-            sb.append(signature.getDeclaringTypeName());
+            // 如果是DaoMapper代理，则使用实际的域模型类作为mybatis的命名空间
+            if (DaoMapperUtils.isProxy(joinPoint.getTarget())) {
+                Class<?> cls = DaoMapperUtils.getDomainModelClass(joinPoint.getTarget());
+                if (cls != null) sb.append(cls.getName());
+            }
+
+            if (sb.length() == 0) {
+                sb.append(signature.getDeclaringTypeName());
+            }
+
             sb.append(".").append(signature.getName());
             logger.debug("Original mapped statement id is: [{}].", sb);
 

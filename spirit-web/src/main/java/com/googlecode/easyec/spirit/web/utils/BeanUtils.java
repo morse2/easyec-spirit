@@ -1,6 +1,5 @@
 package com.googlecode.easyec.spirit.web.utils;
 
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,8 +13,8 @@ import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import static org.apache.commons.collections4.CollectionUtils.select;
 import static org.apache.commons.lang3.ArrayUtils.isEmpty;
 
 /**
@@ -38,11 +37,22 @@ public class BeanUtils {
      * @return 具体的实现类
      */
     public static Class findGenericType(Object o, int index) {
-        Type genType = o.getClass().getGenericSuperclass();
+        return findGenericType(o.getClass(), index);
+    }
+
+    /**
+     * 解析泛型类型数据对象
+     *
+     * @param o     对象类型
+     * @param index 泛型类型的索引号
+     * @return 具体的实现类
+     */
+    public static Class findGenericType(Class<?> o, int index) {
+        Type genType = o.getGenericSuperclass();
 
         while (genType instanceof Class) {
             if (null == ((Class) genType).getSuperclass()) {
-                String msg = "No superclass was found. [" + o.getClass().getName() + "].";
+                String msg = "No superclass was found. [" + o.getName() + "].";
                 logger.error(msg);
 
                 throw new IllegalArgumentException(msg);
@@ -52,7 +62,7 @@ public class BeanUtils {
         }
 
         if (!(genType instanceof ParameterizedType)) {
-            String msg = o.getClass().getSimpleName() + "'s superclass isn't class ParameterizedType";
+            String msg = o.getSimpleName() + "'s superclass isn't class ParameterizedType";
             logger.error(msg);
 
             throw new IllegalArgumentException(msg);
@@ -61,7 +71,7 @@ public class BeanUtils {
         Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
 
         if (index >= params.length || index < 0) {
-            String msg = "Index: " + index + ", Size of " + o.getClass().getSimpleName() +
+            String msg = "Index: " + index + ", Size of " + o.getSimpleName() +
                 "'s Parameterized Type: " + params.length;
 
             logger.warn(msg);
@@ -122,7 +132,7 @@ public class BeanUtils {
                 : _getClassTree(bean.getClass(), targetType);
 
             for (int i = classTree.size() - 1; i >= 0; i--) {
-                List<Type> sourceTypes = new ArrayList<Type>();
+                List<Type> sourceTypes = new ArrayList<>();
                 if (targetType.isInterface()) {
                     sourceTypes.addAll(Arrays.asList(classTree.get(i).getGenericInterfaces()));
                 } else sourceTypes.add(classTree.get(i).getGenericSuperclass());
@@ -145,7 +155,7 @@ public class BeanUtils {
 
     /* 获取源对象的继承结构 */
     private static List<Class> _getClassTree(Class<?> cls, Class<?> targetType) {
-        List<Class> list = new ArrayList<Class>();
+        List<Class> list = new ArrayList<>();
 
         do {
             list.add(cls);
@@ -156,20 +166,12 @@ public class BeanUtils {
     }
 
     /* 获取源对象的接口结构 */
-    @SuppressWarnings("unchecked")
     private static List<Class> _getInterfaceList(Class<?> cls, final Class<?> targetType) {
-        return new ArrayList<Class>(
-            select(
-                ClassUtils.getAllInterfacesForClassAsSet(cls),
-                new Predicate() {
-
-                    public boolean evaluate(Object obj) {
-                        return targetType.isAssignableFrom(((Class) obj))
-                            && !targetType.equals((obj));
-                    }
-                }
-            )
-        );
+        return ClassUtils.getAllInterfacesForClassAsSet(cls)
+            .stream().filter(clz
+                -> targetType.isAssignableFrom(clz)
+                && !targetType.equals(clz)
+            ).collect(Collectors.toList());
     }
 
     /* 源参数类型对象匹配目标类型的方法 */

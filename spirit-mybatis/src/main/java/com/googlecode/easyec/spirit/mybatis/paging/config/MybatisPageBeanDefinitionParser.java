@@ -19,7 +19,7 @@ import static org.springframework.beans.factory.support.BeanDefinitionBuilder.ro
  *
  * @author JunJie
  */
-class MybatisPageBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+public class MybatisPageBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
     @Override
     protected void doParse(Element element, BeanDefinitionBuilder builder) {
