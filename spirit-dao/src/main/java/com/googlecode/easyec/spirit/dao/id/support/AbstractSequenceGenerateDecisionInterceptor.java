@@ -18,8 +18,8 @@ public abstract class AbstractSequenceGenerateDecisionInterceptor implements Ord
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     protected static final String before_expr
-        = "execution(* com.*..*.dao.*Dao.create*(..)) && args(o)"
-        + "||execution(* com.*..*.dao.*Dao.insert*(..)) and args(o)";
+        = "execution(* *..*.*Dao.create*(..)) && args(o)"
+        + "||execution(* *..*.*Dao.insert*(..)) and args(o)";
 
     protected SequenceGenerator sequenceGenerator;
 

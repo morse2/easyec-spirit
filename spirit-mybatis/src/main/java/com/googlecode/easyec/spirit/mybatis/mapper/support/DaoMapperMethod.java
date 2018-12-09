@@ -1,5 +1,6 @@
 package com.googlecode.easyec.spirit.mybatis.mapper.support;
 
+import com.googlecode.easyec.spirit.domain.GenericPersistentDomainModel;
 import org.apache.ibatis.annotations.Flush;
 import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.binding.BindingException;
@@ -280,7 +281,7 @@ public class DaoMapperMethod {
             Object namedParams = paramNameResolver.getNamedParams(args);
 
             Object params = namedParams;
-            if (namedParams != null && !(namedParams instanceof Map)) {
+            if (shouldToMap(namedParams)) {
                 // 单值参数，需要使用Map替代
                 Map<String, Object> map = new HashMap<>(2);
                 map.put(paramNameResolver.getNames()[0], namedParams);
@@ -355,6 +356,10 @@ public class DaoMapperMethod {
                 }
             }
             return mapKey;
+        }
+
+        private boolean shouldToMap(Object namedParams) {
+            return namedParams != null && !(namedParams instanceof Map) && !(namedParams instanceof GenericPersistentDomainModel);
         }
     }
 
