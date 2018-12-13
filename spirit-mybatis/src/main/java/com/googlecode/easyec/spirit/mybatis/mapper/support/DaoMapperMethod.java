@@ -176,20 +176,6 @@ public class DaoMapperMethod {
         return result;
     }
 
-    public static class ParamMap<V> extends HashMap<String, V> {
-
-        private static final long serialVersionUID = -2212268410512043556L;
-
-        @Override
-        public V get(Object key) {
-            if (!super.containsKey(key)) {
-                throw new BindingException("Parameter '" + key + "' not found. Available parameters are " + keySet());
-            }
-            return super.get(key);
-        }
-
-    }
-
     public static class SqlCommand {
 
         private final String name;
@@ -281,7 +267,9 @@ public class DaoMapperMethod {
             Object namedParams = paramNameResolver.getNamedParams(args);
 
             Object params = namedParams;
-            if (shouldToMap(namedParams)) {
+            if (isMap(namedParams)) {
+                params = new HashMap<>(((Map<?, ?>) namedParams));
+            } else if (shouldToMap(namedParams)) {
                 // 单值参数，需要使用Map替代
                 Map<String, Object> map = new HashMap<>(2);
                 map.put(paramNameResolver.getNames()[0], namedParams);
@@ -358,8 +346,12 @@ public class DaoMapperMethod {
             return mapKey;
         }
 
+        private boolean isMap(Object namedParams) {
+            return namedParams instanceof Map;
+        }
+
         private boolean shouldToMap(Object namedParams) {
-            return namedParams != null && !(namedParams instanceof Map) && !(namedParams instanceof GenericPersistentDomainModel);
+            return namedParams != null && !(namedParams instanceof GenericPersistentDomainModel);
         }
     }
 
