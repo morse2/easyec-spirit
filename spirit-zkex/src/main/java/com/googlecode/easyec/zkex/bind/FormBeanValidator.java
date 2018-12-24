@@ -2,7 +2,6 @@ package com.googlecode.easyec.zkex.bind;
 
 import com.googlecode.easyec.zkex.bind.utils.ValidationUtils;
 import org.apache.commons.collections4.CollectionUtils;
-import org.zkoss.bind.Property;
 import org.zkoss.bind.ValidationContext;
 import org.zkoss.bind.sys.BinderCtrl;
 import org.zkoss.bind.sys.SaveFormBinding;
@@ -13,10 +12,15 @@ import org.zkoss.lang.Strings;
 import org.zkoss.zk.ui.UiException;
 
 import javax.validation.ConstraintViolation;
+import javax.validation.GroupSequence;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import java.lang.annotation.Annotation;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.getBean;
 import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.isInitialized;
@@ -29,11 +33,6 @@ public class FormBeanValidator extends AbstractValidator {
         return validatorFactory != null
             ? validatorFactory.getValidator()
             : BeanValidations.getValidator();
-    }
-
-    @SuppressWarnings("unchecked")
-    protected Set<ConstraintViolation<?>> validate(Class clz, String property, Object value) {
-        return this.getValidator().validateValue(clz, property, value);
     }
 
     protected void handleConstraintViolation(ValidationContext ctx, String key, Set<ConstraintViolation<?>> violations) {
@@ -74,17 +73,46 @@ public class FormBeanValidator extends AbstractValidator {
         }
 
         Object base = ctx.getProperty().getBase();
-        Class<?> clz = getBeanClass(ctx, base);
-        Map<String, Property> beanProps = ctx.getProperties(base);
-        beanProps.values().forEach(prop -> {
-            String pName = prop.getProperty();
-            if (!".".equals(pName)) {
-                Set<ConstraintViolation<?>> ret = validate(clz, pName, prop.getValue());
-                if (CollectionUtils.size(ret) > 0) {
-                    handleConstraintViolation(ctx, prefix + pName, ret);
-                }
+        Class cls = getBeanClass(ctx, base);
+        Set<ConstraintViolation<Object>> violations = new HashSet<>();
+
+        // find GroupSequence annotation
+        Annotation anno = cls.getAnnotation(GroupSequence.class);
+        if (anno == null) {
+            violations.addAll(
+                getValidator().validate(base)
+            );
+        } else {
+            Class<?>[] value = ((GroupSequence) anno).value();
+            if (value.length == 0) {
+                violations.addAll(
+                    getValidator().validate(base)
+                );
+            } else {
+                Validator validator = getValidator();
+                Stream.of(value).forEach(clz -> {
+                    if (clz.isInterface()) {
+                        violations.addAll(
+                            validator.validate(base, clz)
+                        );
+                    } else violations.addAll(
+                        getValidator().validate(base)
+                    );
+                });
             }
-        });
+        }
+
+        if (violations.size() > 0) {
+            Map<String, Set<ConstraintViolation<?>>> vMap = new HashMap<>();
+            for (ConstraintViolation<?> violation : violations) {
+                String path = violation.getPropertyPath().toString();
+                vMap.computeIfAbsent(path, k -> new HashSet<>()).add(violation);
+            }
+
+            vMap.forEach((k, v) ->
+                handleConstraintViolation(ctx, prefix + k, v)
+            );
+        }
     }
 
     protected boolean shouldValidate(String command, Object arg) {
