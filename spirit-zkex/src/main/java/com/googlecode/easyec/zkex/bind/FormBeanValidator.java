@@ -2,6 +2,7 @@ package com.googlecode.easyec.zkex.bind;
 
 import com.googlecode.easyec.zkex.bind.utils.ValidationUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.zkoss.bind.Property;
 import org.zkoss.bind.ValidationContext;
 import org.zkoss.bind.sys.BinderCtrl;
 import org.zkoss.bind.sys.SaveFormBinding;
@@ -76,27 +77,31 @@ public class FormBeanValidator extends AbstractValidator {
         Class cls = getBeanClass(ctx, base);
         Set<ConstraintViolation<Object>> violations = new HashSet<>();
 
+        // get FormObject from context
+        Map<String, Property> beanProps = ctx.getProperties(base);
+        Object formObject = getFormObject(beanProps);
+
         // find GroupSequence annotation
         Annotation anno = cls.getAnnotation(GroupSequence.class);
         if (anno == null) {
             violations.addAll(
-                getValidator().validate(base)
+                getValidator().validate(formObject)
             );
         } else {
             Class<?>[] value = ((GroupSequence) anno).value();
             if (value.length == 0) {
                 violations.addAll(
-                    getValidator().validate(base)
+                    getValidator().validate(formObject)
                 );
             } else {
                 Validator validator = getValidator();
                 Stream.of(value).forEach(clz -> {
                     if (clz.isInterface()) {
                         violations.addAll(
-                            validator.validate(base, clz)
+                            validator.validate(formObject, clz)
                         );
                     } else violations.addAll(
-                        getValidator().validate(base)
+                        getValidator().validate(formObject)
                     );
                 });
             }
@@ -124,6 +129,24 @@ public class FormBeanValidator extends AbstractValidator {
         }
 
         return true;
+    }
+
+    /**
+     * 得到当前表单对象实例。
+     * 该表单对象实例可以是一个表单代理类，
+     * 也可以是非代理对象。但实际上返回的对象
+     * 类型应该与{@link #getDomainModel(ValidationContext)}
+     * 方法返回的类型一致
+     *
+     * @param formProperties 表单属性对象
+     * @return 表单对象实例
+     */
+    protected Object getFormObject(Map<String, Property> formProperties) {
+        if (formProperties != null && formProperties.containsKey(".")) {
+            return formProperties.get(".").getValue();
+        }
+
+        return null;
     }
 
     private boolean shouldValidate(ValidationContext ctx) {
