@@ -1,6 +1,6 @@
 package com.googlecode.easyec.spirit.mybatis.mapper.support;
 
-import com.googlecode.easyec.spirit.domain.GenericPersistentDomainModel;
+import com.googlecode.easyec.spirit.domain.DomainModel;
 import org.apache.ibatis.annotations.Flush;
 import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.binding.BindingException;
@@ -351,8 +351,7 @@ public class DaoMapperMethod {
         }
 
         private boolean shouldToMap(Object namedParams) {
-            return namedParams != null && !(namedParams instanceof GenericPersistentDomainModel);
+            return namedParams != null && !(namedParams instanceof DomainModel);
         }
     }
-
 }
