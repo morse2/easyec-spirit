@@ -102,9 +102,14 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
 
     /**
      * 初始化加载域模型对象实例。
+     * 该方法默认由 loadModel(M)
+     * 方法调用，如果loadModel(M)
+     * 被覆盖，此方法可能不会被触发，
+     * 或由用户按需触发。
      *
      * @param id 模型的ID
      * @return 加载完后的域模型对象实例
+     * @see #loadModel(GenericPersistentDomainModel)
      */
     protected M loadModel(E id) {
         return null;
