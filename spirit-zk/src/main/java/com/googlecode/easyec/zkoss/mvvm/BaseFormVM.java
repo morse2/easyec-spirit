@@ -88,7 +88,7 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
      *
      * @return 域模型对象实例
      */
-    abstract public M createIfNull();
+    abstract protected M createIfNull();
 
     /**
      * 初始化加载域模型对象实例。
@@ -96,7 +96,19 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
      * @param model 当前参数传递的域模型对象
      * @return 加载完后的域模型对象实例
      */
-    abstract public M loadModel(M model);
+    protected M loadModel(M model) {
+        return loadModel(model.getUidPk());
+    }
+
+    /**
+     * 初始化加载域模型对象实例。
+     *
+     * @param id 模型的ID
+     * @return 加载完后的域模型对象实例
+     */
+    protected M loadModel(E id) {
+        return null;
+    }
 
     @Override
     protected void doInit() {
@@ -127,8 +139,19 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
                 Class cls = BeanUtils.findGenericType(this, BaseFormVM.class, 1);
 
                 if (null == cls) {
-                    action = FormAction.UPDATE;
                     domainModel = loadModel((M) var);
+                    if (domainModel != null) {
+                        action = FormAction.UPDATE;
+
+                        return;
+                    }
+
+                    /*
+                     * 如果loadModel(M)方法未能正确返回domainModel，
+                     * 则进入createIfNull方法。
+                     */
+                    domainModel = createIfNull();
+                    action = FormAction.INSERT;
 
                     return;
                 }
