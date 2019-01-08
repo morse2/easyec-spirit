@@ -4,6 +4,9 @@ import com.googlecode.easyec.spirit.web.utils.WebUtils;
 import com.googlecode.easyec.zkoss.paging.PagingExecutor;
 import com.googlecode.easyec.zkoss.paging.PagingSelectable;
 import com.googlecode.easyec.zkoss.paging.SearchablePagingExecutor;
+import com.googlecode.easyec.zkoss.utils.ExecUtils;
+import com.googlecode.easyec.zkoss.viewmodel.SearchablePagingViewModelAware;
+import org.springframework.util.Assert;
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.Init;
@@ -14,7 +17,6 @@ import java.util.Map;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.zkoss.zk.ui.Executions.getCurrent;
 
 /**
  * 支持可搜索的分页框架的视图模型的基类。
@@ -25,17 +27,14 @@ import static org.zkoss.zk.ui.Executions.getCurrent;
  * @author JunJie
  * @see SearchablePagingExecutor
  */
+@Init(superclass = true)
 @AfterCompose(superclass = true)
-public abstract class BaseSearchablePagingVM<T extends Component> extends BasePagingVM<T> {
+public abstract class BaseSearchablePagingVM<T extends Component> extends BasePagingVM<T> implements SearchablePagingViewModelAware<T> {
 
-    private static final long serialVersionUID = -2273776542203842688L;
+    private static final long serialVersionUID = -2512442216157483045L;
     private String preQs;
 
-    /**
-     * 返回上一个页面传递过来的查询字符串
-     *
-     * @return query string
-     */
+    @Override
     public String getPreQs() {
         if (isBlank(preQs)) return "";
         return new StringBuffer()
@@ -44,46 +43,7 @@ public abstract class BaseSearchablePagingVM<T extends Component> extends BasePa
             .toString();
     }
 
-    /**
-     * 为给定的URL追加上一个页面的查询字符串
-     *
-     * @param original 原始url
-     * @return 可能追加了查询字符串的url
-     */
-    protected String appendPreQs(String original) {
-        if (isBlank(original)) return "";
-        if (isBlank(preQs)) return original;
-        return new StringBuffer()
-            .append(original)
-            .append("?")
-            .append(preQs)
-            .toString();
-    }
-
-    /**
-     * 为给定的URL追加当前页面的查询字符串
-     *
-     * @param original 原始url
-     * @return 可能追加了查询字符串的url
-     */
-    protected String appendCurQs(String original) {
-        if (isBlank(original)) return "";
-
-        String qs = getCurQs();
-
-        if (isBlank(qs)) return original;
-
-        return new StringBuffer()
-            .append(original)
-            .append(qs)
-            .toString();
-    }
-
-    /**
-     * 返回当前页面的查询字符串
-     *
-     * @return query string
-     */
+    @Override
     public String getCurQs() {
         String qs = getPagingExecutor().encodeSearchTerms();
         logger.debug("Current page's query string: [{}].", qs);
@@ -97,13 +57,17 @@ public abstract class BaseSearchablePagingVM<T extends Component> extends BasePa
     }
 
     @Override
-    public SearchablePagingExecutor getPagingExecutor() {
-        return (SearchablePagingExecutor) super.getPagingExecutor();
+    protected void doInit() {
+        super.doInit();
+
+        HttpServletRequest request = ExecUtils.getNativeRequest();
+        Assert.notNull(request, "HttpServletRequest is null.");
+        preQs = request.getQueryString();
     }
 
-    @Init(superclass = true)
-    public void initBaseSearchablePagingVM() {
-        preQs = ((HttpServletRequest) getCurrent().getNativeRequest()).getQueryString();
+    @Override
+    public SearchablePagingExecutor getPagingExecutor() {
+        return (SearchablePagingExecutor) super.getPagingExecutor();
     }
 
     /**
@@ -151,7 +115,7 @@ public abstract class BaseSearchablePagingVM<T extends Component> extends BasePa
      * @return <code>SearchablePagingExecutor</code>对象
      */
     @Override
-    abstract public SearchablePagingExecutor createPagingExecutor();
+    abstract protected SearchablePagingExecutor createPagingExecutor();
 
     @Override
     protected final void beforePagingExecutorInit(PagingExecutor exec) {
@@ -162,6 +126,41 @@ public abstract class BaseSearchablePagingVM<T extends Component> extends BasePa
             (SearchablePagingExecutor) exec,
             WebUtils.decodeQueryString(preQs)
         );
+    }
+
+    /**
+     * 为给定的URL追加上一个页面的查询字符串
+     *
+     * @param original 原始url
+     * @return 可能追加了查询字符串的url
+     */
+    protected String appendPreQs(String original) {
+        if (isBlank(original)) return "";
+        if (isBlank(preQs)) return original;
+        return new StringBuffer()
+            .append(original)
+            .append("?")
+            .append(preQs)
+            .toString();
+    }
+
+    /**
+     * 为给定的URL追加当前页面的查询字符串
+     *
+     * @param original 原始url
+     * @return 可能追加了查询字符串的url
+     */
+    protected String appendCurQs(String original) {
+        if (isBlank(original)) return "";
+
+        String qs = getCurQs();
+
+        if (isBlank(qs)) return original;
+
+        return new StringBuffer()
+            .append(original)
+            .append(qs)
+            .toString();
     }
 
     /**

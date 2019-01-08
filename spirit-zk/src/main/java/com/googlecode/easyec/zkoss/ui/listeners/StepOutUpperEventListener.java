@@ -17,8 +17,12 @@ import static org.zkoss.bind.sys.BinderCtrl.VM;
  */
 public class StepOutUpperEventListener extends StepOutEventListener {
 
-    private static final long serialVersionUID = -6193606210815338515L;
+    private static final long serialVersionUID = -5023480876220436267L;
     private Component _uppComp;
+
+    public StepOutUpperEventListener(Component uppComp) {
+        this(uppComp, uppComp.getParent());
+    }
 
     public StepOutUpperEventListener(Component uppComp, Component parent) {
         super(parent);
@@ -45,7 +49,7 @@ public class StepOutUpperEventListener extends StepOutEventListener {
      */
     protected void rebuildBreadcrumb(Component comp) {
         Object vm = comp.getAttribute(VM);
-        if (vm != null && vm instanceof BreadcrumbCtrl) {
+        if (vm instanceof BreadcrumbCtrl) {
             Breadcrumb _bc = ((BreadcrumbCtrl) vm).getBreadcrumb();
             if (_bc != null) Events.postEvent(new BreadcrumbEvent(getParent(), _bc));
         }

@@ -3,6 +3,9 @@ package com.googlecode.easyec.zkoss.mvvm;
 import com.googlecode.easyec.zkoss.ui.Steps;
 import com.googlecode.easyec.zkoss.ui.builders.PreSufPathUriUiParameterBuilder;
 import com.googlecode.easyec.zkoss.ui.listeners.StepsOutEventListener;
+import com.googlecode.easyec.zkoss.ui.listeners.SwitchTabsEventListener;
+import com.googlecode.easyec.zkoss.ui.listeners.UpdateTabsEventListener;
+import com.googlecode.easyec.zkoss.ui.oper.UpdateTab;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.util.Assert;
@@ -11,8 +14,8 @@ import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.Init;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Executions;
+import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.SelectEvent;
-import org.zkoss.zk.ui.event.SerializableEventListener;
 import org.zkoss.zul.Tab;
 import org.zkoss.zul.Tabbox;
 import org.zkoss.zul.Tabpanel;
@@ -42,10 +45,18 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> {
 
     public static final String ZUL_FILE = "zul-file";
     public static final String WITH_FORM_OBJ = "with-form-obj";
-    private static final long serialVersionUID = 1215351477966715357L;
+    private static final long serialVersionUID = 6192500992517654529L;
 
     private final Map<Object, Object> args = new HashMap<>();
     private final ConcurrentMap<Tab, Component> _panelsRef = new ConcurrentHashMap<>();
+
+    protected Map<Object, Object> getArgs() {
+        return this.args;
+    }
+
+    protected ConcurrentMap<Tab, Component> getPanelsRef() {
+        return this._panelsRef;
+    }
 
     @Override
     protected void doInit() {
@@ -53,10 +64,7 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> {
 
         Map<?, ?> args = Executions.getCurrent().getArg();
         if (MapUtils.isNotEmpty(args)) {
-            Set<?> keys = args.keySet();
-            for (Object k : keys) {
-                this.args.put(k, args.get(k));
-            }
+            args.forEach(this.args::put);
         }
     }
 
@@ -66,7 +74,9 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> {
         Assert.notNull(_tb.getTabs(), "ZK Tabs mustn't be null.");
 
         // 绑定onSelect事件
-        _tb.addEventListener(ON_SELECT, new SelectTabEventListener());
+        SwitchTabsEventListener<?> stlsnr = createSwitchTabsEventListener();
+        Assert.notNull(stlsnr, "SwitchTabsEventListener mustn't be null.");
+        _tb.addEventListener(ON_SELECT, stlsnr);
 
         List<Component> _tabs = _tb.getTabs().getChildren();
         Assert.isTrue(isNotEmpty(_tabs), "No any ZK tab was present.");
@@ -119,14 +129,9 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> {
             = getUiParameterBuilder()
             .setUri(zulFile);
 
-        final boolean _b = _isWithFormObj(_t);
-        Set<Object> argKeys = this.args.keySet();
-        for (Object _k : argKeys) {
-            if (!_b && ARG_FORM_OBJECT.equals(_k)) {
-                continue;
-            }
-
-            _builder.setArg(_k, this.args.get(_k));
+        if (_isWithFormObj(_t)) {
+            Object _form = this.args.get(ARG_FORM_OBJECT);
+            if (_form != null) _builder.setArg(ARG_FORM_OBJECT, _form);
         }
 
         _comp = getUiBuilder().manufacture(
@@ -138,6 +143,10 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> {
             "onStepOut",
             new StepsOutEventListener(this, _selPanel)
         );
+
+        // 添加Tabs组件更新的监听事件
+        UpdateTabsEventListener utlsnr = createUpdateTabsEventListener();
+        if (utlsnr != null) _comp.addEventListener("onUpdateTab", utlsnr);
 
         // 添加引用关系
         this._panelsRef.putIfAbsent(_t, _comp);
@@ -195,6 +204,29 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> {
         ((Steps) _vm).stepOut();
     }
 
+    // ----- 创建事件的方法
+
+    /**
+     * 创建一个<code>Tab</code>切换时
+     * 的监听类实例。该方法不能返回null
+     *
+     * @return <code>SwitchTabsEventListener</code>
+     */
+    protected SwitchTabsEventListener<?> createSwitchTabsEventListener() {
+        return new DefaultSwitchTabsEventListener();
+    }
+
+    /**
+     * 创建一个<code>Tab</code>更新时
+     * 的监听类实例。该方法可以返回null，
+     * 如果返回null，说明不需要监听该事件
+     *
+     * @return <code>UpdateTabsEventListener</code>
+     */
+    protected UpdateTabsEventListener createUpdateTabsEventListener() {
+        return new DefaultUpdateTabsEventListener();
+    }
+
     /**
      * 获取TB组件对象
      */
@@ -208,27 +240,41 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> {
     abstract protected PreSufPathUriUiParameterBuilder getUiParameterBuilder();
 
     /**
-     * 选择Tab时触发的事件监听类
+     * Default <code>SwitchTabsEventListener</code>
      */
-    private class SelectTabEventListener implements SerializableEventListener<SelectEvent<Tab, Object>> {
+    private class DefaultSwitchTabsEventListener implements SwitchTabsEventListener<Object> {
 
-        private static final long serialVersionUID = -4787108409412501457L;
+        private static final long serialVersionUID = 5243516233247328300L;
 
         @Override
         public void onEvent(SelectEvent<Tab, Object> event) throws Exception {
             Set<Tab> unselectedTabs = event.getUnselectedItems();
             if (isNotEmpty(unselectedTabs)) {
-                for (Tab _t : unselectedTabs) {
-                    _unloadPanel(_t);
-                }
+                unselectedTabs.forEach(BaseTabsVM.this::_unloadPanel);
             }
 
             Set<Tab> selectedTabs = event.getSelectedItems();
             if (isNotEmpty(selectedTabs)) {
-                for (Tab _t : selectedTabs) {
-                    _loadPanel(_t);
-                }
+                selectedTabs.forEach(BaseTabsVM.this::_loadPanel);
             }
+        }
+    }
+
+    /**
+     * Default <code>UpdateTabsEventListener</code>
+     */
+    private class DefaultUpdateTabsEventListener implements UpdateTabsEventListener {
+
+        private static final long serialVersionUID = 1606861951528297395L;
+
+        @Override
+        public void onEvent(Event event) throws Exception {
+            BaseTabsVM.this._panelsRef.forEach((tab, comp) -> {
+                Object _vm = comp.getAttribute(VM);
+                if (_vm instanceof UpdateTab) {
+                    ((UpdateTab) _vm).update(tab);
+                }
+            });
         }
     }
 }

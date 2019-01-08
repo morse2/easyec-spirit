@@ -3,12 +3,14 @@ package com.googlecode.easyec.zkoss.mvvm;
 import com.googlecode.easyec.zkoss.paging.PagingExecutor;
 import com.googlecode.easyec.zkoss.ui.listeners.StepOutEventListener;
 import com.googlecode.easyec.zkoss.ui.listeners.StepOutWithPagingEventListener;
+import com.googlecode.easyec.zkoss.viewmodel.PagingViewModelAware;
 import org.springframework.util.Assert;
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Init;
 import org.zkoss.zk.ui.Component;
 
 import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.autowireBeanProperties;
+import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.isInitialized;
 
 /**
  * 支持分页框架的视图模型的基类。
@@ -20,28 +22,32 @@ import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.autowire
  * @see PagingExecutor
  */
 @Init(superclass = true)
-public abstract class BasePagingVM<T extends Component> extends BaseVM<T> {
+@AfterCompose(superclass = true)
+public abstract class BasePagingVM<T extends Component> extends BaseVM<T> implements PagingViewModelAware<T> {
 
+    private static final long serialVersionUID = -4801582471476723836L;
     private PagingExecutor pagingExecutor;
 
-    /**
-     * 返回分页的执行器对象
-     *
-     * @return <code>PagingExecutor</code>对象实例
-     */
+    @Override
     public PagingExecutor getPagingExecutor() {
         return pagingExecutor;
     }
 
-    @AfterCompose(superclass = true)
-    public void afterBasePageVM() {
+    @Override
+    protected void doAfterCompose() {
         this.pagingExecutor = createPagingExecutor();
         Assert.notNull(pagingExecutor, "PagingExecutor is also null.");
 
+        // 执行父类的方法
+        super.doAfterCompose();
+
+        if (isInitialized()) {
+            // 使用Spring来为PageExecutor实例注入依赖对象
+            autowireBeanProperties(pagingExecutor, false);
+        }
+
         // 执行分页执行类的初始化前置方法
         beforePagingExecutorInit(pagingExecutor);
-        // 使用Spring来为PageExecutor实例注入依赖对象
-        autowireBeanProperties(pagingExecutor, false);
         // 初始化分页执行类的初始方法
         this.pagingExecutor.doInit();
     }
@@ -54,7 +60,7 @@ public abstract class BasePagingVM<T extends Component> extends BaseVM<T> {
      *
      * @return <code>PagingExecutor</code>对象
      */
-    abstract public PagingExecutor createPagingExecutor();
+    abstract protected PagingExecutor createPagingExecutor();
 
     /**
      * 在<code>PagingExecutor</code>对象被初始化之前执行的方法

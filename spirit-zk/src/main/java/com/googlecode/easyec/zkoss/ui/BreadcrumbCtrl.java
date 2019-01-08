@@ -13,6 +13,11 @@ public interface BreadcrumbCtrl {
     String BC_ID = "$BreadCrumb$";
 
     /**
+     * 面包屑标签名
+     */
+    String BC_LABEL = "bc-label";
+
+    /**
      * 返回当前页面的面包屑信息。
      * 如果页面没有配置面包屑，
      * 则返回null
