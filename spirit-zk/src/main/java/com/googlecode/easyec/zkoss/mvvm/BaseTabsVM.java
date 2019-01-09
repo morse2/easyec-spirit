@@ -44,12 +44,10 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> implemen
     public static final String ZUL_FILE = "zul-file";
     public static final String CAN_UPDATE = "can-update";
     public static final String WITH_FORM_OBJ = "with-form-obj";
-    private static final long serialVersionUID = -1097684779572079456L;
+    private static final long serialVersionUID = 2146695182065587202L;
 
     private final Map<Object, Object> args = new HashMap<>();
     private final ConcurrentMap<Tab, Component> _panelsRef = new ConcurrentHashMap<>();
-
-    private transient UriUiParameterBuilder uriUiParameterBuilder;
 
     private Tabbox _tb;
 
@@ -60,23 +58,9 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> implemen
         return this._tb;
     }
 
-    /**
-     * 获取配置的<code>UriUiParameterBuilder</code>对象实例
-     *
-     * @return <code>UriUiParameterBuilder</code>
-     */
-    public UriUiParameterBuilder getUriUiParameterBuilder() {
-        return uriUiParameterBuilder;
-    }
-
     @WireVariable("tabbox")
     public void setTabbox(Tabbox tabbox) {
         this._tb = tabbox;
-    }
-
-    @WireVariable("preSufPathUriUiParameterBuilder")
-    public void setUriUiParameterBuilder(UriUiParameterBuilder uriUiParameterBuilder) {
-        this.uriUiParameterBuilder = uriUiParameterBuilder;
     }
 
     protected Map<Object, Object> getArgs() {
@@ -237,6 +221,13 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> implemen
         // 调用子组件中的stepOut()方法
         ((Steps) _vm).stepOut();
     }
+
+    /**
+     * 获取配置的<code>UriUiParameterBuilder</code>对象实例
+     *
+     * @return <code>UriUiParameterBuilder</code>
+     */
+    abstract protected UriUiParameterBuilder getUriUiParameterBuilder();
 
     // ----- 创建事件的方法
 
