@@ -31,6 +31,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import static com.googlecode.easyec.zkoss.mvvm.BaseFormVM.ARG_FORM_OBJECT;
+import static com.googlecode.easyec.zkoss.viewmodel.FormViewModelAware.ARG_CHECK_UIDPK;
+import static com.googlecode.easyec.zkoss.viewmodel.FormViewModelAware.ARG_MATCH_VM;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.collections4.CollectionUtils.size;
 import static org.zkoss.bind.sys.BinderCtrl.VM;
@@ -147,7 +149,13 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> {
 
         if (_isWithFormObj(_t)) {
             Object _form = this.args.get(ARG_FORM_OBJECT);
-            if (_form != null) _builder.setArg(ARG_FORM_OBJECT, _form);
+            if (_form != null) {
+                _builder.setArg(ARG_FORM_OBJECT, _form);
+
+                // 表单对象不为空，则获取和表单对象相关的其他参数
+                _builder.setArg(ARG_CHECK_UIDPK, this.args.get(ARG_CHECK_UIDPK));
+                _builder.setArg(ARG_MATCH_VM, this.args.get(ARG_MATCH_VM));
+            }
         }
 
         _comp = getUiBuilder().manufacture(
