@@ -1,12 +1,12 @@
 package com.googlecode.easyec.zkoss.mvvm;
 
 import com.googlecode.easyec.spirit.domain.GenericPersistentDomainModel;
-import com.googlecode.easyec.spirit.domain.PersistentDomainModel;
 import com.googlecode.easyec.zkoss.ui.form.FormWrapper;
 import com.googlecode.easyec.zkoss.viewmodel.FormViewModelAware;
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Init;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zul.Tab;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
@@ -14,30 +14,12 @@ import java.io.Serializable;
 import static com.googlecode.easyec.zkoss.utils.ExecUtils.getNativeRequest;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-/**
- * 基于表单的模型视图-视图模型基本类。
- * 此基类提供了当前操作是新增还是编辑的标记。
- * <p>
- * 实现方式为：分别从
- * <ol>
- * <li>{@code Executions.getCurrent().getArg()}</li>
- * <li>{@code org.zkoss.zk.ui.Session.getAttribute()}</li>
- * </ol>
- * 三个范围中来获取变量
- * {@link FormViewModelAware#ARG_FORM_OBJECT}，如果变量不为null，并且对象实例来自于
- * {@link PersistentDomainModel}，并且 {@link PersistentDomainModel#getUidPk()}
- * 不为空，则判断为此操作为编辑；否则判断为新增。
- * 注意：如果对象信息是从Session范围中获取，则获取变量之后即将该变量从Session范围中删除。
- * </p>
- *
- * @author JunJie
- */
 @Init(superclass = true)
 @AfterCompose(superclass = true)
-public abstract class BaseFormVM<T extends Component, M extends GenericPersistentDomainModel<E>, E extends Serializable>
-    extends BaseVM<T> implements FormViewModelAware<T, M, E> {
+public abstract class BaseFormTabsVM<T extends Component, M extends GenericPersistentDomainModel<E>, E extends Serializable>
+    extends BaseTabsVM<T> implements FormViewModelAware<T, M, E> {
 
-    private static final long serialVersionUID = -4023845175817918439L;
+    private static final long serialVersionUID = -576029206102513191L;
     private FormWrapper<M, E> _wrp;
     private String preQs;
 
@@ -58,6 +40,13 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
             .append("?")
             .append(preQs)
             .toString();
+    }
+
+    @Override
+    public void update(Tab tab) {
+        if (tab != null) {
+            tab.setVisible(isNew());
+        }
     }
 
     /**
@@ -97,6 +86,8 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
 
     @Override
     protected void doInit() {
+        super.doInit();
+
         HttpServletRequest request = getNativeRequest();
         if (request != null) preQs = request.getQueryString();
 
@@ -106,34 +97,7 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
             this::loadModel
         );
 
-        super.doInit();
-    }
-
-    /**
-     * 当此VM的动作为新增的情况时，
-     * 调用此方法，将会重置域模型的主键值为null
-     */
-    @Deprecated
-    protected void setNullUid() {
-        if (!_wrp.isNew()) {
-            M m = getDomainModel();
-            if (m != null) m.setUidPk(null);
-        }
-    }
-
-    /**
-     * 为给定的URL追加上一个页面的查询字符串
-     *
-     * @param original 原始url
-     * @return 可能追加了查询字符串的url
-     */
-    protected String appendPreQs(String original) {
-        if (isBlank(original)) return "";
-        if (isBlank(preQs)) return original;
-        return new StringBuffer()
-            .append(original)
-            .append("?")
-            .append(preQs)
-            .toString();
+        getArgs().put(ARG_FORM_OBJECT, getDomainModel());
+        getArgs().put(WITH_FORM_OBJ, true);
     }
 }

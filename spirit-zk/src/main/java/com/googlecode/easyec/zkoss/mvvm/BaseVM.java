@@ -14,6 +14,7 @@ import com.googlecode.easyec.zkoss.viewmodel.ViewModelAware;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
+import org.zkoss.bind.Binder;
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.ContextParam;
 import org.zkoss.bind.annotation.Init;
@@ -30,6 +31,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.zkoss.bind.BindComposer.BINDER_ID;
 import static org.zkoss.bind.annotation.ContextType.COMPONENT;
 import static org.zkoss.bind.sys.BinderCtrl.VM;
 
@@ -41,7 +43,7 @@ import static org.zkoss.bind.sys.BinderCtrl.VM;
  */
 public abstract class BaseVM<T extends Component> implements ViewModelAware<T>, BreadcrumbCtrl {
 
-    private static final long serialVersionUID = -4180633180848242234L;
+    private static final long serialVersionUID = 7691905335357143308L;
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     /* 标识是否做过激活操作 */
@@ -71,6 +73,14 @@ public abstract class BaseVM<T extends Component> implements ViewModelAware<T>, 
     @Override
     public Breadcrumb getBreadcrumb() {
         return _bc;
+    }
+
+    @Override
+    public Binder getBinder() {
+        return (Binder) getSelf()
+            .getAttribute((String)
+                getSelf().getAttribute(BINDER_ID)
+            );
     }
 
     @Init

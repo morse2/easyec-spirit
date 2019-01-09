@@ -6,7 +6,6 @@ import com.googlecode.easyec.zkoss.paging.PagingSelectable;
 import com.googlecode.easyec.zkoss.paging.SearchablePagingExecutor;
 import com.googlecode.easyec.zkoss.utils.ExecUtils;
 import com.googlecode.easyec.zkoss.viewmodel.SearchablePagingViewModelAware;
-import org.springframework.util.Assert;
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.Init;
@@ -61,8 +60,7 @@ public abstract class BaseSearchablePagingVM<T extends Component> extends BasePa
         super.doInit();
 
         HttpServletRequest request = ExecUtils.getNativeRequest();
-        Assert.notNull(request, "HttpServletRequest is null.");
-        preQs = request.getQueryString();
+        if (request != null) preQs = request.getQueryString();
     }
 
     @Override

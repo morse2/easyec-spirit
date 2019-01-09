@@ -1,7 +1,7 @@
 package com.googlecode.easyec.zkoss.mvvm;
 
 import com.googlecode.easyec.zkoss.ui.Steps;
-import com.googlecode.easyec.zkoss.ui.builders.PreSufPathUriUiParameterBuilder;
+import com.googlecode.easyec.zkoss.ui.builders.UriUiParameterBuilder;
 import com.googlecode.easyec.zkoss.ui.listeners.StepsOutEventListener;
 import com.googlecode.easyec.zkoss.ui.listeners.SwitchTabsEventListener;
 import com.googlecode.easyec.zkoss.ui.listeners.UpdateTabsEventListener;
@@ -16,10 +16,8 @@ import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.SelectEvent;
-import org.zkoss.zul.Tab;
-import org.zkoss.zul.Tabbox;
-import org.zkoss.zul.Tabpanel;
-import org.zkoss.zul.Tabpanels;
+import org.zkoss.zk.ui.select.annotation.WireVariable;
+import org.zkoss.zul.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -41,14 +39,45 @@ import static org.zkoss.zk.ui.event.Events.ON_SELECT;
  */
 @Init(superclass = true)
 @AfterCompose(superclass = true)
-public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> {
+public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> implements UpdateTab {
 
     public static final String ZUL_FILE = "zul-file";
+    public static final String CAN_UPDATE = "can-update";
     public static final String WITH_FORM_OBJ = "with-form-obj";
-    private static final long serialVersionUID = 6192500992517654529L;
+    private static final long serialVersionUID = -1097684779572079456L;
 
     private final Map<Object, Object> args = new HashMap<>();
     private final ConcurrentMap<Tab, Component> _panelsRef = new ConcurrentHashMap<>();
+
+    private transient UriUiParameterBuilder uriUiParameterBuilder;
+
+    private Tabbox _tb;
+
+    /**
+     * 获取TB组件对象
+     */
+    public Tabbox getTabbox() {
+        return this._tb;
+    }
+
+    /**
+     * 获取配置的<code>UriUiParameterBuilder</code>对象实例
+     *
+     * @return <code>UriUiParameterBuilder</code>
+     */
+    public UriUiParameterBuilder getUriUiParameterBuilder() {
+        return uriUiParameterBuilder;
+    }
+
+    @WireVariable("tabbox")
+    public void setTabbox(Tabbox tabbox) {
+        this._tb = tabbox;
+    }
+
+    @WireVariable("preSufPathUriUiParameterBuilder")
+    public void setUriUiParameterBuilder(UriUiParameterBuilder uriUiParameterBuilder) {
+        this.uriUiParameterBuilder = uriUiParameterBuilder;
+    }
 
     protected Map<Object, Object> getArgs() {
         return this.args;
@@ -56,6 +85,11 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> {
 
     protected ConcurrentMap<Tab, Component> getPanelsRef() {
         return this._panelsRef;
+    }
+
+    @Override
+    public void update(Tab tab) {
+        // no op for default
     }
 
     @Override
@@ -125,8 +159,8 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> {
         Tabpanel _selPanel = _t.getLinkedPanel();
         String zulFile = (String) _t.getAttribute(ZUL_FILE);
 
-        final PreSufPathUriUiParameterBuilder _builder
-            = getUiParameterBuilder()
+        final UriUiParameterBuilder _builder
+            = getUriUiParameterBuilder()
             .setUri(zulFile);
 
         if (_isWithFormObj(_t)) {
@@ -146,7 +180,7 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> {
 
         // 添加Tabs组件更新的监听事件
         UpdateTabsEventListener utlsnr = createUpdateTabsEventListener();
-        if (utlsnr != null) _comp.addEventListener("onUpdateTab", utlsnr);
+        if (utlsnr != null) _comp.addEventListener("onUpdateTabs", utlsnr);
 
         // 添加引用关系
         this._panelsRef.putIfAbsent(_t, _comp);
@@ -228,18 +262,6 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> {
     }
 
     /**
-     * 获取TB组件对象
-     */
-    abstract protected Tabbox getTabbox();
-
-    /**
-     * 获取配置的<code>PreSufPathUriUiParameterBuilder</code>对象实例
-     *
-     * @return <code>PreSufPathUriUiParameterBuilder</code>
-     */
-    abstract protected PreSufPathUriUiParameterBuilder getUiParameterBuilder();
-
-    /**
      * Default <code>SwitchTabsEventListener</code>
      */
     private class DefaultSwitchTabsEventListener implements SwitchTabsEventListener<Object> {
@@ -269,12 +291,12 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> {
 
         @Override
         public void onEvent(Event event) throws Exception {
-            BaseTabsVM.this._panelsRef.forEach((tab, comp) -> {
-                Object _vm = comp.getAttribute(VM);
-                if (_vm instanceof UpdateTab) {
-                    ((UpdateTab) _vm).update(tab);
-                }
-            });
+            Tabs tabs = BaseTabsVM.this.getTabbox().getTabs();
+            List<Tab> children = tabs.getChildren();
+
+            children.stream()
+                .filter(tab -> tab.hasAttribute(CAN_UPDATE))
+                .forEach(BaseTabsVM.this::update);
         }
     }
 }
