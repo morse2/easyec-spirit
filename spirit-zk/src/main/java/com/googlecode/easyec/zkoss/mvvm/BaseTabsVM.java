@@ -2,6 +2,7 @@ package com.googlecode.easyec.zkoss.mvvm;
 
 import com.googlecode.easyec.zkoss.ui.Steps;
 import com.googlecode.easyec.zkoss.ui.builders.UriUiParameterBuilder;
+import com.googlecode.easyec.zkoss.ui.events.NotifyTabsEvent;
 import com.googlecode.easyec.zkoss.ui.listeners.NotifyTabsEventListener;
 import com.googlecode.easyec.zkoss.ui.listeners.StepsOutEventListener;
 import com.googlecode.easyec.zkoss.ui.listeners.SwitchTabsEventListener;
@@ -161,7 +162,7 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> {
 
         // 添加Tabs组件更新的监听事件
         NotifyTabsEventListener utlsnr = createNotifyTabsEventListener();
-        if (utlsnr != null) _comp.addEventListener("onNotifyTabs", utlsnr);
+        if (utlsnr != null) _comp.addEventListener(NotifyTabsEvent.NAME, utlsnr);
 
         // 添加引用关系
         this._panelsRef.putIfAbsent(_t, _comp);
