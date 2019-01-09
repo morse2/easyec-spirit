@@ -6,7 +6,6 @@ import com.googlecode.easyec.zkoss.viewmodel.FormViewModelAware;
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Init;
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zul.Tab;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
@@ -19,7 +18,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 public abstract class BaseFormTabsVM<T extends Component, M extends GenericPersistentDomainModel<E>, E extends Serializable>
     extends BaseTabsVM<T> implements FormViewModelAware<T, M, E> {
 
-    private static final long serialVersionUID = -576029206102513191L;
+    private static final long serialVersionUID = -6786164010893090311L;
     private FormWrapper<M, E> _wrp;
     private String preQs;
 
@@ -40,13 +39,6 @@ public abstract class BaseFormTabsVM<T extends Component, M extends GenericPersi
             .append("?")
             .append(preQs)
             .toString();
-    }
-
-    @Override
-    public void update(Tab tab) {
-        if (tab != null) {
-            tab.setVisible(isNew());
-        }
     }
 
     /**

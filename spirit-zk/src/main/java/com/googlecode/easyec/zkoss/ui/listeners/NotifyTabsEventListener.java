@@ -9,5 +9,5 @@ import org.zkoss.zk.ui.event.SerializableEventListener;
  *
  * @author junjie
  */
-public interface UpdateTabsEventListener extends SerializableEventListener<Event> {
+public interface NotifyTabsEventListener extends SerializableEventListener<Event> {
 }

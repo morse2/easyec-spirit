@@ -2,13 +2,13 @@ package com.googlecode.easyec.zkoss.mvvm;
 
 import com.googlecode.easyec.zkoss.ui.Steps;
 import com.googlecode.easyec.zkoss.ui.builders.UriUiParameterBuilder;
+import com.googlecode.easyec.zkoss.ui.listeners.NotifyTabsEventListener;
 import com.googlecode.easyec.zkoss.ui.listeners.StepsOutEventListener;
 import com.googlecode.easyec.zkoss.ui.listeners.SwitchTabsEventListener;
-import com.googlecode.easyec.zkoss.ui.listeners.UpdateTabsEventListener;
-import com.googlecode.easyec.zkoss.ui.oper.UpdateTab;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.util.Assert;
+import org.zkoss.bind.BindUtils;
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.Init;
@@ -16,8 +16,11 @@ import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.SelectEvent;
-import org.zkoss.zk.ui.select.annotation.WireVariable;
-import org.zkoss.zul.*;
+import org.zkoss.zk.ui.select.annotation.Wire;
+import org.zkoss.zul.Tab;
+import org.zkoss.zul.Tabbox;
+import org.zkoss.zul.Tabpanel;
+import org.zkoss.zul.Tabpanels;
 
 import java.util.HashMap;
 import java.util.List;
@@ -39,12 +42,11 @@ import static org.zkoss.zk.ui.event.Events.ON_SELECT;
  */
 @Init(superclass = true)
 @AfterCompose(superclass = true)
-public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> implements UpdateTab {
+public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> {
 
     public static final String ZUL_FILE = "zul-file";
-    public static final String CAN_UPDATE = "can-update";
     public static final String WITH_FORM_OBJ = "with-form-obj";
-    private static final long serialVersionUID = 2146695182065587202L;
+    private static final long serialVersionUID = 8593407753036604830L;
 
     private final Map<Object, Object> args = new HashMap<>();
     private final ConcurrentMap<Tab, Component> _panelsRef = new ConcurrentHashMap<>();
@@ -58,7 +60,7 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> implemen
         return this._tb;
     }
 
-    @WireVariable("tabbox")
+    @Wire("tabbox")
     public void setTabbox(Tabbox tabbox) {
         this._tb = tabbox;
     }
@@ -69,11 +71,6 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> implemen
 
     protected ConcurrentMap<Tab, Component> getPanelsRef() {
         return this._panelsRef;
-    }
-
-    @Override
-    public void update(Tab tab) {
-        // no op for default
     }
 
     @Override
@@ -163,8 +160,8 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> implemen
         );
 
         // 添加Tabs组件更新的监听事件
-        UpdateTabsEventListener utlsnr = createUpdateTabsEventListener();
-        if (utlsnr != null) _comp.addEventListener("onUpdateTabs", utlsnr);
+        NotifyTabsEventListener utlsnr = createNotifyTabsEventListener();
+        if (utlsnr != null) _comp.addEventListener("onNotifyTabs", utlsnr);
 
         // 添加引用关系
         this._panelsRef.putIfAbsent(_t, _comp);
@@ -246,10 +243,10 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> implemen
      * 的监听类实例。该方法可以返回null，
      * 如果返回null，说明不需要监听该事件
      *
-     * @return <code>UpdateTabsEventListener</code>
+     * @return <code>NotifyTabsEventListener</code>
      */
-    protected UpdateTabsEventListener createUpdateTabsEventListener() {
-        return new DefaultUpdateTabsEventListener();
+    protected NotifyTabsEventListener createNotifyTabsEventListener() {
+        return new DefaultNotifyTabsEventListener();
     }
 
     /**
@@ -274,20 +271,18 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> implemen
     }
 
     /**
-     * Default <code>UpdateTabsEventListener</code>
+     * 使用注解方式通知此VM的属性
+     *
+     * <p>
+     * Default <code>NotifyTabsEventListener</code>
      */
-    private class DefaultUpdateTabsEventListener implements UpdateTabsEventListener {
+    private class DefaultNotifyTabsEventListener implements NotifyTabsEventListener {
 
-        private static final long serialVersionUID = 1606861951528297395L;
+        private static final long serialVersionUID = -1024940831989027626L;
 
         @Override
         public void onEvent(Event event) throws Exception {
-            Tabs tabs = BaseTabsVM.this.getTabbox().getTabs();
-            List<Tab> children = tabs.getChildren();
-
-            children.stream()
-                .filter(tab -> tab.hasAttribute(CAN_UPDATE))
-                .forEach(BaseTabsVM.this::update);
+            BindUtils.postNotifyChange(null, null, BaseTabsVM.this, "*");
         }
     }
 }
