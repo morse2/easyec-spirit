@@ -90,6 +90,7 @@ public abstract class BaseFormTabsVM<T extends Component, M extends GenericPersi
         );
 
         getArgs().put(ARG_FORM_OBJECT, getDomainModel());
+        getArgs().put(ARG_CHECK_UIDPK, false);
         getArgs().put(WITH_FORM_OBJ, true);
     }
 }
