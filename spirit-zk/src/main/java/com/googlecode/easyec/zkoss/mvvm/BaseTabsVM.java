@@ -39,7 +39,7 @@ import static org.zkoss.zk.ui.event.Events.ON_SELECT;
  */
 @Init(superclass = true)
 @AfterCompose(superclass = true)
-public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> implements UpdateTab {
+public abstract class BaseTabsVM extends BaseVM<Tabbox> implements UpdateTab {
 
     public static final String ZUL_FILE = "zul-file";
     public static final String CAN_UPDATE = "can-update";
