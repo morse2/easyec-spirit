@@ -5,8 +5,8 @@ import com.googlecode.easyec.zkoss.ui.form.FormWrapper;
 import com.googlecode.easyec.zkoss.viewmodel.FormViewModelAware;
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Init;
+import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.Tab;
-import org.zkoss.zul.Tabbox;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
@@ -16,8 +16,8 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Init(superclass = true)
 @AfterCompose(superclass = true)
-public abstract class BaseFormTabsVM<M extends GenericPersistentDomainModel<E>, E extends Serializable>
-    extends BaseTabsVM implements FormViewModelAware<Tabbox, M, E> {
+public abstract class BaseFormTabsVM<T extends Component, M extends GenericPersistentDomainModel<E>, E extends Serializable>
+    extends BaseTabsVM<T> implements FormViewModelAware<T, M, E> {
 
     private static final long serialVersionUID = -576029206102513191L;
     private FormWrapper<M, E> _wrp;
