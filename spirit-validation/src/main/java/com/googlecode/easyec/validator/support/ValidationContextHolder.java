@@ -1,4 +1,4 @@
-package com.googlecode.easyec.zkex.bind.utils;
+package com.googlecode.easyec.validator.support;
 
 public final class ValidationContextHolder {
 

@@ -1,6 +1,6 @@
 package com.googlecode.easyec.zkex.bind;
 
-import com.googlecode.easyec.zkex.bind.utils.ValidationContextHolder;
+import com.googlecode.easyec.validator.support.ValidationContextHolder;
 import com.googlecode.easyec.zkex.bind.utils.ValidationUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.zkoss.bind.Property;
