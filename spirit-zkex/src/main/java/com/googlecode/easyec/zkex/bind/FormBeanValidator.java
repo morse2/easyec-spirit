@@ -1,5 +1,6 @@
 package com.googlecode.easyec.zkex.bind;
 
+import com.googlecode.easyec.zkex.bind.utils.ValidationContextHolder;
 import com.googlecode.easyec.zkex.bind.utils.ValidationUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.zkoss.bind.Property;
@@ -81,30 +82,36 @@ public class FormBeanValidator extends AbstractValidator {
         Map<String, Property> beanProps = ctx.getProperties(base);
         Object formObject = getFormObject(beanProps);
 
-        // find GroupSequence annotation
-        Annotation anno = cls.getAnnotation(GroupSequence.class);
-        if (anno == null) {
-            violations.addAll(
-                getValidator().validate(formObject)
-            );
-        } else {
-            Class<?>[] value = ((GroupSequence) anno).value();
-            if (value.length == 0) {
+        try {
+            // set Form bean into current thread.
+            ValidationContextHolder.set(formObject);
+            // find GroupSequence annotation
+            Annotation anno = cls.getAnnotation(GroupSequence.class);
+            if (anno == null) {
                 violations.addAll(
                     getValidator().validate(formObject)
                 );
             } else {
-                Validator validator = getValidator();
-                Stream.of(value).forEach(clz -> {
-                    if (clz.isInterface()) {
-                        violations.addAll(
-                            validator.validate(formObject, clz)
-                        );
-                    } else violations.addAll(
+                Class<?>[] value = ((GroupSequence) anno).value();
+                if (value.length == 0) {
+                    violations.addAll(
                         getValidator().validate(formObject)
                     );
-                });
+                } else {
+                    Validator validator = getValidator();
+                    Stream.of(value).forEach(clz -> {
+                        if (clz.isInterface()) {
+                            violations.addAll(
+                                validator.validate(formObject, clz)
+                            );
+                        } else violations.addAll(
+                            getValidator().validate(formObject)
+                        );
+                    });
+                }
             }
+        } finally {
+            ValidationContextHolder.remove();
         }
 
         if (violations.size() > 0) {
@@ -134,9 +141,7 @@ public class FormBeanValidator extends AbstractValidator {
     /**
      * 得到当前表单对象实例。
      * 该表单对象实例可以是一个表单代理类，
-     * 也可以是非代理对象。但实际上返回的对象
-     * 类型应该与{@link #getDomainModel(ValidationContext)}
-     * 方法返回的类型一致
+     * 也可以是非代理对象。
      *
      * @param formProperties 表单属性对象
      * @return 表单对象实例
