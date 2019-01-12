@@ -1,16 +1,18 @@
 package com.googlecode.easyec.validator.support;
 
+import org.springframework.beans.PropertyAccessor;
+
 public final class ValidationContextHolder {
 
-    private static final ThreadLocal<Object> _t = new ThreadLocal<>();
+    private static final ThreadLocal<PropertyAccessor> _t = new ThreadLocal<>();
 
     private ValidationContextHolder() { }
 
-    public static Object get() {
+    public static PropertyAccessor get() {
         return _t.get();
     }
 
-    public static void set(Object bean) {
+    public static void set(PropertyAccessor bean) {
         _t.set(bean);
     }
 

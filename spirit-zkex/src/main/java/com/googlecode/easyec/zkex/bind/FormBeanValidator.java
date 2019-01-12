@@ -3,7 +3,6 @@ package com.googlecode.easyec.zkex.bind;
 import com.googlecode.easyec.validator.support.ValidationContextHolder;
 import com.googlecode.easyec.zkex.bind.utils.ValidationUtils;
 import org.apache.commons.collections4.CollectionUtils;
-import org.zkoss.bind.Property;
 import org.zkoss.bind.ValidationContext;
 import org.zkoss.bind.sys.BinderCtrl;
 import org.zkoss.bind.sys.SaveFormBinding;
@@ -26,6 +25,7 @@ import java.util.stream.Stream;
 
 import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.getBean;
 import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.isInitialized;
+import static org.springframework.beans.PropertyAccessorFactory.forDirectFieldAccess;
 
 public class FormBeanValidator extends AbstractValidator {
 
@@ -79,12 +79,11 @@ public class FormBeanValidator extends AbstractValidator {
         Set<ConstraintViolation<Object>> violations = new HashSet<>();
 
         // get FormObject from context
-        Map<String, Property> beanProps = ctx.getProperties(base);
-        Object formObject = getFormObject(beanProps);
+        Object formObject = ValidationUtils.getFormObject(ctx);
 
         try {
             // set Form bean into current thread.
-            ValidationContextHolder.set(formObject);
+            ValidationContextHolder.set(forDirectFieldAccess(formObject));
             // find GroupSequence annotation
             Annotation anno = cls.getAnnotation(GroupSequence.class);
             if (anno == null) {
@@ -128,30 +127,7 @@ public class FormBeanValidator extends AbstractValidator {
     }
 
     protected boolean shouldValidate(String command, Object arg) {
-        if (arg instanceof String) {
-            return ValidationUtils.shouldValidate(command, ((String) arg));
-        }
-        if (arg instanceof String[]) {
-            return ValidationUtils.shouldValidate(command, ((String[]) arg));
-        }
-
-        return true;
-    }
-
-    /**
-     * 得到当前表单对象实例。
-     * 该表单对象实例可以是一个表单代理类，
-     * 也可以是非代理对象。
-     *
-     * @param formProperties 表单属性对象
-     * @return 表单对象实例
-     */
-    protected Object getFormObject(Map<String, Property> formProperties) {
-        if (formProperties != null && formProperties.containsKey(".")) {
-            return formProperties.get(".").getValue();
-        }
-
-        return null;
+        return ValidationUtils.shouldValidate(command, arg);
     }
 
     private boolean shouldValidate(ValidationContext ctx) {

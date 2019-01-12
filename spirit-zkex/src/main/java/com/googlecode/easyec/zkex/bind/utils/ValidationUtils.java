@@ -2,8 +2,11 @@ package com.googlecode.easyec.zkex.bind.utils;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.zkoss.bind.Property;
+import org.zkoss.bind.ValidationContext;
 
 import java.util.Arrays;
+import java.util.Map;
 
 import static org.apache.commons.lang3.StringUtils.*;
 
@@ -19,6 +22,13 @@ public class ValidationUtils {
     private static final String QUOTATION_MARKS = "\'\"";
 
     private ValidationUtils() {}
+
+    public static boolean shouldValidate(String command, Object arg) {
+        return (arg instanceof String)
+            ? shouldValidate(command, ((String) arg))
+            : (!(arg instanceof String[]))
+            || shouldValidate(command, ((String[]) arg));
+    }
 
     /**
      * 判断命令和给定的参数是否匹配，
@@ -52,5 +62,26 @@ public class ValidationUtils {
                     && endsWithAny(s, SINGLE_QUOTATION_MARK, DOUBLE_QUOTATION_MARK);
                 return b ? stripEnd(stripStart(s, QUOTATION_MARKS), QUOTATION_MARKS) : s;
             }).anyMatch(s -> StringUtils.equals(command, s));
+    }
+
+    /**
+     * 得到当前表单对象实例。
+     * 该表单对象实例可以是一个表单代理类，
+     * 也可以是非代理对象。
+     *
+     * @param ctx ZK验证上下文对象
+     * @return 表单对象实例
+     */
+    public static Object getFormObject(ValidationContext ctx) {
+        Map<String, Property> formProperties
+            = ctx.getProperties(
+            ctx.getProperty().getBase()
+        );
+
+        if (formProperties != null && formProperties.containsKey(".")) {
+            return formProperties.get(".").getValue();
+        }
+
+        return null;
     }
 }

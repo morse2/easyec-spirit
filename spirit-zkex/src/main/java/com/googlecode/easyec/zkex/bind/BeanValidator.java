@@ -1,5 +1,6 @@
 package com.googlecode.easyec.zkex.bind;
 
+import com.googlecode.easyec.validator.support.ValidationContextHolder;
 import com.googlecode.easyec.zkex.bind.utils.ValidationUtils;
 import org.zkoss.bind.Binder;
 import org.zkoss.bind.Form;
@@ -15,10 +16,13 @@ import org.zkoss.zk.ui.Component;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import java.util.HashSet;
 import java.util.Set;
 
 import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.getBean;
 import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.isInitialized;
+import static com.googlecode.easyec.zkex.bind.utils.ValidationUtils.getFormObject;
+import static org.springframework.beans.PropertyAccessorFactory.forDirectFieldAccess;
 import static org.zkoss.bind.sys.BinderCtrl.LOAD_FORM_COMPONENT;
 import static org.zkoss.bind.sys.BinderCtrl.LOAD_FORM_EXPRESSION;
 
@@ -55,7 +59,14 @@ public class BeanValidator extends org.zkoss.bind.validator.BeanValidator {
             return;
         }
 
-        Set<ConstraintViolation<?>> violations = validate(clz, property, value, groups);
+        Set<ConstraintViolation<?>> violations = new HashSet<>();
+
+        try {
+            ValidationContextHolder.set(forDirectFieldAccess(getFormObject(ctx)));
+            violations.addAll(validate(clz, property, value, groups));
+        } finally {
+            ValidationContextHolder.remove();
+        }
 
         handleConstraintViolation(ctx, violations);
     }
@@ -92,14 +103,7 @@ public class BeanValidator extends org.zkoss.bind.validator.BeanValidator {
     }
 
     protected boolean shouldValidate(String command, Object arg) {
-        if (arg instanceof String) {
-            return ValidationUtils.shouldValidate(command, ((String) arg));
-        }
-        if (arg instanceof String[]) {
-            return ValidationUtils.shouldValidate(command, ((String[]) arg));
-        }
-
-        return true;
+        return ValidationUtils.shouldValidate(command, arg);
     }
 
     private boolean shouldValidate(ValidationContext ctx) {
