@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 
 import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.getBean;
 import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.isInitialized;
-import static org.springframework.beans.PropertyAccessorFactory.forDirectFieldAccess;
+import static org.springframework.beans.PropertyAccessorFactory.forBeanPropertyAccess;
 
 public class FormBeanValidator extends AbstractValidator {
 
@@ -83,7 +83,7 @@ public class FormBeanValidator extends AbstractValidator {
 
         try {
             // set Form bean into current thread.
-            ValidationContextHolder.set(forDirectFieldAccess(formObject));
+            ValidationContextHolder.set(forBeanPropertyAccess(formObject));
             // find GroupSequence annotation
             Annotation anno = cls.getAnnotation(GroupSequence.class);
             if (anno == null) {
