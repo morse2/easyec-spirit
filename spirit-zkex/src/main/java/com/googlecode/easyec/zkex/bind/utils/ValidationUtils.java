@@ -4,11 +4,13 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.zkoss.bind.Property;
 import org.zkoss.bind.ValidationContext;
+import org.zkoss.zk.ui.Component;
 
 import java.util.Arrays;
 import java.util.Map;
 
 import static org.apache.commons.lang3.StringUtils.*;
+import static org.zkoss.bind.sys.BinderCtrl.FORM_ID;
 
 /**
  * ZK验证的工具类
@@ -86,6 +88,10 @@ public class ValidationUtils {
         if (allProperties != null && allProperties.containsKey(".")) {
             return allProperties.get(".")[0].getValue();
         }
+
+        Component _root = ctx.getBindContext().getBinder().getView();
+        String _formId = (String) _root.getAttribute(FORM_ID);
+        if (isNotBlank(_formId)) return _root.getAttribute(_formId);
 
         return null;
     }
