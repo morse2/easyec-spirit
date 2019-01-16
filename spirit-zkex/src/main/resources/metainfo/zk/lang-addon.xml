@@ -10,7 +10,7 @@
     <version>
         <version-class>com.googlecode.easyec.zkex.Version</version-class>
         <version-uid>0.8.2</version-uid>
-        <zk-version>8.0.2.2</zk-version><!-- or later -->
+        <zk-version>8.0.5</zk-version><!-- or later -->
     </version>
 
     <shadow-template>

@@ -82,6 +82,11 @@ public class ValidationUtils {
             return formProperties.get(".").getValue();
         }
 
+        Map<String, Property[]> allProperties = ctx.getProperties();
+        if (allProperties != null && allProperties.containsKey(".")) {
+            return allProperties.get(".")[0].getValue();
+        }
+
         return null;
     }
 }

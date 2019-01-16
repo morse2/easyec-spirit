@@ -43,7 +43,7 @@ public abstract class BaseFormVM<T extends Component, M extends GenericPersisten
 
     @Override
     public M getDomainModel() {
-        return _wrp.getDomainModel();
+        return _wrp != null ? _wrp.getDomainModel() : null;
     }
 
     @Override

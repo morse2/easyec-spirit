@@ -5,7 +5,6 @@ import org.zkoss.bind.AnnotateBinder;
 import org.zkoss.bind.BindContext;
 import org.zkoss.bind.Binder;
 import org.zkoss.bind.Form;
-import org.zkoss.bind.impl.AnnotateBinderX;
 import org.zkoss.bind.impl.BindContextUtil;
 import org.zkoss.bind.impl.BinderImpl;
 import org.zkoss.bind.impl.BinderUtil;
@@ -19,7 +18,6 @@ import org.zkoss.zk.ui.ShadowElement;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zk.ui.util.ComponentActivationListener;
 
 import java.util.List;
 import java.util.Map;
@@ -131,11 +129,10 @@ public class BindFormUiLifeCycle extends UiLifeCycleAdapter {
                     return;
             }
 
-            if (binder instanceof AnnotateBinderX) {
-                AnnotateBinderX _binder = (AnnotateBinderX) binder;
-                // 订阅事件
-                ComponentActivationListener lsnr = _binder.setActivator(comp);
-                if (lsnr != null) lsnr.didActivate(comp);
+            if (binder instanceof AnnotateBinder) {
+                AnnotateBinder _binder = (AnnotateBinder) binder;
+                _binder.initQueue();
+                _binder.initActivator();
 
                 String formId = (String) comp.removeAttribute(CACHED_FORM_ID);
                 if (isNotBlank(formId)) {

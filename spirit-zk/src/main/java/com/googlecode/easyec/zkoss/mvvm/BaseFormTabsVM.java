@@ -24,7 +24,7 @@ public abstract class BaseFormTabsVM<T extends Component, M extends GenericPersi
 
     @Override
     public M getDomainModel() {
-        return _wrp.getDomainModel();
+        return _wrp != null ? _wrp.getDomainModel() : null;
     }
 
     @Override
