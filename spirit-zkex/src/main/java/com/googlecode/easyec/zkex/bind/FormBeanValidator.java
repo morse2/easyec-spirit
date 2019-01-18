@@ -25,6 +25,8 @@ import java.util.stream.Stream;
 
 import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.getBean;
 import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.isInitialized;
+import static org.apache.commons.lang3.ArrayUtils.isEmpty;
+import static org.apache.commons.lang3.ArrayUtils.nullToEmpty;
 import static org.springframework.beans.PropertyAccessorFactory.forBeanPropertyAccess;
 
 public class FormBeanValidator extends AbstractValidator {
@@ -74,8 +76,6 @@ public class FormBeanValidator extends AbstractValidator {
             return;
         }
 
-        Object base = ctx.getProperty().getBase();
-        Class cls = getBeanClass(ctx, base);
         Set<ConstraintViolation<Object>> violations = new HashSet<>();
 
         // get FormObject from context
@@ -84,30 +84,22 @@ public class FormBeanValidator extends AbstractValidator {
         try {
             // set Form bean into current thread.
             ValidationContextHolder.set(forBeanPropertyAccess(formObject));
-            // find GroupSequence annotation
-            Annotation anno = cls.getAnnotation(GroupSequence.class);
-            if (anno == null) {
+            Class<?>[] groups = getGroups(ctx);
+            if (isEmpty(groups)) {
                 violations.addAll(
                     getValidator().validate(formObject)
                 );
             } else {
-                Class<?>[] value = ((GroupSequence) anno).value();
-                if (value.length == 0) {
-                    violations.addAll(
+                Validator validator = getValidator();
+                Stream.of(groups).forEach(clz -> {
+                    if (clz.isInterface()) {
+                        violations.addAll(
+                            validator.validate(formObject, clz)
+                        );
+                    } else violations.addAll(
                         getValidator().validate(formObject)
                     );
-                } else {
-                    Validator validator = getValidator();
-                    Stream.of(value).forEach(clz -> {
-                        if (clz.isInterface()) {
-                            violations.addAll(
-                                validator.validate(formObject, clz)
-                            );
-                        } else violations.addAll(
-                            getValidator().validate(formObject)
-                        );
-                    });
-                }
+                });
             }
         } finally {
             ValidationContextHolder.remove();
@@ -132,5 +124,17 @@ public class FormBeanValidator extends AbstractValidator {
 
     private boolean shouldValidate(ValidationContext ctx) {
         return shouldValidate(ctx.getCommand(), ctx.getValidatorArg("for"));
+    }
+
+    private Class<?>[] getGroups(ValidationContext ctx) {
+        Class<?>[] groups = (Class<?>[]) ctx.getValidatorArg("groups");
+        if (isEmpty(groups)) {
+            Object base = ctx.getProperty().getBase();
+            Class cls = getBeanClass(ctx, base);
+            Annotation anno = cls.getAnnotation(GroupSequence.class);
+            if (anno != null) groups = ((GroupSequence) anno).value();
+        }
+
+        return nullToEmpty(groups);
     }
 }
