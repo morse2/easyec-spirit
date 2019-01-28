@@ -2,7 +2,9 @@ package com.googlecode.easyec.zkex.bind;
 
 import com.googlecode.easyec.validator.support.ValidationContextHolder;
 import com.googlecode.easyec.zkex.bind.utils.ValidationUtils;
-import org.apache.commons.collections4.CollectionUtils;
+import com.googlecode.easyec.zkoss.viewmodel.FormViewModelAware;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zkoss.bind.ValidationContext;
 import org.zkoss.bind.sys.BinderCtrl;
 import org.zkoss.bind.sys.SaveFormBinding;
@@ -21,15 +23,18 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.getBean;
 import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.isInitialized;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+import static org.apache.commons.collections4.CollectionUtils.size;
 import static org.apache.commons.lang3.ArrayUtils.isEmpty;
 import static org.apache.commons.lang3.ArrayUtils.nullToEmpty;
 import static org.springframework.beans.PropertyAccessorFactory.forBeanPropertyAccess;
 
 public class FormBeanValidator extends AbstractValidator {
+
+    private static final Logger logger = LoggerFactory.getLogger(FormBeanValidator.class);
 
     protected Validator getValidator() {
         if (!isInitialized()) return BeanValidations.getValidator();
@@ -40,9 +45,9 @@ public class FormBeanValidator extends AbstractValidator {
     }
 
     protected void handleConstraintViolation(ValidationContext ctx, String key, Set<ConstraintViolation<?>> violations) {
-        if (CollectionUtils.size(violations) == 1) {
+        if (size(violations) == 1) {
             this.addInvalidMessages(ctx, key, new String[] { violations.iterator().next().getMessage() });
-        } else if (CollectionUtils.size(violations) > 0) {
+        } else if (size(violations) > 0) {
             String[] msgs
                 = violations.stream()
                 .map(ConstraintViolation::getMessage)
@@ -91,15 +96,19 @@ public class FormBeanValidator extends AbstractValidator {
                 );
             } else {
                 Validator validator = getValidator();
-                Stream.of(groups).forEach(clz -> {
-                    if (clz.isInterface()) {
-                        violations.addAll(
-                            validator.validate(formObject, clz)
-                        );
-                    } else violations.addAll(
-                        getValidator().validate(formObject)
+                for (Class<?> clz : groups) {
+                    if (!clz.isInterface()) {
+                        logger.warn("Class isn't an interface. [" + clz.getName() + "]");
+
+                        continue;
+                    }
+
+                    violations.addAll(
+                        validator.validate(formObject, clz)
                     );
-                });
+
+                    if (isNotEmpty(violations)) break;
+                }
             }
         } finally {
             ValidationContextHolder.remove();
@@ -128,6 +137,13 @@ public class FormBeanValidator extends AbstractValidator {
 
     private Class<?>[] getGroups(ValidationContext ctx) {
         Class<?>[] groups = (Class<?>[]) ctx.getValidatorArg("groups");
+        if (isEmpty(groups)) {
+            Object vm = ctx.getBindContext().getBinder().getViewModel();
+            if (vm instanceof FormViewModelAware) {
+                groups = ((FormViewModelAware) vm).getFormBeanValidatorGroups();
+            }
+        }
+
         if (isEmpty(groups)) {
             Object base = ctx.getProperty().getBase();
             Class cls = getBeanClass(ctx, base);

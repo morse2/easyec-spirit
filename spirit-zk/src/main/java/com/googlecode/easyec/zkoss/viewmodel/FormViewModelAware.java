@@ -60,6 +60,17 @@ public interface FormViewModelAware<T extends Component, M extends GenericPersis
     String getPreQs();
 
     /**
+     * 返回表单设置的验证组。
+     * 该组定义了表单对象的验证顺序。
+     * PS：class必须为接口类
+     *
+     * @return 接口类集合
+     */
+    default Class<?>[] getFormBeanValidatorGroups() {
+        return new Class[0];
+    }
+
+    /**
      * 初始化表单视图-模型的表单数据的方法
      *
      * @param newOp  <code>NewOperator</code>对象
