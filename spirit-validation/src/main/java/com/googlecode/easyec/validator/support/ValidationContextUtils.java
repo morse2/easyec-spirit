@@ -2,16 +2,27 @@ package com.googlecode.easyec.validator.support;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessor;
+
+import static com.googlecode.easyec.validator.support.ValidationContextHolder.get;
 
 public class ValidationContextUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(ValidationContextUtils.class);
 
-    private ValidationContextUtils() {}
+    private ValidationContextUtils() { }
+
+    public static String getCommand() {
+        return get().getCommand();
+    }
+
+    public static Object getBase() {
+        return ((BeanWrapper) get().getAccessor()).getWrappedInstance();
+    }
 
     public static Object getProperty(String property) {
-        PropertyAccessor propAcc = ValidationContextHolder.get();
+        PropertyAccessor propAcc = get().getAccessor();
         if (propAcc != null) {
             boolean b = propAcc.isReadableProperty(property);
             logger.info("Has readable property? [{}]. Property: [{}].", b, property);

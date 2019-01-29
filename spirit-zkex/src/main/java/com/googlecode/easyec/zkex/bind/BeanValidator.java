@@ -22,7 +22,6 @@ import java.util.Set;
 import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.getBean;
 import static com.googlecode.easyec.spirit.web.utils.SpringContextUtils.isInitialized;
 import static com.googlecode.easyec.zkex.bind.utils.ValidationUtils.getFormObject;
-import static org.springframework.beans.PropertyAccessorFactory.forBeanPropertyAccess;
 import static org.zkoss.bind.sys.BinderCtrl.LOAD_FORM_COMPONENT;
 import static org.zkoss.bind.sys.BinderCtrl.LOAD_FORM_EXPRESSION;
 
@@ -62,7 +61,7 @@ public class BeanValidator extends org.zkoss.bind.validator.BeanValidator {
         Set<ConstraintViolation<?>> violations = new HashSet<>();
 
         try {
-            ValidationContextHolder.set(forBeanPropertyAccess(getFormObject(ctx)));
+            ValidationContextHolder.set(getFormObject(ctx), ctx.getCommand());
             violations.addAll(validate(clz, property, value, groups));
         } finally {
             ValidationContextHolder.remove();

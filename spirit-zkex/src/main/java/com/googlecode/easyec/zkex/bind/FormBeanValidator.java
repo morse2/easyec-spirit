@@ -30,7 +30,6 @@ import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.collections4.CollectionUtils.size;
 import static org.apache.commons.lang3.ArrayUtils.isEmpty;
 import static org.apache.commons.lang3.ArrayUtils.nullToEmpty;
-import static org.springframework.beans.PropertyAccessorFactory.forBeanPropertyAccess;
 
 public class FormBeanValidator extends AbstractValidator {
 
@@ -88,7 +87,7 @@ public class FormBeanValidator extends AbstractValidator {
 
         try {
             // set Form bean into current thread.
-            ValidationContextHolder.set(forBeanPropertyAccess(formObject));
+            ValidationContextHolder.set(formObject, ctx.getCommand());
             Class<?>[] groups = getGroups(ctx);
             if (isEmpty(groups)) {
                 violations.addAll(
