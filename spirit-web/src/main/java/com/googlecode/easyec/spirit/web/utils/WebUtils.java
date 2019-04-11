@@ -8,8 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.*;
 
 /**
  * Web工具类
@@ -21,6 +20,26 @@ public class WebUtils {
     private static final Logger logger = LoggerFactory.getLogger(WebUtils.class);
 
     private WebUtils() { /* no op*/ }
+
+    /**
+     * 为uri参数适配并添加ctx参数
+     *
+     * @param ctx web app上下文
+     * @param uri URI
+     * @return 新的URI
+     */
+    public static String appendCtx(String ctx, String uri) {
+        if (isBlank(ctx)) return uri;
+        if (isBlank(uri)) return ctx;
+        if (startsWith(uri, ctx)) {
+            return uri;
+        }
+        if (startsWith(uri, "/")) {
+            return ctx + uri;
+        }
+
+        return uri;
+    }
 
     /**
      * 编码给定的查询字符串集合对象
@@ -40,7 +59,7 @@ public class WebUtils {
             String val = params.get(key);
             logger.debug(
                 "Query string [" + i + "], key: ["
-                + key + "], value: [" + val + "]."
+                    + key + "], value: [" + val + "]."
             );
 
             buf.append(key).append("=").append(val);

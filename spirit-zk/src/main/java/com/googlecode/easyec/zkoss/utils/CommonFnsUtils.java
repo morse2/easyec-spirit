@@ -1,10 +1,12 @@
 package com.googlecode.easyec.zkoss.utils;
 
+import com.googlecode.easyec.spirit.web.utils.WebUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.zkoss.web.util.resource.ClassWebResource;
 import org.zkoss.xel.fn.CommonFns;
 import org.zkoss.zk.ui.Sessions;
+import org.zkoss.zk.ui.WebApp;
 import org.zkoss.zk.ui.http.WebManager;
 
 import java.util.Date;
@@ -188,21 +190,25 @@ public class CommonFnsUtils {
     public static String getWebResourceUri(String uri) {
         if (isBlank(uri)) return EMPTY;
 
+        WebApp webApp = Sessions.getCurrent().getWebApp();
+        String ctxPath = webApp.getServletContext().getContextPath();
         if (startsWith(uri, "/")) {
-            return uri;
+            return WebUtils.appendCtx(ctxPath, uri);
         }
 
         if (startsWith(uri, "~./")) {
-            WebManager wm = WebManager.getWebManager(Sessions.getCurrent().getWebApp());
+            WebManager wm = WebManager.getWebManager(webApp);
             if (wm == null) return uri;
 
             ClassWebResource cwr = wm.getClassWebResource();
-            return new StringBuffer()
-                .append(wm.getUpdateURI())
-                .append(ClassWebResource.PATH_PREFIX)
-                .append(cwr.getEncodeURLPrefix())
-                .append(uri.substring(2))
-                .toString();
+            return WebUtils.appendCtx(ctxPath,
+                new StringBuffer()
+                    .append(wm.getUpdateURI())
+                    .append(ClassWebResource.PATH_PREFIX)
+                    .append(cwr.getEncodeURLPrefix())
+                    .append(uri.substring(2))
+                    .toString()
+            );
         }
 
         return uri;
