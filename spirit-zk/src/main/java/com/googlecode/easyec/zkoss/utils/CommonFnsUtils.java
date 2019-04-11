@@ -2,7 +2,10 @@ package com.googlecode.easyec.zkoss.utils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
+import org.zkoss.web.util.resource.ClassWebResource;
 import org.zkoss.xel.fn.CommonFns;
+import org.zkoss.zk.ui.Sessions;
+import org.zkoss.zk.ui.http.WebManager;
 
 import java.util.Date;
 import java.util.regex.Matcher;
@@ -11,7 +14,7 @@ import java.util.regex.Pattern;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang3.ArrayUtils.isEmpty;
-import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.*;
 
 /**
  * ZK通用功能类的扩展类。
@@ -174,6 +177,35 @@ public class CommonFnsUtils {
      */
     public static String formatDateTime(Date date) {
         return formatDate(date, "yyyy-MM-dd HH:mm");
+    }
+
+    /**
+     * 获得给定资源对应的ZK的资源路径
+     *
+     * @param uri URI
+     * @return ZK URI
+     */
+    public static String getWebResourceUri(String uri) {
+        if (isBlank(uri)) return EMPTY;
+
+        if (startsWith(uri, "/")) {
+            return uri;
+        }
+
+        if (startsWith(uri, "~./")) {
+            WebManager wm = WebManager.getWebManager(Sessions.getCurrent().getWebApp());
+            if (wm == null) return uri;
+
+            ClassWebResource cwr = wm.getClassWebResource();
+            return new StringBuffer()
+                .append(wm.getUpdateURI())
+                .append(ClassWebResource.PATH_PREFIX)
+                .append(cwr.getEncodeURLPrefix())
+                .append(uri.substring(2))
+                .toString();
+        }
+
+        return uri;
     }
 
     /**

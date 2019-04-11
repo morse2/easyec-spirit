@@ -92,4 +92,13 @@
         <function-class>com.googlecode.easyec.zkoss.utils.CommonFnsUtils</function-class>
         <function-signature>java.lang.String formatDateTime(java.util.Date)</function-signature>
     </function>
+
+    <function>
+        <description>
+            Format uri for ZK web resource
+        </description>
+        <name>webResUri</name>
+        <function-class>com.googlecode.easyec.zkoss.utils.CommonFnsUtils</function-class>
+        <function-signature>java.lang.String getWebResourceUri(java.lang.String)</function-signature>
+    </function>
 </taglib>
