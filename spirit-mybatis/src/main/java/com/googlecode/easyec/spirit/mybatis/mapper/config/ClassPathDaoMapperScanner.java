@@ -15,7 +15,7 @@ import org.springframework.util.StringUtils;
 import java.util.Arrays;
 import java.util.Set;
 
-public class ClassPathDaoMapperScanner extends ClassPathBeanDefinitionScanner {
+class ClassPathDaoMapperScanner extends ClassPathBeanDefinitionScanner {
 
     private DaoMapperFactoryBean<?> mapperFactoryBean = new DaoMapperFactoryBean<>();
 
@@ -25,11 +25,11 @@ public class ClassPathDaoMapperScanner extends ClassPathBeanDefinitionScanner {
         this.sqlSessionFactoryBeanName = sqlSessionFactoryBeanName;
     }
 
-    public ClassPathDaoMapperScanner(BeanDefinitionRegistry registry) {
+    ClassPathDaoMapperScanner(BeanDefinitionRegistry registry) {
         super(registry);
     }
 
-    public void registerFilters() {
+    void registerFilters() {
         addIncludeFilter((reader, factory) -> reader.getAnnotationMetadata().hasAnnotation(Mapper.class.getName()));
 
         // exclude package-info.java
