@@ -48,14 +48,14 @@
 
     <distributionManagement>
         <snapshotRepository>
-            <id>cloud_5</id>
-            <name>Maven Snapshot Repository of Cloud 5</name>
-            <url>https://repo.clouds.566.sh:18181/repository/maven-snapshots/</url>
+            <id>dm_3</id>
+            <name>Maven Snapshot Repository of Tuogo</name>
+            <url>http://mvnrepository.tuogo.com.cn/repository/maven-snapshots/</url>
         </snapshotRepository>
         <repository>
-            <id>cloud_5</id>
-            <name>Maven Release Repository of Cloud 5</name>
-            <url>https://repo.clouds.566.sh:18181/repository/maven-releases/</url>
+            <id>dm_3</id>
+            <name>Maven Release Repository of Tuogo</name>
+            <url>http://mvnrepository.tuogo.com.cn/repository/maven-releases/</url>
         </repository>
     </distributionManagement>
 
