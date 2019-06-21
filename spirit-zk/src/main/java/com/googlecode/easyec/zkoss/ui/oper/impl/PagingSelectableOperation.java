@@ -1,8 +1,8 @@
 package com.googlecode.easyec.zkoss.ui.oper.impl;
 
+import com.googlecode.easyec.zkoss.paging.AbstractSelectablePagingExecutor;
 import com.googlecode.easyec.zkoss.paging.PagingSelectable;
 import com.googlecode.easyec.zkoss.paging.SearchablePagingExecutor;
-import com.googlecode.easyec.zkoss.paging.impl.ListboxSelectablePagingExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -40,8 +40,9 @@ public abstract class PagingSelectableOperation extends SubmitButtonOperation {
      *
      * @param <E> 数据集合中的对象类型
      * @return <code>Set</code>集合对象
-     * @see ListboxSelectablePagingExecutor
+     * @see AbstractSelectablePagingExecutor
      */
+    @SuppressWarnings("unchecked")
     protected <E> Set<E> getSelections() {
         SearchablePagingExecutor exec = getPagingExecutor();
         return exec instanceof PagingSelectable

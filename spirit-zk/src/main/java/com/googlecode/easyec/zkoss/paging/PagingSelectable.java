@@ -1,5 +1,8 @@
 package com.googlecode.easyec.zkoss.paging;
 
+import com.googlecode.easyec.spirit.domain.UniqueDomainModel;
+
+import java.io.Serializable;
 import java.util.Set;
 
 /**
@@ -7,14 +10,14 @@ import java.util.Set;
  *
  * @author junjie
  */
-public interface PagingSelectable {
+public interface PagingSelectable<M extends UniqueDomainModel<E>, E extends Serializable> {
 
     /**
      * 返回当前选中的数据对象集合
      *
      * @return <code>Set</code>
      */
-    <T> Set<T> getSelections();
+    Set<E> getSelections();
 
     /**
      * 清除当前已选记录

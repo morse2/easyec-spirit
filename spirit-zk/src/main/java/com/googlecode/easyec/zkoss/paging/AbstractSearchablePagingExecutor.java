@@ -12,10 +12,12 @@ import com.googlecode.easyec.spirit.web.qseditors.QueryStringEditor;
 import com.googlecode.easyec.spirit.web.utils.WebUtils;
 import com.googlecode.easyec.zkoss.paging.finder.ValueFinder;
 import com.googlecode.easyec.zkoss.paging.finder.impl.*;
+import com.googlecode.easyec.zkoss.paging.sort.SortComparator;
 import com.googlecode.easyec.zkoss.paging.terms.AfterRenderListenerSearchTermFilter;
 import com.googlecode.easyec.zkoss.paging.terms.BindComposerSearchTermFilter;
 import com.googlecode.easyec.zkoss.paging.terms.BlankStringSearchTermFilter;
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.springframework.util.Assert;
 import org.zkoss.xel.fn.CommonFns;
@@ -26,6 +28,7 @@ import org.zkoss.zk.ui.event.KeyEvent;
 import org.zkoss.zk.ui.event.SerializableEventListener;
 import org.zkoss.zul.*;
 import org.zkoss.zul.impl.FormatInputElement;
+import org.zkoss.zul.impl.HeaderElement;
 import org.zkoss.zul.impl.InputElement;
 import org.zkoss.zul.impl.NumberInputElement;
 
@@ -40,6 +43,7 @@ import static org.apache.commons.collections4.MapUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.zkoss.zk.ui.event.Events.ON_OK;
+import static org.zkoss.zk.ui.event.Events.ON_SORT;
 import static org.zkoss.zul.event.ZulEvents.ON_AFTER_RENDER;
 
 /**
@@ -53,7 +57,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
     public static final String AFTER_RENDER_LISTENER = "afterRenderListener";
     public static final String COMPONENT_VALUE_FINDER = "valueFinder";
     public static final String COMP_VALUE_FINDER_ID = "$valueFinder$";
-    private static final long serialVersionUID = 3202812421051262304L;
+    private static final long serialVersionUID = 6191281798316339471L;
 
     /**
      * 构造方法。
@@ -147,7 +151,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
                     new ComponentUuidPredicate(c.getUuid())
                 );
                 logger.debug("Is this component [{}] in search scope? [{}]",
-                             c.getUuid(), matches
+                    c.getUuid(), matches
                 );
 
                 if (matches) continue;
@@ -155,7 +159,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
                 ValueFinder<Component> finder = createValueFinder(c);
                 if (finder == null) {
                     logger.warn("Component. ID: [{}], class: [{}] has no any ValueFinder. So it will be ignore to search.",
-                                c.getId(), c.getClass().getName()
+                        c.getId(), c.getClass().getName()
                     );
 
                     continue;
@@ -216,8 +220,8 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
                         = (c instanceof Combobox && ((Combobox) c).getModel() != null)
                         || (c instanceof Radiogroup && ((Radiogroup) c).getModel() != null);
                     logger.debug("Should component be added onAfterRender listener? ["
-                                     + shouldAddEventListener + "], id: ["
-                                     + c.getId() + "].");
+                        + shouldAddEventListener + "], id: ["
+                        + c.getId() + "].");
 
                     if (shouldAddEventListener) {
                         c.addEventListener(ON_AFTER_RENDER, lstnr);
@@ -233,6 +237,28 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         }
 
         init0(currentPageNumber);
+
+        // 为可排序的头组件设置排序事件
+        List<Component> headers = getHeaders();
+        if (CollectionUtils.isNotEmpty(headers)) {
+            for (int i = 0; i < headers.size(); i++) {
+                Component child = headers.get(i);
+
+                if (null == child) continue;
+                if (child instanceof HeaderElement) {
+                    SortComparator ascending = createSortComparator(i, true);
+                    SortComparator descending = createSortComparator(i, false);
+
+                    if (null != ascending && null != descending) {
+                        ((Listheader) child).setSortAscending(ascending);
+                        ((Listheader) child).setSortDescending(descending);
+
+                        // 默认为HeaderElement组件添加监听类实例
+                        child.addEventListener(ON_SORT, getSortFieldEventListener());
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -480,13 +506,26 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         return bean;
     }
 
+    /**
+     * 获取当前组件的头列表。
+     * 该列表的对象类型应该为：
+     * {@link org.zkoss.zul.impl.HeaderElement}。
+     * 如果不是，则后续操作将忽略。如果满足上面的条件，
+     * 那么将为该头设置可排序的事件模型
+     *
+     * @return <code>java.util.List</code>
+     */
+    protected List<Component> getHeaders() {
+        return Collections.emptyList();
+    }
+
     /* 汲取搜索控件的值 */
     @SuppressWarnings("unchecked")
     private Object extractSearchValue(Component c, boolean reset) {
         Object value = ((ValueFinder) c.getAttribute(COMP_VALUE_FINDER_ID))
             .getValue(c, reset);
         logger.debug("The value from component is [{}]. Component ID: [{}].",
-                     value, c.getId()
+            value, c.getId()
         );
 
         return value;

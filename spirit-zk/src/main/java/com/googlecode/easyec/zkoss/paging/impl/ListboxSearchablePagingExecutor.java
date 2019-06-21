@@ -1,29 +1,40 @@
 package com.googlecode.easyec.zkoss.paging.impl;
 
 import com.googlecode.easyec.spirit.dao.paging.Page;
-import com.googlecode.easyec.zkoss.paging.AbstractSearchablePagingExecutor;
-import com.googlecode.easyec.zkoss.paging.sort.SortComparator;
+import com.googlecode.easyec.spirit.domain.UniqueDomainModel;
+import com.googlecode.easyec.zkoss.paging.AbstractSelectablePagingExecutor;
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.*;
 import org.zkoss.zul.ext.Selectable;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
+
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+import static org.apache.commons.collections4.IterableUtils.matchesAny;
+import static org.zkoss.zk.ui.event.Events.ON_SELECT;
 
 /**
  * 列表框组件的可搜索的分页操作执行器类。
  *
  * @author JunJie
  */
-public abstract class ListboxSearchablePagingExecutor extends AbstractSearchablePagingExecutor<Listbox> {
+public abstract class ListboxSearchablePagingExecutor extends AbstractSelectablePagingExecutor<Listbox, UniqueDomainModel<Serializable>, Serializable> {
 
-    private static final long serialVersionUID = -8558100189748774107L;
+    private static final long serialVersionUID = 1406215074477539278L;
     private boolean checkmark;
     private boolean multiple;
 
-    protected ListboxSearchablePagingExecutor(Paging paging, Listbox comp) {
-        super(paging, comp);
+    public ListboxSearchablePagingExecutor(Paging paging, Listbox comp) {
+        this(paging, comp, null);
+    }
 
+    public ListboxSearchablePagingExecutor(Paging paging, Listbox comp, ConcurrentSkipListSet<Serializable> sels) {
+        super(paging, comp, sels);
         initListbox();
     }
 
@@ -45,30 +56,6 @@ public abstract class ListboxSearchablePagingExecutor extends AbstractSearchable
      */
     public boolean isMultiple() {
         return multiple;
-    }
-
-    @Override
-    public void doInit() {
-        super.doInit();
-
-        List<Component> children = _comp.getListhead().getChildren();
-        for (int i = 0; i < children.size(); i++) {
-            Component child = children.get(i);
-
-            if (null == child) continue;
-            if (child instanceof Listheader) {
-                SortComparator ascending = createSortComparator(i, true);
-                SortComparator descending = createSortComparator(i, false);
-
-                if (null != ascending && null != descending) {
-                    ((Listheader) child).setSortAscending(ascending);
-                    ((Listheader) child).setSortDescending(descending);
-
-                    // 默认为Listheader添加监听类实例
-                    child.addEventListener(Events.ON_SORT, getSortFieldEventListener());
-                }
-            }
-        }
     }
 
     @Override
@@ -94,13 +81,52 @@ public abstract class ListboxSearchablePagingExecutor extends AbstractSearchable
         if (model instanceof Selectable && isMultiple() != ((Selectable) model).isMultiple()) {
             ((Selectable) model).setMultiple(isMultiple());
         }
+
+        // call super method.
+        super.afterPaging(page);
+    }
+
+    @Override
+    protected void doSelectAfterPaging() {
+        Set<Serializable> _selections = getSelections();
+        if (isCheckmark() && isMultiple() && isNotEmpty(_selections)) {
+            List<Listitem> items = _comp.getItems();
+            if (isNotEmpty(items)) {
+                List<UniqueDomainModel<?>> selectedObjects = new ArrayList<>();
+                for (int i = 0; i < items.size(); i++) {
+                    UniqueDomainModel<Serializable> obj = _comp.<UniqueDomainModel<Serializable>>getModel().getElementAt(i);
+                    if (obj == null) continue;
+                    if (matchesAny(_selections, obj::evaluate)) {
+                        selectedObjects.add(obj);
+                    }
+                }
+
+                if (isNotEmpty(selectedObjects)) {
+                    ((ListModelList<UniqueDomainModel>)
+                        _comp.<UniqueDomainModel>getListModel())
+                        .setSelection(selectedObjects);
+                }
+            }
+        }
+    }
+
+    @Override
+    protected List<Component> getHeaders() {
+        Listhead listhead = _comp.getListhead();
+        return listhead != null
+            ? listhead.getChildren()
+            : Collections.emptyList();
     }
 
     /**
      * 初始化<code>Listbox</code>对象实例的方法
      */
     protected void initListbox() {
-        this.checkmark = this._comp.isCheckmark();
-        this.multiple = this._comp.isMultiple();
+        this.checkmark = _comp.isCheckmark();
+        this.multiple = _comp.isMultiple();
+
+        if (isCheckmark() || isMultiple()) {
+            this._comp.addEventListener(ON_SELECT, createSelectEventListener());
+        }
     }
 }
