@@ -35,6 +35,7 @@ import static com.googlecode.easyec.zkoss.viewmodel.FormViewModelAware.ARG_CHECK
 import static com.googlecode.easyec.zkoss.viewmodel.FormViewModelAware.ARG_MATCH_VM;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.collections4.CollectionUtils.size;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.zkoss.bind.sys.BinderCtrl.VM;
 import static org.zkoss.zk.ui.event.Events.ON_SELECT;
 
@@ -143,34 +144,36 @@ public abstract class BaseTabsVM<T extends Component> extends BaseVM<T> {
         Tabpanel _selPanel = _t.getLinkedPanel();
         String zulFile = (String) _t.getAttribute(ZUL_FILE);
 
-        final UriUiParameterBuilder _builder
-            = getUriUiParameterBuilder()
-            .setUri(zulFile);
+        if (isNotBlank(zulFile)) {
+            final UriUiParameterBuilder _builder
+                = getUriUiParameterBuilder()
+                .setUri(zulFile);
 
-        if (_isWithFormObj(_t)) {
-            Object _form = this.args.get(ARG_FORM_OBJECT);
-            if (_form != null) {
-                _builder.setArg(ARG_FORM_OBJECT, _form);
+            if (_isWithFormObj(_t)) {
+                Object _form = this.args.get(ARG_FORM_OBJECT);
+                if (_form != null) {
+                    _builder.setArg(ARG_FORM_OBJECT, _form);
 
-                // 表单对象不为空，则获取和表单对象相关的其他参数
-                _builder.setArg(ARG_CHECK_UIDPK, this.args.get(ARG_CHECK_UIDPK));
-                _builder.setArg(ARG_MATCH_VM, this.args.get(ARG_MATCH_VM));
+                    // 表单对象不为空，则获取和表单对象相关的其他参数
+                    _builder.setArg(ARG_CHECK_UIDPK, this.args.get(ARG_CHECK_UIDPK));
+                    _builder.setArg(ARG_MATCH_VM, this.args.get(ARG_MATCH_VM));
+                }
             }
-        }
 
-        _comp = getUiBuilder().manufacture(
-            _builder.setParent(_selPanel).build()
-        );
+            _comp = getUiBuilder().manufacture(
+                _builder.setParent(_selPanel).build()
+            );
 
-        // 添加StepOut监听事件
-        _comp.addEventListener(
-            "onStepOut",
-            new StepsOutEventListener(this, _selPanel)
-        );
+            // 添加StepOut监听事件
+            _comp.addEventListener(
+                "onStepOut",
+                new StepsOutEventListener(this, _selPanel)
+            );
 
-        // 添加Tabs组件更新的监听事件
-        NotifyTabsEventListener utlsnr = createNotifyTabsEventListener();
-        if (utlsnr != null) _comp.addEventListener(NotifyTabsEvent.NAME, utlsnr);
+            // 添加Tabs组件更新的监听事件
+            NotifyTabsEventListener utlsnr = createNotifyTabsEventListener();
+            if (utlsnr != null) _comp.addEventListener(NotifyTabsEvent.NAME, utlsnr);
+        } else _comp = _selPanel.getFirstChild();
 
         // 添加引用关系
         this._panelsRef.putIfAbsent(_t, _comp);

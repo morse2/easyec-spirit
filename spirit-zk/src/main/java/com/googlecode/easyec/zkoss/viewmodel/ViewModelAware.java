@@ -46,8 +46,21 @@ public interface ViewModelAware<T extends Component> extends Serializable, Steps
      * @return <code>Binder</code>对象的实现
      */
     default Binder getBinder() {
-        return (Binder) getSelf().getAttribute(
-            (String) getSelf().getAttribute(BINDER_ID)
+        return getBinder(getSelf());
+    }
+
+    /**
+     * 获取给定的组件对象中
+     * 设置的<code>{@link Binder}</code>
+     * 对象实例
+     *
+     * @param comp <code>Component</code>对象
+     * @return <code>Binder</code>对象的实现
+     */
+    default Binder getBinder(Component comp) {
+        if (comp == null) return null;
+        return (Binder) comp.getAttribute(
+            (String) comp.getAttribute(BINDER_ID)
         );
     }
 
