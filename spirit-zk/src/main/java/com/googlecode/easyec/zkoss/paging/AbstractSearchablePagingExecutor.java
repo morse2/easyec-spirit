@@ -169,7 +169,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
                 c.setAttribute(COMP_VALUE_FINDER_ID, finder);
 
                 if (c instanceof InputElement) {
-                    c.addEventListener(ON_OK, new KeyPressOKEventListener());
+                    c.addEventListener(ON_OK, createKeyPressOKEventListener());
                 }
 
                 this.searchComponents.add(c);
@@ -652,6 +652,15 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         }
 
         return null;
+    }
+
+    /**
+     * 为搜索组件创建OnOK事件的监听
+     *
+     * @return <code></code>
+     */
+    protected SerializableEventListener<KeyEvent> createKeyPressOKEventListener() {
+        return new KeyPressOKEventListener();
     }
 
     @SuppressWarnings("unchecked")
