@@ -24,11 +24,10 @@ public abstract class HiloIdentifierGenerator<T extends Number> implements Ident
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final ConcurrentMap<String, HiloIdentifierHolder> pools
-        = new ConcurrentHashMap<String, HiloIdentifierHolder>();
+    private final ConcurrentMap<String, HiloIdentifierHolder> pools = new ConcurrentHashMap<>();
 
     public static final String DEFAULT_INSERT_SQL = "insert into SEQUENCE_GENERATOR (id_name, id_value) values (?, ?)";
-    public static final String DEFAULT_UPDATE_SQL = "update SEQUENCE_GENERATOR set id_value = ? where id_name = ?";
+    public static final String DEFAULT_UPDATE_SQL = "update SEQUENCE_GENERATOR set id_value = ? where id_name = ? and id_value = ?";
     public static final String DEFAULT_SELECT_SQL = "select id_value from SEQUENCE_GENERATOR where id_name = ?";
 
     private String insertSql = DEFAULT_INSERT_SQL;
@@ -85,17 +84,14 @@ public abstract class HiloIdentifierGenerator<T extends Number> implements Ident
      * @param sequenceName 主键标识名称
      * @param conn         数据库连接实例
      * @return 新的序列值
-     * @throws SQLException
+     * @throws SQLException <code>java.sql.SQLException</code>
      */
     protected long generateLongValue(String sequenceName, Connection conn) throws SQLException {
-        HiloIdentifierHolder holder = pools.putIfAbsent(
-            sequenceName,
-            new HiloIdentifierHolder(maxLoVal)
-        );
-
-        return null != holder
-            ? holder.generate(sequenceName, conn)
-            : pools.get(sequenceName).generate(sequenceName, conn);
+        synchronized (this) {
+            return pools.getOrDefault(sequenceName,
+                new HiloIdentifierHolder(maxLoVal))
+                .generate(sequenceName, conn);
+        }
     }
 
     /**
@@ -103,8 +99,7 @@ public abstract class HiloIdentifierGenerator<T extends Number> implements Ident
      */
     private class HiloIdentifierHolder implements Serializable {
 
-        private static final long serialVersionUID = 949047922054510344L;
-
+        private static final long serialVersionUID = -5200407217696712189L;
         private long loVal;
         private long hiVal;
         private long maxLoVal;
@@ -115,7 +110,7 @@ public abstract class HiloIdentifierGenerator<T extends Number> implements Ident
             this.maxLoVal = maxLoVal + 1;
         }
 
-        public synchronized long generate(String idName, Connection conn) throws SQLException {
+        long generate(String idName, Connection conn) throws SQLException {
             if (loVal == 0 || loVal > maxLoVal) initialize(idName, conn);
 
             try {
@@ -127,6 +122,7 @@ public abstract class HiloIdentifierGenerator<T extends Number> implements Ident
 
         private void initialize(String idName, Connection conn) throws SQLException {
             int i;
+
             do {
                 PreparedStatement selectPs = conn.prepareStatement(selectSql);
                 selectPs.setString(1, idName);
@@ -139,16 +135,17 @@ public abstract class HiloIdentifierGenerator<T extends Number> implements Ident
                     PreparedStatement updatePs = conn.prepareStatement(updateSql);
                     updatePs.setLong(1, hiVal + 1);
                     updatePs.setString(2, idName);
+                    updatePs.setLong(3, hiVal);
 
                     i = updatePs.executeUpdate();
-                    logger.debug("Effect row: [" + i + "].");
+                    logger.debug("Effect row for updating sequence:[{}], id_name: [{}].", i, idName);
                 } else {
                     PreparedStatement insertPs = conn.prepareStatement(insertSql);
                     insertPs.setString(1, idName);
                     insertPs.setLong(2, hiVal + 1);
 
                     i = insertPs.executeUpdate();
-                    logger.debug("Effect row: [" + i + "].");
+                    logger.debug("Effect row: for updating sequence:[{}], id_name: [{}].", i, idName);
                 }
             } while (i < 1);
 
