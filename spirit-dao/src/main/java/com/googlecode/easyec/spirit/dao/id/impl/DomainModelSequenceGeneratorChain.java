@@ -51,7 +51,9 @@ public class DomainModelSequenceGeneratorChain extends DomainModelSequenceGenera
      * @param generator 主键生成器类对象
      */
     public boolean addIdentifierGenerator(IdentifierGenerator generator) {
-        return null != generator && this.generators.add(generator);
+        if (null == generator) return false;
+        this.generators.add(generator);
+        return true;
     }
 
     /**
@@ -73,7 +75,7 @@ public class DomainModelSequenceGeneratorChain extends DomainModelSequenceGenera
         Connection conn = null;
 
         try {
-            String name = converter.populate(domainModel);
+            String name = getConverter().populate(domainModel);
             logger.debug("Identifier name: [{}].", name);
 
             conn = getConnection(dataSource);

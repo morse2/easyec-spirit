@@ -2,6 +2,7 @@ package com.googlecode.easyec.spirit.dao.id.impl;
 
 import com.googlecode.easyec.spirit.dao.id.IdentifierNameConverter;
 import com.googlecode.easyec.spirit.dao.id.SequenceGenerator;
+import com.googlecode.easyec.spirit.dao.utils.DaoUtils;
 import com.googlecode.easyec.spirit.domain.GenericPersistentDomainModel;
 import com.googlecode.easyec.spirit.proxy.ProxyUtils;
 import org.slf4j.Logger;
@@ -12,12 +13,7 @@ import org.springframework.util.Assert;
 
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Map;
-
-import static java.util.Collections.emptyList;
 
 /**
  * 通用域模型的主键生成器实现类。
@@ -40,15 +36,18 @@ public abstract class DomainModelSequenceGenerator implements SequenceGenerator,
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    protected IdentifierNameConverter converter = new ClassIdentifierNameConverter();
+    private IdentifierNameConverter converter = new ClassIdentifierNameConverter();
 
     public void setIdentifierNameConverter(IdentifierNameConverter converter) {
         this.converter = converter;
     }
 
-    @SuppressWarnings("unchecked")
-    public final synchronized void process(Object arg) throws Exception {
-        Collection args = resolveArg(arg);
+    public IdentifierNameConverter getConverter() {
+        return converter;
+    }
+
+    public final void process(Object arg) throws Exception {
+        Collection args = DaoUtils.convertToCollection(arg);
 
         for (Object o : args) {
             if (null == o) {
@@ -57,7 +56,7 @@ public abstract class DomainModelSequenceGenerator implements SequenceGenerator,
                 continue;
             }
 
-            if (!GenericPersistentDomainModel.class.isInstance(o)) {
+            if (!(o instanceof GenericPersistentDomainModel)) {
                 logger.warn("Parameter arg isn't instance of GenericPersistentDomainModel object.");
 
                 continue;
@@ -87,6 +86,7 @@ public abstract class DomainModelSequenceGenerator implements SequenceGenerator,
             }
 
             logger.debug("Do processDomainModel method.");
+            //noinspection unchecked
             processDomainModel((GenericPersistentDomainModel<Serializable>) o, type);
         }
     }
@@ -102,33 +102,5 @@ public abstract class DomainModelSequenceGenerator implements SequenceGenerator,
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(converter, "Identifier name converter object cannot be null.");
-    }
-
-    /**
-     * 解析参数对象并返回一个集合对象。
-     *
-     * @param o 参数对象
-     * @return <code>Collection</code>
-     */
-    private Collection resolveArg(Object o) {
-        if (null == o) return emptyList();
-
-        if (o instanceof Collection) {
-            return (Collection) o;
-        }
-
-        if (o.getClass().isArray()) {
-            return new ArrayList<Object>(Arrays.asList((Object[]) o));
-        }
-
-        if (o instanceof Map && ((Map) o).containsKey("list")) {
-            return (Collection) ((Map) o).get("list");
-        }
-
-        if (o instanceof Map && ((Map) o).containsKey("array")) {
-            return new ArrayList<Object>(Arrays.asList(((Map) o).get("array")));
-        }
-
-        return new ArrayList<Object>(Arrays.asList(o));
     }
 }
