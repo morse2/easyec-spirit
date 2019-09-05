@@ -25,7 +25,7 @@ public class MybatisPageProxy extends AbstractPageProxy<MybatisPage> {
                         MybatisPageWritable.class,
                         PageComputable.class
                 },
-                new PageInvocationHandler(new MybatisPageImpl(dialect))
+            new PageInvocationHandler(new MybatisPageImpl(dialect))
         );
     }
 
@@ -37,7 +37,7 @@ public class MybatisPageProxy extends AbstractPageProxy<MybatisPage> {
                         MybatisPageWritable.class,
                         PageComputable.class
                 },
-                new PageInvocationHandler(new MybatisPageImpl(dialect, currentPage, pageSize))
+            new PageInvocationHandler(new MybatisPageImpl(dialect, currentPage, pageSize))
         );
     }
 

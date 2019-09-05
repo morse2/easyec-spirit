@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
  */
 public abstract class AbstractPageProxy<T extends Page> implements PageProxy<T> {
 
-    protected class PageInvocationHandler implements InvocationHandler {
+    protected static class PageInvocationHandler implements InvocationHandler {
 
         private final Logger logger = LoggerFactory.getLogger(PageInvocationHandler.class);
         private Page page;

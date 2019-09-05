@@ -8,4 +8,12 @@
           class="com.googlecode.easyec.spirit.web.utils.PropertyResolver"
           p:locations="classpath*:conf/*.properties"
     />
+
+    <bean id="objectMapper"
+          class="com.fasterxml.jackson.databind.ObjectMapper"
+    />
+    <bean id="jsonObjectFactory"
+          class="com.googlecode.easyec.spirit.web.webservice.factory.impl.DefaultJackson2ObjectFactory">
+        <constructor-arg ref="objectMapper"/>
+    </bean>
 </beans>
