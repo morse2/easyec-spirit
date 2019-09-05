@@ -1,7 +1,6 @@
 package com.googlecode.easyec.spirit.web.qseditors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.util.Assert;
 
 import java.text.ParseException;
@@ -9,21 +8,17 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.time.DateFormatUtils.format;
-import static org.apache.commons.lang3.time.DateUtils.parseDate;
 
 /**
  * 日期对象URL参数值编辑类
  *
  * @author JunJie
  */
-public class CustomDateQsEditor implements QueryStringEditor {
+public class CustomDateQsEditor extends AbstractQueryStringEditor {
 
-    private static final Logger logger = LoggerFactory.getLogger(CustomDateQsEditor.class);
-    private static final long serialVersionUID = -4032969280496161035L;
-
+    private static final long serialVersionUID = 5673856401904485955L;
     private String datePattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     public CustomDateQsEditor() { /* no op */ }
@@ -34,11 +29,8 @@ public class CustomDateQsEditor implements QueryStringEditor {
         this.datePattern = datePattern;
     }
 
-    public boolean accept(Object bean) {
-        return bean != null;
-    }
-
-    public String coerceToQs(Object bean) {
+    @Override
+    protected String coerceOneObjectToQs(Object bean) {
         if (bean instanceof Date) {
             return format((Date) bean, datePattern, Locale.US);
         }
@@ -47,16 +39,13 @@ public class CustomDateQsEditor implements QueryStringEditor {
             return format((Calendar) bean, datePattern, Locale.US);
         }
 
-        return "";
+        return null;
     }
 
-    public Object coerceToBean(String qs) {
-        if (isBlank(qs)) return null;
-
+    @Override
+    protected Object coerceOneValueToBean(String qs) {
         try {
-            return parseDate(
-                qs, new String[] { datePattern }
-            );
+            return DateUtils.parseDate(qs, datePattern);
         } catch (ParseException e) {
             logger.warn(e.getMessage(), e);
         }

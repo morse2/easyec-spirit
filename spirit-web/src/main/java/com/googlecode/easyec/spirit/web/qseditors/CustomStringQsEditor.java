@@ -5,23 +5,17 @@ package com.googlecode.easyec.spirit.web.qseditors;
  *
  * @author JunJie
  */
-public class CustomStringQsEditor implements QueryStringEditor {
+public class CustomStringQsEditor extends AbstractQueryStringEditor {
 
-    private static final long serialVersionUID = -4928561627500461546L;
+    private static final long serialVersionUID = -1811249190240521226L;
 
-    public boolean accept(Object bean) {
-        return bean != null;
+    @Override
+    protected String coerceOneObjectToQs(Object bean) {
+        return bean instanceof String ? ((String) bean) : bean.toString();
     }
 
-    public String coerceToQs(Object bean) {
-        if (bean instanceof String) {
-            return (String) bean;
-        }
-
-        return bean.toString();
-    }
-
-    public Object coerceToBean(String qs) {
+    @Override
+    protected Object coerceOneValueToBean(String qs) {
         return qs;
     }
 }

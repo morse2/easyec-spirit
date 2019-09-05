@@ -64,7 +64,7 @@ public class PropertyEditorTest {
         user.setAge(32);
 
         User user2 = new User();
-        user2.setName("JunJie2");
+        user2.setName("俊杰2");
         user.setAge(31);
 
         /* 初始化QueryStringEditor */
@@ -87,10 +87,10 @@ public class PropertyEditorTest {
         bean.addSearchTerm("g", user);
         bean.addSearchTerm("h", user2);
 
-        Map<String, String> map = bean.getSearchTermsAsText();
+        Map<String, String[]> map = bean.getSearchTermsAsText();
         Set<String> keySet = map.keySet();
         for (String key : keySet) {
-            System.out.println(key + ": " + map.get(key));
+            System.out.println(key + ": " + Arrays.toString(map.get(key)));
         }
 
         String s = WebUtils.encodeQueryString(map);

@@ -177,7 +177,7 @@ public abstract class BaseSearchablePagingVM<T extends Component> extends BasePa
      * @param exec           SearchablePagingExecutor对象实例
      * @param queryStringMap 查询条件集合
      */
-    protected void setImmutableSearchTerms(SearchablePagingExecutor exec, Map<String, String> queryStringMap) {
+    protected void setImmutableSearchTerms(SearchablePagingExecutor exec, Map<String, String[]> queryStringMap) {
         logger.trace("Method 'setImmutableSearchTerms(Map)' done.");
     }
 }

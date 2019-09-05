@@ -7,9 +7,9 @@ import org.springframework.util.NumberUtils;
  *
  * @author JunJie
  */
-public class CustomNumberQsEditor implements QueryStringEditor {
+public class CustomNumberQsEditor extends AbstractQueryStringEditor {
 
-    private static final long serialVersionUID = 1070118845998707272L;
+    private static final long serialVersionUID = 5199246234369338208L;
     private Class<? extends Number> numberClass;
 
     public CustomNumberQsEditor(Class<? extends Number> numberClass) {
@@ -20,15 +20,19 @@ public class CustomNumberQsEditor implements QueryStringEditor {
         this.numberClass = numberClass;
     }
 
-    public boolean accept(Object bean) {
-        return bean != null;
-    }
-
-    public String coerceToQs(Object bean) {
+    @Override
+    protected String coerceOneObjectToQs(Object bean) {
         return bean.toString();
     }
 
-    public Object coerceToBean(String qs) {
-        return NumberUtils.parseNumber(qs, numberClass);
+    @Override
+    protected Object coerceOneValueToBean(String qs) {
+        try {
+            return NumberUtils.parseNumber(qs, numberClass);
+        } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+        }
+
+        return null;
     }
 }

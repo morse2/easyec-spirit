@@ -5,8 +5,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.*;
+import java.util.stream.Stream;
 
+import static org.apache.commons.lang3.ArrayUtils.getLength;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.*;
 
@@ -47,29 +52,38 @@ public class WebUtils {
      * @param params Map集合对象
      * @return 支持浏览器的查询字符串
      */
-    public static String encodeQueryString(Map<String, String> params) {
-        if (MapUtils.isEmpty(params)) return "";
+    public static String encodeQueryString(Map<String, String[]> params) {
+        if (MapUtils.isEmpty(params)) return EMPTY;
 
-        StringBuffer buf = new StringBuffer();
-        Iterator<String> iter = params.keySet().iterator();
-        for (int i = 0; iter.hasNext(); i++) {
-            if (i > 0) buf.append("&");
+        final StringBuffer buf = new StringBuffer();
+        params.forEach((key, values) -> {
+            if (buf.length() > 0) buf.append('&');
 
-            String key = iter.next();
-            String val = params.get(key);
             logger.debug(
-                "Query string [" + i + "], key: ["
-                    + key + "], value: [" + val + "]."
+                "Query string key: [{}], values: [{}].",
+                key, Arrays.toString(values)
             );
 
-            buf.append(key).append("=").append(val);
-        }
+            final StringBuffer parts = new StringBuffer();
+            Stream.of(values).forEach(val -> {
+                if (parts.length() > 0) parts.append('&');
+                parts.append(key).append('=').append(val);
+            });
+
+            if (parts.length() > 0) buf.append(parts);
+        });
 
         if (logger.isDebugEnabled()) {
-            logger.debug("All query string: [{}].", buf);
+            logger.debug("All of query string is: [{}].", buf);
         }
 
-        return buf.toString();
+        try {
+            return URLEncoder.encode(buf.toString(), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            logger.error(e.getMessage(), e);
+
+            return buf.toString();
+        }
     }
 
     /**
@@ -78,7 +92,7 @@ public class WebUtils {
      * @param request HttpServletRequest对象
      * @return 查询字符串集合对象
      */
-    public static Map<String, String> decodeQueryString(HttpServletRequest request) {
+    public static Map<String, String[]> decodeQueryString(HttpServletRequest request) {
         return decodeQueryString(request.getQueryString());
     }
 
@@ -88,12 +102,22 @@ public class WebUtils {
      * @param qs 查询字符串
      * @return 查询字符串集合对象
      */
-    public static Map<String, String> decodeQueryString(String qs) {
-        Map<String, String> params = new HashMap<String, String>();
+    public static Map<String, String[]> decodeQueryString(String qs) {
+        Map<String, List<String>> params = new HashMap<>();
         if (isNotBlank(qs)) {
-            logger.debug("Decode query string is: [{}].", qs);
+            String decodeQs;
 
-            StringTokenizer tokenizer = new StringTokenizer(qs, "&");
+            try {
+                decodeQs = URLDecoder.decode(qs, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                logger.error(e.getMessage(), e);
+
+                decodeQs = qs;
+            }
+
+            logger.debug("Decode query string is: [{}].", decodeQs);
+
+            StringTokenizer tokenizer = new StringTokenizer(decodeQs, "&");
             while (tokenizer.hasMoreTokens()) {
                 String[] parts = tokenizer.nextToken().split("=", 2);
                 if (logger.isDebugEnabled()) {
@@ -101,13 +125,16 @@ public class WebUtils {
                 }
 
                 if (isNotEmpty(parts)) {
-                    if (parts.length < 2) params.put(parts[0], "");
-                    else params.put(parts[0], parts[1]);
+                    List<String> values = params.computeIfAbsent(parts[0], k -> new ArrayList<>());
+                    values.add(getLength(parts) < 2 ? EMPTY : parts[1]);
                 }
             }
         }
 
-        return params;
+        if (params.isEmpty()) return Collections.emptyMap();
+        final Map<String, String[]> result = new HashMap<>(params.size());
+        params.forEach((k, v) -> result.put(k, v.toArray(new String[0])));
+        return result;
     }
 
     /**

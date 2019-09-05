@@ -21,11 +21,11 @@ public class LocaleUtils {
      * @return 查询字符串
      */
     public static String getLocaleQs(PageContext pageContext, String locale) {
-        Map<String, String> map = WebUtils.decodeQueryString(
+        Map<String, String[]> map = WebUtils.decodeQueryString(
             (HttpServletRequest) pageContext.getRequest()
         );
 
-        map.put("locale", locale);
+        map.put("locale", new String[] { locale });
 
         return WebUtils.encodeQueryString(map);
     }

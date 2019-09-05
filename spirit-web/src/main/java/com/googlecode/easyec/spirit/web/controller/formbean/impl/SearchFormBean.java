@@ -4,20 +4,18 @@ import com.googlecode.easyec.spirit.web.controller.formbean.annotations.SearchTe
 import com.googlecode.easyec.spirit.web.controller.formbean.terms.SearchTermsFilter;
 import com.googlecode.easyec.spirit.web.controller.formbean.terms.SearchTermsTransform;
 import com.googlecode.easyec.spirit.web.controller.sorts.Sort;
+import com.googlecode.easyec.spirit.web.qseditors.CustomNumberQsEditor;
 import com.googlecode.easyec.spirit.web.qseditors.QueryStringEditor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.*;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableList;
 import static org.apache.commons.collections4.MapUtils.isNotEmpty;
 import static org.apache.commons.collections4.MapUtils.unmodifiableMap;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * 表单搜索的Bean类。
@@ -27,22 +25,20 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class SearchFormBean extends AbstractSearchFormBean {
 
     private static final String PAGE_NAME = "pageNumber";
-    private static final long serialVersionUID = -7311418367064648005L;
+    private static final long serialVersionUID = 3813004897349579625L;
 
     /* 搜索条件过滤器类 */
-    private List<SearchTermsFilter> filters = new ArrayList<SearchTermsFilter>();
-
+    private List<SearchTermsFilter> filters = new ArrayList<>();
     /* 搜索条件转换类 */
-    private List<SearchTermsTransform> transforms = new ArrayList<SearchTermsTransform>();
-
+    private List<SearchTermsTransform> transforms = new ArrayList<>();
     /* 查询参数转URL参数值的编辑器列表 */
-    private Map<String, QueryStringEditor> editors = new LinkedHashMap<String, QueryStringEditor>();
-
+    private Map<String, QueryStringEditor> editors = new LinkedHashMap<>();
     /* 搜索条件集合 */
-    private Map<String, SearchValue> searchTerms = new LinkedHashMap<String, SearchValue>();
-
+    private Map<String, SearchValue> searchTerms = new LinkedHashMap<>();
     /* 排序信息集合 */
-    private List<Sort> sorts = new ArrayList<Sort>();
+    private List<Sort> sorts = new ArrayList<>();
+    /* 分页数据的QS Editor */
+    private CustomNumberQsEditor pageNumberQsEditor = new CustomNumberQsEditor(Integer.class);
 
     /* 当前分页的页码 */
     private int currentPage = 1;
@@ -69,8 +65,8 @@ public class SearchFormBean extends AbstractSearchFormBean {
     }
 
     @Override
-    public void setSearchTermsAsText(Map<String, String> params) {
-        if (params != null && !params.isEmpty()) {
+    public void setSearchTermsAsText(Map<String, String[]> params) {
+        if (MapUtils.isNotEmpty(params)) {
             Set<String> editorKeys = editors.keySet();
             for (String editorKey : editorKeys) {
                 if (!params.containsKey(editorKey)) {
@@ -79,36 +75,36 @@ public class SearchFormBean extends AbstractSearchFormBean {
                     continue;
                 }
 
-                try {
-                    addSearchTerm(
-                        editorKey,
-                        editors.get(editorKey).coerceToBean(
-                            URLDecoder.decode(params.get(editorKey), "utf-8")
-                        )
-                    );
-                } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
-                }
+                addSearchTerm(editorKey,
+                    editors.get(editorKey).coerceToBean(params.get(editorKey))
+                );
             }
 
             // 设置分页页码
             if (params.containsKey(PAGE_NAME)) {
-                try {
-                    setPageNumber(Integer.parseInt(params.get(PAGE_NAME)));
-                } catch (Exception e) { /* no op */ }
+                String[] pageName = params.get(PAGE_NAME);
+                if (pageNumberQsEditor.accept(pageName)) {
+                    Integer page;
+                    Object result = pageNumberQsEditor.coerceToBean(pageName);
+                    if (result instanceof Collection) {
+                        page = (Integer) CollectionUtils.get(result, 0);
+                    } else page = (Integer) result;
+
+                    if (page != null) setPageNumber(page);
+                }
             }
         }
     }
 
     @Override
-    public Map<String, String> getSearchTermsAsText() {
+    public Map<String, String[]> getSearchTermsAsText() {
         if (editors.isEmpty()) {
             logger.warn("No any QueryStringEditor was added, so query string won't be transformed.");
 
             return emptyMap();
         }
 
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String[]> map = new HashMap<>();
         Set<String> editorKeys = editors.keySet();
         for (String editKey : editorKeys) {
             if (!searchTerms.containsKey(editKey)) {
@@ -130,17 +126,17 @@ public class SearchFormBean extends AbstractSearchFormBean {
             }
 
             try {
-                String s = editor.coerceToQs(v);
-                logger.debug("The query string is: [{}].", s);
+                String[] values = editor.coerceToQs(v);
+                logger.debug("The query string is: [{}].", Arrays.toString(values));
 
-                if (isNotBlank(s)) map.put(editKey, URLEncoder.encode(s, "utf-8"));
+                if (ArrayUtils.isNotEmpty(values)) map.put(editKey, values);
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
         }
 
         // 添加当前分页页码
-        map.put(PAGE_NAME, String.valueOf(getPageNumber()));
+        map.put(PAGE_NAME, pageNumberQsEditor.coerceToQs(getPageNumber()));
 
         return map;
     }

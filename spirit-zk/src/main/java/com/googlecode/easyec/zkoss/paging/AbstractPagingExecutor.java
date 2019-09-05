@@ -34,7 +34,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  */
 public abstract class AbstractPagingExecutor<T extends Component> implements PagingExecutor {
 
-    private static final long serialVersionUID = 1706154994570600762L;
+    private static final long serialVersionUID = -3619139953567018952L;
     protected final Logger logger = LoggerFactory.getLogger(getClass());
     private boolean lazyLoad;
     private boolean visible = true;

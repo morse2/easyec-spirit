@@ -26,7 +26,7 @@ public interface QueryStringEditor extends Serializable {
      * @param bean bean对象
      * @return 字符串值
      */
-    String coerceToQs(Object bean);
+    String[] coerceToQs(Object bean);
 
     /**
      * 将给定的URL字符串参数值
@@ -35,5 +35,5 @@ public interface QueryStringEditor extends Serializable {
      * @param qs URL字符串参数值
      * @return bean对象
      */
-    Object coerceToBean(String qs);
+    Object coerceToBean(String[] qs);
 }

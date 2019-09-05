@@ -45,7 +45,7 @@ public abstract class AbstractSearchFormBean extends AbstractFormBean {
      *
      * @param params 文本形式的搜索条件集合
      */
-    public abstract void setSearchTermsAsText(Map<String, String> params);
+    public abstract void setSearchTermsAsText(Map<String, String[]> params);
 
     /**
      * 返回当前表单的搜索条件。
@@ -53,7 +53,7 @@ public abstract class AbstractSearchFormBean extends AbstractFormBean {
      *
      * @return 以键值对形式返回
      */
-    public abstract Map<String, String> getSearchTermsAsText();
+    public abstract Map<String, String[]> getSearchTermsAsText();
 
     /**
      * 添加一个搜索条件

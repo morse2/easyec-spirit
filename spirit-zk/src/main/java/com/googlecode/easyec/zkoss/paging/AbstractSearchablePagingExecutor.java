@@ -57,7 +57,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
     public static final String AFTER_RENDER_LISTENER = "afterRenderListener";
     public static final String COMPONENT_VALUE_FINDER = "valueFinder";
     public static final String COMP_VALUE_FINDER_ID = "$valueFinder$";
-    private static final long serialVersionUID = 6191281798316339471L;
+    private static final long serialVersionUID = -6094471355890056567L;
 
     /**
      * 构造方法。
@@ -280,8 +280,8 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
         AbstractSearchFormBean bean = combineSearchTerms(false);
         bean.setPageNumber(getPaging().getActivePage() + 1);
 
-        Map<String, String> qsMap = bean.getSearchTermsAsText();
-        Map<String, String> externalQS = createExternalQS(bean);
+        Map<String, String[]> qsMap = bean.getSearchTermsAsText();
+        Map<String, String[]> externalQS = createExternalQS(bean);
         if (isNotEmpty(externalQS)) qsMap.putAll(externalQS);
 
         return WebUtils.encodeQueryString(qsMap);
@@ -632,7 +632,7 @@ public abstract class AbstractSearchablePagingExecutor<T extends Component> exte
      * @param bean 搜索Bean对象
      * @return URL搜索参数列表
      */
-    protected Map<String, String> createExternalQS(AbstractSearchFormBean bean) {
+    protected Map<String, String[]> createExternalQS(AbstractSearchFormBean bean) {
         return null;
     }
 
