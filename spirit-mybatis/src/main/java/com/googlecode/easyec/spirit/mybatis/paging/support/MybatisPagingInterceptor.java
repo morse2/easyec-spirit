@@ -57,7 +57,7 @@ public class MybatisPagingInterceptor implements PagingInterceptor, Ordered {
         this.order = order;
     }
 
-    @Around("execution(* *..*.*Dao.find(..)) && args(page)")
+    @Around("execution(* *..*.*Dao.*(..)) && args(page)")
     public Object intercept(ProceedingJoinPoint joinPoint, Page page) throws Throwable {
         // Since 0.6.4.1
         if (!(page instanceof MybatisPage)) {
