@@ -12,7 +12,7 @@ import org.springframework.beans.factory.SmartFactoryBean;
 
 import javax.net.ssl.SSLContext;
 
-public class TrustAllStrategyRegistryBean implements SmartFactoryBean<Registry<ConnectionSocketFactory>> {
+public class TrustAllSocketFactoryRegistry implements SmartFactoryBean<Registry<ConnectionSocketFactory>> {
 
     @Override
     public Registry<ConnectionSocketFactory> getObject() throws Exception {
