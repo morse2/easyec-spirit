@@ -14,6 +14,7 @@ import java.security.SecureRandom;
  *
  * @author JunJie
  */
+@Deprecated
 public class DefaultSSLContextFactory implements FactoryBean<SSLContext>, InitializingBean {
 
     private SSLContext     sslContext;
