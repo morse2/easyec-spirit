@@ -67,7 +67,13 @@ public class WebUtils {
             final StringBuffer parts = new StringBuffer();
             Stream.of(values).forEach(val -> {
                 if (parts.length() > 0) parts.append('&');
-                parts.append(key).append('=').append(val);
+                parts.append(key).append('=');
+
+                try {
+                    parts.append(URLEncoder.encode(val, "UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+                    parts.append(val);
+                }
             });
 
             if (parts.length() > 0) buf.append(parts);
@@ -77,13 +83,7 @@ public class WebUtils {
             logger.debug("All of query string is: [{}].", buf);
         }
 
-        try {
-            return URLEncoder.encode(buf.toString(), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            logger.error(e.getMessage(), e);
-
-            return buf.toString();
-        }
+        return buf.toString();
     }
 
     /**
