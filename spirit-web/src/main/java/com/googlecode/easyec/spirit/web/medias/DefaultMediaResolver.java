@@ -2,11 +2,9 @@ package com.googlecode.easyec.spirit.web.medias;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.http.MediaType;
+import org.springframework.core.io.AbstractFileResolvingResource;
 import org.springframework.http.MediaTypeFactory;
 import org.springframework.util.DigestUtils;
 
@@ -18,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import static org.apache.commons.lang3.StringUtils.*;
+import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM;
 
 public class DefaultMediaResolver implements MediaResolver {
 
@@ -33,16 +32,14 @@ public class DefaultMediaResolver implements MediaResolver {
     }
 
     @Override
-    public void populate(HttpServletRequest request, HttpServletResponse response, Resource resource) throws IOException {
+    public void populate(HttpServletRequest request, HttpServletResponse response, AbstractFileResolvingResource resource) throws IOException {
         String eTag = createETag(resource);
         String mediaType = guessMediaType(resource);
         logger.debug("Resource: [{}] with etag: [{}], media type: [{}].", resource.getURL().toString(), eTag, mediaType);
 
         response.setDateHeader("Last-Modified", resource.lastModified());
         response.setHeader("ETag", eTag);
-        if (StringUtils.isNotBlank(mediaType)) {
-            response.setContentType(mediaType);
-        }
+        response.setContentType(mediaType);
 
         String range = request.getHeader("range");
         if (isNotBlank(range)) {
@@ -50,7 +47,7 @@ public class DefaultMediaResolver implements MediaResolver {
         } else writeAllData(response, resource);
     }
 
-    protected String createETag(Resource resource) throws IOException {
+    protected String createETag(AbstractFileResolvingResource resource) throws IOException {
         MediaEntity ent = new MediaEntity();
         ent.setLastModified(resource.lastModified());
         ent.setPath(resource.getURI().getPath());
@@ -63,14 +60,14 @@ public class DefaultMediaResolver implements MediaResolver {
         return DigestUtils.md5DigestAsHex(bos.toByteArray());
     }
 
-    protected String guessMediaType(Resource resource) {
-        MediaType mediaType = MediaTypeFactory
+    protected String guessMediaType(AbstractFileResolvingResource resource) {
+        return MediaTypeFactory
             .getMediaType(resource)
-            .orElse(null);
-        return mediaType != null ? mediaType.toString() : null;
+            .orElse(APPLICATION_OCTET_STREAM)
+            .toString();
     }
 
-    protected void writeAllData(HttpServletResponse response, Resource resource) throws IOException {
+    protected void writeAllData(HttpServletResponse response, AbstractFileResolvingResource resource) throws IOException {
         response.setContentLengthLong(resource.contentLength());
         ServletOutputStream out = response.getOutputStream();
         InputStream stream = resource.getInputStream();
@@ -78,7 +75,7 @@ public class DefaultMediaResolver implements MediaResolver {
         response.setStatus(200);  // ok
     }
 
-    protected void writeRangeData(HttpServletResponse response, Resource resource, String range) throws IOException {
+    protected void writeRangeData(HttpServletResponse response, AbstractFileResolvingResource resource, String range) throws IOException {
         logger.debug("Range: [{}].", range);
 
         if (equalsIgnoreCase("bytes=0-", range)) {
