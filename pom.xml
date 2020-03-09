@@ -50,7 +50,7 @@
             <snapshots>
                 <updatePolicy>always</updatePolicy>
             </snapshots>
-            <url>http://dev.tuogo.com.cn/nexus3/repository/maven-public/</url>
+            <url>http://mvnrepository.tuogo.com.cn/repository/maven-public/</url>
         </repository>
     </repositories>
 
@@ -58,12 +58,12 @@
         <snapshotRepository>
             <id>dm_3</id>
             <name>Maven Snapshot Repository for Tuogo</name>
-            <url>http://dev.tuogo.com.cn/nexus3/repository/maven-snapshots/</url>
+            <url>http://mvnrepository.tuogo.com.cn/repository/maven-snapshots/</url>
         </snapshotRepository>
         <repository>
             <id>dm_3</id>
             <name>Maven Release Repository for Tuogo</name>
-            <url>http://dev.tuogo.com.cn/nexus3/repository/maven-releases/</url>
+            <url>http://mvnrepository.tuogo.com.cn/repository/maven-releases/</url>
         </repository>
     </distributionManagement>
 
