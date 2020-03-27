@@ -3,7 +3,7 @@
     <parent>
         <artifactId>spirit</artifactId>
         <groupId>com.googlecode.easyec</groupId>
-        <version>0.8.3.2-SNAPSHOT</version>
+        <version>0.8.3.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>spirit-zkspring</artifactId>
@@ -16,7 +16,7 @@
         <dependency>
             <groupId>com.googlecode.easyec</groupId>
             <artifactId>spirit-zk</artifactId>
-            <version>0.8.3.2-SNAPSHOT</version>
+            <version>0.8.3.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>

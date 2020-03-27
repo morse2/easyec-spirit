@@ -69,10 +69,12 @@ public class WebUtils {
                 if (parts.length() > 0) parts.append('&');
                 parts.append(key).append('=');
 
-                try {
-                    parts.append(URLEncoder.encode(val, "UTF-8"));
-                } catch (UnsupportedEncodingException e) {
-                    parts.append(val);
+                if (isNotBlank(val)) {
+                    try {
+                        parts.append(URLEncoder.encode(val, "UTF-8"));
+                    } catch (UnsupportedEncodingException e) {
+                        parts.append(val);
+                    }
                 }
             });
 
