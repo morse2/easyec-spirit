@@ -46,12 +46,12 @@
         <snapshotRepository>
             <id>dm_3</id>
             <name>Maven Snapshot Repository of Tuogo</name>
-            <url>http://www.shoppingmango.com/nexus3/repository/maven-snapshots/</url>
+            <url>http://mvnrepository.tuogo.com.cn/repository/maven-snapshots/</url>
         </snapshotRepository>
         <repository>
             <id>dm_3</id>
             <name>Maven Release Repository of Tuogo</name>
-            <url>http://www.shoppingmango.com/nexus3/repository/maven-releases/</url>
+            <url>http://mvnrepository.tuogo.com.cn/repository/maven-releases/</url>
         </repository>
     </distributionManagement>
 
