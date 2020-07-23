@@ -3,12 +3,12 @@
     <parent>
         <groupId>com.googlecode.easyec</groupId>
         <artifactId>spirit</artifactId>
-        <version>0.6.5-SNAPSHOT</version>
+        <version>0.6.5.1-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>spirit-dao</artifactId>
-    <version>0.6.5-SNAPSHOT</version>
+    <version>0.6.5.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>spirit-dao</name>
     <url>http://code.google.com/p/easyec</url>
@@ -20,13 +20,19 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
-            <version>3.2.8.RELEASE</version>
+            <version>3.2.18.RELEASE</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
-            <version>3.2.8.RELEASE</version>
+            <version>3.2.18.RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <version>3.2.18.RELEASE</version>
         </dependency>
 
         <!-- aspectj api -->
@@ -45,7 +51,7 @@
         <dependency>
             <groupId>com.googlecode.easyec</groupId>
             <artifactId>spirit-web</artifactId>
-            <version>0.6.5-SNAPSHOT</version>
+            <version>0.6.5.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>
