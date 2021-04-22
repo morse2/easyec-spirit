@@ -2,6 +2,7 @@ package com.googlecode.easyec.spirit.web.medias;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.AbstractFileResolvingResource;
@@ -44,7 +45,26 @@ public class DefaultMediaResolver implements MediaResolver {
         String range = request.getHeader("range");
         if (isNotBlank(range)) {
             writeRangeData(response, resource, range);
-        } else writeAllData(response, resource);
+        } else writeAcceptRange(request, response, resource);
+    }
+
+    protected void writeAcceptRange(HttpServletRequest request, HttpServletResponse response, AbstractFileResolvingResource resource) throws IOException {
+        long length = resource.contentLength();
+        response.setHeader("Connection", "Keep-Alive");
+
+        if (StringUtils.containsIgnoreCase(request.getHeader("User-Agent"), "safari")) {
+            response.setContentLengthLong(1L);
+            response.setHeader("Content-Range", "bytes 0-1/" + length);
+            response.setHeader("Accept-Ranges", "bytes");
+            InputStream stream = resource.getInputStream();
+            ServletOutputStream out = response.getOutputStream();
+            IOUtils.copyLarge(stream, out, 0, 1);
+        } else {
+            response.setContentLengthLong(length);
+            response.setHeader("Accept-Ranges", "none");
+        }
+
+        response.setStatus(200);
     }
 
     protected String createETag(AbstractFileResolvingResource resource) throws IOException {
