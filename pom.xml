@@ -3,7 +3,7 @@
 
     <groupId>com.googlecode.easyec</groupId>
     <artifactId>spirit</artifactId>
-    <version>0.8.3.1-b02-SNAPSHOT</version>
+    <version>0.8.3.1-b02</version>
     <modules>
         <module>spirit-dao</module>
         <module>spirit-mybatis</module>
@@ -35,7 +35,7 @@
         <developerConnection>scm:git:https://github.com/superego/easyec-spirit.git</developerConnection>
         <connection>scm:git:https://github.com/superego/easyec-spirit.git</connection>
         <url>scm:git:https://github.com/superego/easyec-spirit.git</url>
-      <tag>HEAD</tag>
+      <tag>0.8.3.1-b02</tag>
   </scm>
 
     <developers>

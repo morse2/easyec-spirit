@@ -2,11 +2,11 @@
     <parent>
         <artifactId>spirit</artifactId>
         <groupId>com.googlecode.easyec</groupId>
-        <version>0.8.3.1-b02-SNAPSHOT</version>
+        <version>0.8.3.1-b02</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>spirit-web</artifactId>
-    <version>0.8.3.1-b02-SNAPSHOT</version>
+    <version>0.8.3.1-b02</version>
     <packaging>jar</packaging>
     <name>spirit-web</name>
     <url>http://code.google.com/p/easyec</url>
